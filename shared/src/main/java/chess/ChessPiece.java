@@ -1,9 +1,5 @@
 package chess;
 
-//testing adding a comment
-// adding another comment
-//added something to push
-
 import java.util.ArrayList;
 import java.util.Collection;
 
