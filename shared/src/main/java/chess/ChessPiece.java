@@ -4,6 +4,7 @@ package chess;
 // adding another comment
 //added something to push
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -51,6 +52,9 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        //TODO: Make this no longer an empty list!
+        //no moves for this piece.
+        return new ArrayList<>();
+        //throw new RuntimeException("Not implemented");
     }
 }
