@@ -1,5 +1,7 @@
 package chess;
 
+//testing adding a comment
+
 import java.util.Collection;
 
 /**
