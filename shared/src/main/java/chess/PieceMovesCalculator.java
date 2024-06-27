@@ -7,8 +7,12 @@ that will implement them.*/
 
 import java.util.Collection;
 
+//Note: interface methods are implicitly abstract and public
+
+
+
 public interface PieceMovesCalculator {
-    Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position);
+    Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition position);
     //this is a single method
     //all implementing classes must provide
 }

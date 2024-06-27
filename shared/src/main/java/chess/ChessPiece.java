@@ -13,12 +13,12 @@ public class ChessPiece {
 
     private ChessGame.TeamColor teamColor;
     private  ChessPiece.PieceType pieceType;
-    private PieceMovesCalculator movesCalculator;
+    private PieceMovesCalculator movesCalculator; //this will be populated with a type-specific calculator
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
-//        this.movesCalculator = getPieceMovesCalculator(type);
+        this.movesCalculator = determinePieceMovesCalculator(type); //determine move calculator based on piece type
     }
 
     /**
@@ -47,6 +47,18 @@ public class ChessPiece {
         return pieceType;
     }
 
+    public PieceMovesCalculator determinePieceMovesCalculator(ChessPiece.PieceType type) {
+        //this is only done once per piece. Assigns the correct calculator for given piece
+        switch (type) {
+            case KING: return new KingMovesCalculator();
+//            case QUEEN: return new  QueenMovesCalculator();
+//            case BISHOP: return new BishopMovesCalculator();
+//            case KNIGHT: return new KnightMovesCalculator();
+//            case PAWN: return new PawnMovesCalculator();
+            default: throw new IllegalArgumentException("piece of unknown type at switch statement");
+        }
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -54,15 +66,18 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        //TODO: Make this no longer an empty list!
-        //no moves for this piece. This should call something called PieceMovesCalculator
 
-        //return movesCalculator.pieceMoves(board, myPosition);
+
+
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        //movesCalculator is a piece-specific function, set up during Piece obj construction
+
+        return movesCalculator.possPieceMoves(board, myPosition);
+
         //this returns a Collection of ChessMove objects
         //This represents all valid moves for a piece at a given position on the board
 
-        return new ArrayList<>();
+//        return new ArrayList<>();
         //throw new RuntimeException("Not implemented");
     }
 }

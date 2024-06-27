@@ -4,10 +4,9 @@ package chess;
 import java.util.Collection;
 import java.util.ArrayList;
 
-
+//the "implements" here indicates we're following the model of the interface "PieceMovesCalculator"
 public class KingMovesCalculator implements PieceMovesCalculator {
-    @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position){
+    public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition position){
         Collection<ChessMove> moves = new ArrayList<>();
 
         //Todo: calculate King's moves
