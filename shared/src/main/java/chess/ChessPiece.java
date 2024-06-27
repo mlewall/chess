@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -47,16 +48,31 @@ public class ChessPiece {
         return pieceType;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return teamColor == that.teamColor && pieceType == that.pieceType && Objects.equals(movesCalculator, that.movesCalculator);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamColor, pieceType, movesCalculator);
+    }
+
     public PieceMovesCalculator determinePieceMovesCalculator(ChessPiece.PieceType type) {
         //this is only done once per piece. Assigns the correct calculator for given piece
         switch (type) {
             case KING: return new KingMovesCalculator();
-//            case QUEEN: return new  QueenMovesCalculator();
-//            case BISHOP: return new BishopMovesCalculator();
-//            case KNIGHT: return new KnightMovesCalculator();
-//            case PAWN: return new PawnMovesCalculator();
+            case QUEEN: return new  QueenMovesCalculator();
+            case BISHOP: return new BishopMovesCalculator();
+            case KNIGHT: return new KnightMovesCalculator();
+            case ROOK: return new RookMovesCalculator();
+            case PAWN: return new PawnMovesCalculator();
             default: throw new IllegalArgumentException("piece of unknown type at switch statement");
         }
+        //throw new RuntimeException("Not fully implemented");
     }
 
     /**
