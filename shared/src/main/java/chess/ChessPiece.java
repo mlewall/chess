@@ -18,7 +18,7 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
-        this.movesCalculator = getPieceMovesCalculator(type);
+//        this.movesCalculator = getPieceMovesCalculator(type);
     }
 
     /**
@@ -58,11 +58,11 @@ public class ChessPiece {
         //TODO: Make this no longer an empty list!
         //no moves for this piece. This should call something called PieceMovesCalculator
 
-        return movesCalculator.pieceMoves(board, myPosition);
+        //return movesCalculator.pieceMoves(board, myPosition);
         //this returns a Collection of ChessMove objects
         //This represents all valid moves for a piece at a given position on the board
 
-        //return new ArrayList<>();
+        return new ArrayList<>();
         //throw new RuntimeException("Not implemented");
     }
 }
