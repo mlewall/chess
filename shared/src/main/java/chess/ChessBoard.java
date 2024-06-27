@@ -7,9 +7,9 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    //a pointer to a new 8x8 chessboard. Why did we call it chesspiece?
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
-        
     }
 
     /**
@@ -19,6 +19,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+        System.out.println("Row" + position.getRow() + "Column" + position.getColumn());
         squares[position.getRow()][position.getColumn()] = piece;
     }
 
@@ -30,7 +31,12 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow()][position.getColumn()];
+        if(position.getRow() <= 8 && position.getColumn() <= 8) {
+            return squares[position.getRow()][position.getColumn()];
+        }
+        else{
+            throw new RuntimeException("Given Index Out of bounds");
+        }
     }
 
     /**

@@ -11,12 +11,14 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor TeamColor;
-    private  ChessPiece.PieceType PieceType;
+    private ChessGame.TeamColor teamColor;
+    private  ChessPiece.PieceType pieceType;
+    private PieceMovesCalculator movesCalculator;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        this.TeamColor = pieceColor;
-        this.PieceType = type;
+        this.teamColor = pieceColor;
+        this.pieceType = type;
+        this.movesCalculator = getPieceMovesCalculator(type);
     }
 
     /**
@@ -35,14 +37,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return TeamColor;
+        return teamColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return PieceType;
+        return pieceType;
     }
 
     /**
@@ -55,7 +57,12 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         //TODO: Make this no longer an empty list!
         //no moves for this piece. This should call something called PieceMovesCalculator
-        return new ArrayList<>();
+
+        return movesCalculator.pieceMoves(board, myPosition);
+        //this returns a Collection of ChessMove objects
+        //This represents all valid moves for a piece at a given position on the board
+
+        //return new ArrayList<>();
         //throw new RuntimeException("Not implemented");
     }
 }
