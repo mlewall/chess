@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public class ChessBoard {
     //a pointer to a new 8x8 chessboard. Why did we call it chesspiece? Woudl it be better to call it Chessboard?
-    private ChessPiece[][] squares = new ChessPiece[8][8];
+    public ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
     }
 
