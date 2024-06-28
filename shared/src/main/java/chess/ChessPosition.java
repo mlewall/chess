@@ -46,4 +46,11 @@ public class ChessPosition {
     public int getColumn() {
         return col;
     }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{").append(row).append(", ").append(col).append("}");
+        return sb.toString();
+    }
 }

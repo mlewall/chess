@@ -6,6 +6,11 @@ import java.util.ArrayList;
 
 //the "implements" here indicates we're following the model of the interface "PieceMovesCalculator"
 public class KingMovesCalculator implements PieceMovesCalculator {
+//    @Override
+//    public String toString() {
+//        return "KingMovesCalculator{}";
+//    }
+
     public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition position){
         Collection<ChessMove> moves = new ArrayList<>();
 
@@ -27,6 +32,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
             if(inBounds(new_row, new_col)){
                 ChessPosition endPos = new ChessPosition(new_row, new_col);
                 ChessMove oneMove = new ChessMove(position, endPos, null);
+                System.out.printf(oneMove.toString());
                 moves.add(oneMove);
             }
         }
