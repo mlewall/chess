@@ -83,6 +83,14 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
+    public String toString(){
+        //returs the first two letters of the Enum type
+        if(pieceType == ChessPiece.PieceType.KNIGHT){
+            return "N";
+        }
+        return pieceType.toString().substring(0,1);
+    }
+
 
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {

@@ -66,11 +66,13 @@ public class ChessBoard {
 
         //length should always be 8
         //set everything in the board to null
-        for(int i = 0; i < squares.length; i++) {
-            for(int j = 0; j < squares[i].length; j++) {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
                 squares[i][j] = null;
             }
         };
+
+        boardToString();
 
         //White pieces(closest to us)
         //ChessPosition is just a row,col pair
@@ -78,8 +80,8 @@ public class ChessBoard {
         addPiece(new ChessPosition(1, 1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(1, 2), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(1, 3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
-        addPiece(new ChessPosition(1, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
-        addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(1, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(1, 6), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(1, 7), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(1, 8), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
@@ -91,8 +93,8 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(8, 2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(8, 3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
-        addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
-        addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(8, 6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(8, 7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(8, 8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
@@ -100,10 +102,45 @@ public class ChessBoard {
         for(int i = 1; i <= 8; i++) {
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         }
+        System.out.printf(boardToString());
 
     }
-//    public void BoardtoString(){
-//
-//    }
+    public String boardToString() {
+        StringBuilder sb = new StringBuilder();
+        for (int row = 7; row >= 0; row--) {
+            for (int column = 7; column >= 0; column--) {
+                ChessPiece piece = squares[row][column]; //get the piece at that spot on the board
+                if(piece == null){
+                    sb.append("- ");
+                }
+                else{
+                    //it's a piece of specific type, look up the type, determine the letter
+                    String symbol = piece.toString();
+                    if(piece.getTeamColor() == ChessGame.TeamColor.BLACK){
+                        sb.append(symbol.toLowerCase());
+                    }
+                    else if(piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                        sb.append(symbol.toUpperCase());
+                    }
+                    sb.append(" ");
+                }
+            }
+            sb.append("\n");
+        }
 
+        return sb.toString();
+    }
+
+//    public String getPieceSymbol(ChessPiece piece) {
+//        char symbol;
+//        switch (piece.getPieceType()) {
+//            case ROOK: symbol = 'R'; break;
+//            case KNIGHT: return "N";
+//            case BISHOP: return "B";
+//            case QUEEN: return "Q";
+//            case KING: return "K";
+//            case PAWN: return "P";
+//            default: return null;
+//        }
+//    }
 }

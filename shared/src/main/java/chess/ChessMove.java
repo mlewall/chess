@@ -12,7 +12,7 @@ public class ChessMove {
     private ChessPosition startPosition; //row, column
     private ChessPosition endPosition; //row, column
     private ChessPiece.PieceType promotionPiece; //any of the enum types
-
+    //what if there is no promotion piece?
 
     @Override
     public boolean equals(Object o) {
