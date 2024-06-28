@@ -48,6 +48,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
     }
     private boolean blocked(ChessBoard board, ChessPosition startPos, ChessPosition endPos){
         //if there is a piece of the same color at that possible destination, return false
+        //todo: add an inbounds check here!
         ChessPiece pieceAtDest = board.getPiece(endPos);
         ChessPiece currPiece = board.getPiece(startPos);
 
@@ -65,7 +66,8 @@ public class KingMovesCalculator implements PieceMovesCalculator {
     }
 
     private boolean inBounds(int row, int col){
-        if (row >= 0 && row < 8 && col >= 0 && col < 8){
+        //todo!!! remember the inclusivity here.
+        if (row > 0 && row <= 8 && col > 0 && col <= 8){
             return true;
         }
         return false;
