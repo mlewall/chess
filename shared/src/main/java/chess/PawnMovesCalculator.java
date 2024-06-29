@@ -76,7 +76,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                     }
                 } //end if
                 //diagonal moves: for capture
-                else if ((new_column != start_column) && inBounds(new_row, new_column) && enemyEncounter(board, poss_position, teamColor) && !blocked(board, poss_position, teamColor)) {
+                else if ((new_column != start_column) && inBounds(new_row, new_column) && enemyEncounter(board, poss_position, teamColor)) {
                     //but what happens if you capture a piece on a diagonal AND it lets you promote?
                     if (promotion(poss_position, teamColor)) {
                         for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
@@ -95,7 +95,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 }
             }
         }
-            //------------BLACK POSSIBILITIES-----------------//
+        //------------BLACK POSSIBILITIES-----------------//
 
         if(teamColor == ChessGame.TeamColor.BLACK) {
             for (int[] black_possibility : black_possibilities) {
