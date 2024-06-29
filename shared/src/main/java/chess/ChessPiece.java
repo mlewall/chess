@@ -14,12 +14,10 @@ public class ChessPiece {
 
     private ChessGame.TeamColor teamColor;
     private  ChessPiece.PieceType pieceType;
-    private PieceMovesCalculator movesCalculator; //this will be populated with a type-specific calculator
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
-        this.movesCalculator = determinePieceMovesCalculator(type); //determine move calculator based on piece type
     }
 
     /**
@@ -53,12 +51,12 @@ public class ChessPiece {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessPiece that = (ChessPiece) o;
-        return teamColor == that.teamColor && pieceType == that.pieceType && Objects.equals(movesCalculator, that.movesCalculator);
+        return teamColor == that.teamColor && pieceType == that.pieceType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(teamColor, pieceType, movesCalculator);
+        return Objects.hash(teamColor, pieceType);
     }
 
     public PieceMovesCalculator determinePieceMovesCalculator(ChessPiece.PieceType type) {
@@ -95,6 +93,7 @@ public class ChessPiece {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         //movesCalculator is a piece-specific function, set up during Piece obj construction
+        PieceMovesCalculator movesCalculator = determinePieceMovesCalculator(this.pieceType); //determine move calculator based on piece type
 
         return movesCalculator.possPieceMoves(board, myPosition);
 
