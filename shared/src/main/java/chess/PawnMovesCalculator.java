@@ -61,41 +61,25 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
 
             // move is straight ahead, and it's not blocked (ie no pieces ahead).
             //front_blocked needs the og_position, not the possible position
-            if ((new_column == start_column) && inBounds(new_row, new_column) && !front_blocked(board, og_position, teamColor)) {
-                if (promotion(poss_position, teamColor)) {
-                    //if it's a promotion, loop through the enum and add those moves.
-                    for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
-                        //exclude PAWN and KING
-                        if ((type.toString() != "PAWN") && (type.toString() != "KING")) {
-                            ChessMove new_move = new ChessMove(og_position, poss_position, type);
-                            moves.add(new_move);
-                            //this should add all possible promotions to the possible moves
+            if(inBounds(new_row, new_column)) {
+                if (((new_column == start_column) && !front_blocked(board, og_position, teamColor)) ||
+                        ((new_column != start_column) && inBounds(new_row, new_column) && enemyEncounter(board, poss_position, teamColor))) {
+                    if (promotion(poss_position, teamColor)) {
+                        //if it's a promotion, loop through the enum and add those moves.
+                        for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
+                            //exclude PAWN and KING
+                            if ((type.toString() != "PAWN") && (type.toString() != "KING")) {
+                                ChessMove new_move = new ChessMove(og_position, poss_position, type);
+                                moves.add(new_move);
+                                //this should add all possible promotions to the possible moves
+                            }
                         }
                     }
-                }
-                //not a promotion but still a one-forward step ahead move. Not blocked still, still in bounds, still straight ahead
-                else {
-                    ChessMove new_move = new ChessMove(og_position, poss_position, null);
-                    moves.add(new_move);
-                }
-            } //end if
-
-
-                //white's diagonal moves: for capture
-            else if ((new_column != start_column) && inBounds(new_row, new_column) && enemyEncounter(board, poss_position, teamColor)) {
-                //but what happens if you capture a piece on a diagonal AND it lets you promote?
-                if (promotion(poss_position, teamColor)) {
-                    for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
-                        if ((type.toString() != "PAWN") && (type.toString() != "KING")) {
-                            ChessMove new_move = new ChessMove(og_position, poss_position, type);
-                            moves.add(new_move);
-                        }
-
-                        //this should add all possible promotions to the possible moves
+                    //not a promotion but still a one-forward step ahead move. Not blocked still, still in bounds, still straight ahead
+                    else {
+                        ChessMove new_move = new ChessMove(og_position, poss_position, null);
+                        moves.add(new_move);
                     }
-                } else {
-                    ChessMove new_move = new ChessMove(og_position, poss_position, null);
-                    moves.add(new_move);
                 }
             }
         }
