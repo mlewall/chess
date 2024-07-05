@@ -105,10 +105,6 @@ public class RookMovesCalculator implements PieceMovesCalculator {
         return false;
     }
 
-    private boolean promotion(ChessBoard board, ChessPosition endPos){
-        //only Pawns get promoted
-        return false;
-    }
 
     private boolean enemyEncounter(ChessBoard board, ChessPosition end, ChessGame.TeamColor teamcolor){
         ChessPiece pieceAtDest = board.getPiece(end);

@@ -33,17 +33,6 @@ public class KingMovesCalculator implements PieceMovesCalculator {
                 moves.add(oneMove);
             }
         }
-
-        //Todo: calculate King's moves
-        //the king can move one square in any given direction
-        //given start position [row][column]
-        //8 possible moves maximum
-        //not out of bounds
-        //consider promotion pieces
-
-
-        //cannot move to a place that is occupied (if it moves there, it takes that piece)
-
         return moves;
     }
     private boolean blocked(ChessBoard board, ChessPosition startPos, ChessPosition endPos){
@@ -78,13 +67,3 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         return false;
     }
 }
-
-
-
-        /*
-        NOTES: (Remember ChessMove)
-        public ChessMove(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
-        this.promotionPiece = promotionPiece;}
-         */
