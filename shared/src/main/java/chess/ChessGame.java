@@ -12,10 +12,14 @@ import java.util.Collection;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board = new ChessBoard();
+    private ChessPosition WhiteKingPos;
+    private ChessPosition BlackKingPos;
 
     public ChessGame() {
         board.resetBoard(); //all pieces are in their starting locations
-        teamTurn = TeamColor.WHITE; //starting turn
+        teamTurn = TeamColor.WHITE;//starting turn
+        WhiteKingPos = new ChessPosition(1, 5);
+        BlackKingPos = new ChessPosition(8, 5);
     }
 
     /**
@@ -60,6 +64,8 @@ public class ChessGame {
         return board;
     }
 
+
+
     /**
      * Gets a valid moves for a piece at the given location.
      *
@@ -75,27 +81,44 @@ public class ChessGame {
         //YOU cannot make a move that leaves YOUR king in danger
         ChessPiece startPiece = board.getPiece(startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
-        if (startPiece == null) {
-            return null; //return null if no piece at start position
-        }
-        else{
-            Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition); //all open moves
-            for(int row = 0; row <8; row++ ){
-                for(int col = 0; col <8; col++){
-                    ChessPiece pieceAtDest = board.getPiece(new ChessPosition(col, row));
-                    if(pieceAtDest != null){
+        if (startPiece == null){
+            return null;} //return null if no piece at start position
 
-                    }
-                }
+        Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition);
+        for (ChessMove move : unfiltered_moves) {
+            ChessBoard futureBoard = new ChessBoard(board);
+            //update the board so it looks like we made the move without calling makeMove
 
-                //if an enemy piece's MOVE destination matches with the King's destination
-                //if the move doesn't leave the king in check, then it's okay, add to validMoves
-                //do the move on a copy of the board?
+            ChessPiece movingPiece = futureBoard.getPiece(move.getStartPosition()); //we need the location of the piece on the future board (future board object)
+            futureBoard.addPiece(move.getEndPosition(), movingPiece);
+            futureBoard.addPiece(move.getStartPosition(), null);
+            //copy board here?
+
+            //cache the king positions? just make sure to update them
+            if(teamTurn == TeamColor.BLACK) {BlackKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
+            else{WhiteKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
+
+            if(!isInCheck(teamTurn)){
+                validMoves.add(move);
             }
 
+
+
+
+
         }
+
+            //this function does not call makeMove
+            //but we technically haven't made any moves yet.
+            //do I need to temporarily copy the board and move that piece?
+
+            //if an enemy piece's MOVE destination matches with the King's destination
+            //if the move doesn't leave the king in check, then it's okay, add to validMoves
+            //do the move on a copy of the board?
         return validMoves;
     }
+
+
 
     /**
      * Receives a given move and executes it, IF it is a legal move.
@@ -171,4 +194,15 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
+    public ChessPosition getKingPosition(ChessBoard board, TeamColor teamColor) {
+        for(int i = 1; i <= 8; i++){
+            for(int j = 1; j <= 8; j++){
+                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                if(piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor){
+                    return new ChessPosition(i, j);
+                }
+            }
+        }
+        throw new RuntimeException("No King Found? Check @ChessGame getKingPosition");
+    }
 }
