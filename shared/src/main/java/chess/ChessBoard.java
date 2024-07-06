@@ -19,7 +19,14 @@ public class ChessBoard {
         this.squares = new ChessPiece[8][8]; //create a new array, don't just use the one from initial declaration
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                this.squares[i][j] = original.squares[i][j].copy(); //loop over the array and add a NEW copy of a chessPIece to each spot
+                if(original.squares[i][j] != null){
+                    this.squares[i][j] = original.squares[i][j].copy();
+                    //loop over the array and add a NEW copy of a chessPIece to each spot
+
+                }
+                else{
+                    this.squares[i][j] = null;
+                }
             }
         }
     }
@@ -81,7 +88,7 @@ public class ChessBoard {
         }
         ;
 
-        boardToString();
+        //boardToString();
 
         //White pieces(closest to us)
         //ChessPosition is just a row,col pair
@@ -111,7 +118,7 @@ public class ChessBoard {
         for (int i = 1; i <= 8; i++) {
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         }
-        System.out.printf(boardToString());
+        //System.out.printf(boardToString());
 
     }
 

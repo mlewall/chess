@@ -65,7 +65,6 @@ public class ChessGame {
     }
 
 
-
     /**
      * Gets a valid moves for a piece at the given location.
      *
@@ -86,26 +85,26 @@ public class ChessGame {
 
         Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition);
         for (ChessMove move : unfiltered_moves) {
-            ChessBoard futureBoard = new ChessBoard(board);
-            //update the board so it looks like we made the move without calling makeMove
+            //update the board on a copy so it looks like we made the move without calling makeMove
+            ChessBoard futureBoard = new ChessBoard(board); //make copy of the original board
 
-            ChessPiece movingPiece = futureBoard.getPiece(move.getStartPosition()); //we need the location of the piece on the future board (future board object)
+            //we need the location of the piece on the future board (future board object)
+            ChessPiece movingPiece = futureBoard.getPiece(move.getStartPosition());
             futureBoard.addPiece(move.getEndPosition(), movingPiece);
             futureBoard.addPiece(move.getStartPosition(), null);
-            //copy board here?
 
-            //cache the king positions? just make sure to update them
+            //cache the king positions? todo: just make sure to update them!
             if(teamTurn == TeamColor.BLACK) {BlackKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
             else{WhiteKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
+
+            ChessBoard og_board = this.board;
+            this.board = futureBoard;
 
             if(!isInCheck(teamTurn)){
                 validMoves.add(move);
             }
 
-
-
-
-
+            this.board = og_board;
         }
 
             //this function does not call makeMove
@@ -135,8 +134,16 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         //a chessmove has a start, an end, and a promotion piece.
-        throw new RuntimeException("Not implemented");
-        //todo: toggle turn
+        //todo: implement this!
+        //toggle turn
+        if(teamTurn == TeamColor.WHITE){
+            teamTurn = TeamColor.BLACK;
+        }
+        else {
+            teamTurn = TeamColor.WHITE;
+        }
+        throw new RuntimeException("Not implemented yet");
+
     }
 
     /**
@@ -164,12 +171,30 @@ public class ChessGame {
         return false;
     }
 
+    //the *actual given method*
     public boolean isInCheck(TeamColor teamColor) {
+        for(int i = 1; i <= 8; i++){
+            for (int j = 1; j <= 8; j++){
+                //at this time, the board should temporarily be a *future copy* of the original board (inside the "for")
+                ChessPosition scanPos = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(scanPos);
+                if(piece != null && piece.getTeamColor() != teamColor){
+                    Collection<ChessMove> poss_moves = piece.pieceMoves(board, scanPos);
+                    for(ChessMove move : poss_moves){
+                        if(move.getEndPosition() == getKingPosition(board, teamColor)){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+
         //if the enemy team's pieces have the king in one of their possible moves
         //call pieceMoves on
         //for every spot on the board
         //if there's a piece != null and
-        throw new RuntimeException("Not implemented");
+        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -198,11 +223,17 @@ public class ChessGame {
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                if(piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor){
-                    return new ChessPosition(i, j);
+                if(piece != null){
+                    if(piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor){
+                        return new ChessPosition(i, j);
+                    }
                 }
+
             }
         }
-        throw new RuntimeException("No King Found? Check @ChessGame getKingPosition");
+        throw new RuntimeException("No King Found. Check @ChessGame getKingPosition");
     }
+
+    //todo: a getCachedKingPos method?
+    //todo: an updateCachedKingPos method?
 }
