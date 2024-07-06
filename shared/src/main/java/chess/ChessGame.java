@@ -18,8 +18,8 @@ public class ChessGame {
     public ChessGame() {
         board.resetBoard(); //all pieces are in their starting locations
         teamTurn = TeamColor.WHITE;//starting turn
-        WhiteKingPos = new ChessPosition(1, 5);
-        BlackKingPos = new ChessPosition(8, 5);
+        WhiteKingPos = null;
+        BlackKingPos = null;
     }
 
     /**
@@ -83,6 +83,7 @@ public class ChessGame {
         if (startPiece == null){
             return null;} //return null if no piece at start position
 
+        teamTurn = startPiece.getTeamColor();
         Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition);
         System.out.printf("Unfiltered moves: \n");
         for (ChessMove move : unfiltered_moves) {
@@ -217,18 +218,31 @@ public class ChessGame {
     }
 
     public ChessPosition getKingPosition(ChessBoard board, TeamColor teamColor) {
+//        if(teamColor == TeamColor.WHITE && WhiteKingPos != null){
+//            return WhiteKingPos;
+//        }
+//        else if(teamColor == TeamColor.BLACK && BlackKingPos != null){
+//            return BlackKingPos;
+//        }
+        //wondering if this is going to break for the test cases who won't find a king sometimes.
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
-                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                ChessPosition searchPos = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(searchPos);
                 if(piece != null){
-                    if(piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor){
-                        return new ChessPosition(i, j);
+                    if(piece.getPieceType().equals(ChessPiece.PieceType.KING) && piece.getTeamColor().equals(teamColor)){
+                        if(teamColor == TeamColor.BLACK){
+                            BlackKingPos = searchPos;
+                        }
+                        else if(teamColor == TeamColor.WHITE){
+                            WhiteKingPos = searchPos;
+                        }
+                        return searchPos;
                     }
                 }
-
             }
         }
-        throw new RuntimeException("No King Found. Check @ChessGame getKingPosition");
+        return null;
     }
 
     //todo: a getCachedKingPos method?

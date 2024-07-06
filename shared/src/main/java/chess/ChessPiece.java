@@ -92,9 +92,17 @@ public class ChessPiece {
     public String toString(){
         //returs the first two letters of the Enum type
         if(pieceType == ChessPiece.PieceType.KNIGHT){
+            if(teamColor == ChessGame.TeamColor.BLACK){
+                return "n";
+            }
             return "N";
         }
-        return pieceType.toString().substring(0,1);
+        if(teamColor == ChessGame.TeamColor.BLACK){
+            return pieceType.toString().substring(0,1).toLowerCase();
+        }
+        else{
+            return pieceType.toString().substring(0,1).toUpperCase();
+        }
     }
 
 
