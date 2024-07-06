@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -13,6 +14,8 @@ public class ChessGame {
     private ChessBoard board = new ChessBoard();
 
     public ChessGame() {
+        board.resetBoard(); //all pieces are in their starting locations
+        teamTurn = TeamColor.WHITE; //starting turn
     }
 
     /**
@@ -69,7 +72,29 @@ public class ChessGame {
      * and we figure the piece position out from there(?)
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        //YOU cannot make a move that leaves YOUR king in danger
+        ChessPiece startPiece = board.getPiece(startPosition);
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        if (startPiece == null) {
+            return null; //return null if no piece at start position
+        }
+        else{
+            Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition); //all open moves
+            for(int row = 0; row <8; row++ ){
+                for(int col = 0; col <8; col++){
+                    ChessPiece pieceAtDest = board.getPiece(new ChessPosition(col, row));
+                    if(pieceAtDest != null){
+
+                    }
+                }
+
+                //if an enemy piece's MOVE destination matches with the King's destination
+                //if the move doesn't leave the king in check, then it's okay, add to validMoves
+                //do the move on a copy of the board?
+            }
+
+        }
+        return validMoves;
     }
 
     /**
@@ -86,7 +111,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        //a chessmove has a start, an end, and a promotion piece.
         throw new RuntimeException("Not implemented");
+        //todo: toggle turn
     }
 
     /**
@@ -98,7 +125,27 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
+
+    public boolean isInCheck(ChessBoard board, ChessPosition kingPosition, TeamColor teamColor){
+        //if(the enemy team's pieces have the king's position in one of their possible moves)
+        //need(?): position of the current team's king (to be able to compare with
+        //why would I need to pass in the chessboard?
+
+        //for square in squares (on board)
+        //getPiece at location
+        //if(piece != null && piece.getTeamColor != this.teamcolor)
+        //piece.getmoves() --> all possible moves
+        //for(move:enemyPieceMoves)
+        //if(endpos == current King's position)
+            //return true;
+        return false;
+    }
+
     public boolean isInCheck(TeamColor teamColor) {
+        //if the enemy team's pieces have the king in one of their possible moves
+        //call pieceMoves on
+        //for every spot on the board
+        //if there's a piece != null and
         throw new RuntimeException("Not implemented");
     }
 

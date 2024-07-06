@@ -20,6 +20,13 @@ public class ChessPiece {
         this.pieceType = type;
     }
 
+
+    public ChessPiece copy()
+    {
+        return new ChessPiece(teamColor, pieceType);
+    }
+
+
     /**
      * The various different chess piece options
      */

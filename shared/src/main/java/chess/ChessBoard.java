@@ -12,7 +12,16 @@ import java.util.Objects;
 public class ChessBoard {
     //a pointer to a new 8x8 chessboard. Why did we call it chesspiece? Woudl it be better to call it Chessboard?
     public ChessPiece[][] squares = new ChessPiece[8][8];
-    public ChessBoard() {
+
+    public ChessBoard() {}
+
+    public ChessBoard(ChessBoard original){
+        this.squares = new ChessPiece[8][8]; //create a new array, don't just use the one from initial declaration
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                this.squares[i][j] = original.squares[i][j].copy(); //loop over the array and add a NEW copy of a chessPIece to each spot
+            }
+        }
     }
 
     /**
@@ -23,8 +32,8 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         //System.out.println("Row" + position.getRow() + "Column" + position.getColumn());
-        int row = position.getRow()-1;
-        int column = position.getColumn()-1;
+        int row = position.getRow() - 1;
+        int column = position.getColumn() - 1;
         squares[row][column] = piece;
     }
 
@@ -36,10 +45,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        if(position.getRow() <= 8 && position.getRow() >= 1 && position.getColumn() <= 8 && position.getColumn() >= 1) {
-            return squares[position.getRow()-1][position.getColumn()-1];
-        }
-        else{
+        if (position.getRow() <= 8 && position.getRow() >= 1 && position.getColumn() <= 8 && position.getColumn() >= 1) {
+            return squares[position.getRow() - 1][position.getColumn() - 1];
+        } else {
             throw new RuntimeException("Given index out of bounds; check @ChessPiece.getPiece");
         }
     }
@@ -66,11 +74,12 @@ public class ChessBoard {
 
         //length should always be 8
         //set everything in the board to null
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 squares[i][j] = null;
             }
-        };
+        }
+        ;
 
         boardToString();
 
@@ -86,7 +95,7 @@ public class ChessBoard {
         addPiece(new ChessPosition(1, 7), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(1, 8), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         //add pawns
-        for(int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= 8; i++) {
             addPiece(new ChessPosition(2, i), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
         }
 
@@ -99,7 +108,7 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(8, 8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
 
-        for(int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= 8; i++) {
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         }
         System.out.printf(boardToString());
@@ -116,16 +125,14 @@ public class ChessBoard {
         for (int row = 7; row >= 0; row--) {
             for (int column = 7; column >= 0; column--) {
                 ChessPiece piece = squares[row][column]; //get the piece at that spot on the board
-                if(piece == null){
+                if (piece == null) {
                     sb.append("- ");
-                }
-                else{
+                } else {
                     //it's a piece of specific type, look up the type, determine the letter
                     String symbol = piece.toString();
-                    if(piece.getTeamColor() == ChessGame.TeamColor.BLACK){
+                    if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
                         sb.append(symbol.toLowerCase());
-                    }
-                    else if(piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                         sb.append(symbol.toUpperCase());
                     }
                     sb.append(" ");
@@ -136,17 +143,4 @@ public class ChessBoard {
 
         return sb.toString();
     }
-
-//    public String getPieceSymbol(ChessPiece piece) {
-//        char symbol;
-//        switch (piece.getPieceType()) {
-//            case ROOK: symbol = 'R'; break;
-//            case KNIGHT: return "N";
-//            case BISHOP: return "B";
-//            case QUEEN: return "Q";
-//            case KING: return "K";
-//            case PAWN: return "P";
-//            default: return null;
-//        }
-//    }
 }
