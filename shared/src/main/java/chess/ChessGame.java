@@ -84,7 +84,9 @@ public class ChessGame {
             return null;} //return null if no piece at start position
 
         Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition);
+        System.out.printf("Unfiltered moves: \n");
         for (ChessMove move : unfiltered_moves) {
+            System.out.printf(move.toString());
             //update the board on a copy so it looks like we made the move without calling makeMove
             ChessBoard futureBoard = new ChessBoard(board); //make copy of the original board
 
@@ -92,6 +94,7 @@ public class ChessGame {
             ChessPiece movingPiece = futureBoard.getPiece(move.getStartPosition());
             futureBoard.addPiece(move.getEndPosition(), movingPiece);
             futureBoard.addPiece(move.getStartPosition(), null);
+
 
             //cache the king positions? todo: just make sure to update them!
             if(teamTurn == TeamColor.BLACK) {BlackKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
@@ -105,6 +108,11 @@ public class ChessGame {
             }
 
             this.board = og_board;
+        }
+
+        System.out.println("Valid moves: \n");
+        for(ChessMove Validmove: validMoves){
+            System.out.printf(Validmove.toString());
         }
 
             //this function does not call makeMove
@@ -156,23 +164,12 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
 
-    public boolean isInCheck(ChessBoard board, ChessPosition kingPosition, TeamColor teamColor){
-        //if(the enemy team's pieces have the king's position in one of their possible moves)
-        //need(?): position of the current team's king (to be able to compare with
-        //why would I need to pass in the chessboard?
 
-        //for square in squares (on board)
-        //getPiece at location
-        //if(piece != null && piece.getTeamColor != this.teamcolor)
-        //piece.getmoves() --> all possible moves
-        //for(move:enemyPieceMoves)
-        //if(endpos == current King's position)
-            //return true;
-        return false;
-    }
 
     //the *actual given method*
     public boolean isInCheck(TeamColor teamColor) {
+        //this happens for every possible move the rook can make, for example.
+        //this is happening AFTER the potential move has been made.
         for(int i = 1; i <= 8; i++){
             for (int j = 1; j <= 8; j++){
                 //at this time, the board should temporarily be a *future copy* of the original board (inside the "for")
@@ -181,7 +178,7 @@ public class ChessGame {
                 if(piece != null && piece.getTeamColor() != teamColor){
                     Collection<ChessMove> poss_moves = piece.pieceMoves(board, scanPos);
                     for(ChessMove move : poss_moves){
-                        if(move.getEndPosition() == getKingPosition(board, teamColor)){
+                        if(move.getEndPosition().equals(getKingPosition(board, teamColor))){
                             return true;
                         }
                     }
@@ -237,3 +234,36 @@ public class ChessGame {
     //todo: a getCachedKingPos method?
     //todo: an updateCachedKingPos method?
 }
+
+//-----------------Another isInCheck method with different signature:
+//public boolean isInCheck(ChessBoard future_board, TeamColor teamColor){
+//    for(int i = 1; i <= 8; i++){
+//        for (int j = 1; j <= 8; j++){
+//            //at this time, the board should temporarily be a *future copy* of the original board (inside the "for")
+//            ChessPosition scanPos = new ChessPosition(i, j);
+//            ChessPiece piece = future_board.getPiece(scanPos);
+//            if(piece != null && piece.getTeamColor() != teamColor){
+//                Collection<ChessMove> poss_moves = piece.pieceMoves(future_board, scanPos);
+//                for(ChessMove move : poss_moves){
+//                    if(move.getEndPosition().equals(getKingPosition(future_board, teamColor))){
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    return false;
+//
+//    //if(the enemy team's pieces have the king's position in one of their possible moves)
+//    //need(?): position of the current team's king (to be able to compare with
+//    //why would I need to pass in the chessboard?
+//
+//    //for square in squares (on board)
+//    //getPiece at location
+//    //if(piece != null && piece.getTeamColor != this.teamcolor)
+//    //piece.getmoves() --> all possible moves
+//    //for(move:enemyPieceMoves)
+//    //if(endpos == current King's position)
+//    //return true;
+////        return false;
+//}
