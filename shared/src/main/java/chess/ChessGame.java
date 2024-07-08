@@ -154,13 +154,22 @@ public class ChessGame {
             throw new InvalidMoveException("Move not in list of valid moves");
         }
 
-        //do the move on the ACTUAL BOARD;
-        ChessPiece capturedPiece = board.getPiece(move.getEndPosition()); //if this piece is not null...
-        board.addPiece(move.getEndPosition(), movingPiece);
-        board.addPiece(move.getStartPosition(), null); //update startPos to null
+        //non-pawn/non-promo pawn: do the move on the ACTUAL BOARD;
+        ChessPiece capturedPiece = board.getPiece(move.getEndPosition()); //if this piece is not null...(might be null, that is ok)
+        if((movingPiece.getPieceType() != ChessPiece.PieceType.PAWN) || move.getPromotionPiece() == null){
+            board.addPiece(move.getEndPosition(), movingPiece);
+            board.addPiece(move.getStartPosition(), null); //update startPos to null
+        }
+        //this means a promotion is happening!
+        else if(movingPiece.getPieceType() == ChessPiece.PieceType.PAWN && move.getPromotionPiece() != null){
+            //make a new piece of the promotion type
+            ChessPiece promoPiece = new ChessPiece(teamTurn, move.getPromotionPiece());
+            board.addPiece(move.getEndPosition(), promoPiece);
+            board.addPiece(move.getStartPosition(), null);
+        }
 
         if(isInCheck(teamTurn)){
-            //put the pieces back
+            //put the pieces back; undo the move
             board.addPiece(move.getStartPosition(), movingPiece);
             board.addPiece(move.getEndPosition(), capturedPiece); //this might be null, might be an actual piece
             throw new InvalidMoveException("Move placed King in check");

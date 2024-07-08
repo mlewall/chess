@@ -29,7 +29,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
             ChessPosition endPos = new ChessPosition(new_row, new_col);
             if(inBounds(new_row, new_col) && !blocked(board, position, endPos) && !promotion(board, endPos)){
                 ChessMove oneMove = new ChessMove(position, endPos, null);
-                System.out.printf(oneMove.toString());
+                //System.out.printf(oneMove.toString());
                 moves.add(oneMove);
             }
         }
