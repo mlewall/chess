@@ -12,6 +12,8 @@ import java.util.Collection;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board = new ChessBoard();
+
+    //not sure if I want to use cached KingPositions.
     private ChessPosition WhiteKingPos;
     private ChessPosition BlackKingPos;
 
@@ -146,7 +148,7 @@ public class ChessGame {
             throw new InvalidMoveException("Not your team's turn");
         }
 
-        //2) is this proposed move in valid moves? (ie is the move invalid, can't move there)
+        //1) move must be in the collection of validMoves for this piece.
         Collection<ChessMove> validMoves = validMoves(startPositionOfMovingPiece);
         //what if validMoves is empty? then is this just false by default?
         //this depends on equals() working like I want it to! (do I need to override?)
@@ -154,13 +156,13 @@ public class ChessGame {
             throw new InvalidMoveException("Move not in list of valid moves");
         }
 
-        //non-pawn/non-promo pawn: do the move on the ACTUAL BOARD;
+        //2) non-pawn/non-promo pawn: do the move on the ACTUAL BOARD;
         ChessPiece capturedPiece = board.getPiece(move.getEndPosition()); //if this piece is not null...(might be null, that is ok)
         if((movingPiece.getPieceType() != ChessPiece.PieceType.PAWN) || move.getPromotionPiece() == null){
             board.addPiece(move.getEndPosition(), movingPiece);
             board.addPiece(move.getStartPosition(), null); //update startPos to null
         }
-        //this means a promotion is happening!
+        //2.5) pawn and promotion piece
         else if(movingPiece.getPieceType() == ChessPiece.PieceType.PAWN && move.getPromotionPiece() != null){
             //make a new piece of the promotion type
             ChessPiece promoPiece = new ChessPiece(teamTurn, move.getPromotionPiece());
@@ -168,6 +170,7 @@ public class ChessGame {
             board.addPiece(move.getStartPosition(), null);
         }
 
+        //3) check for check AFTER all potential moves have been made
         if(isInCheck(teamTurn)){
             //put the pieces back; undo the move
             board.addPiece(move.getStartPosition(), movingPiece);
@@ -175,9 +178,7 @@ public class ChessGame {
             throw new InvalidMoveException("Move placed King in check");
         }
 
-        //todo: how to handle pawn promotion?
-
-        //update the king position
+        //4) update the king position (if king moved)
         if(movingPiece.getPieceType()== ChessPiece.PieceType.KING){
             if(movingPiece.getTeamColor() == TeamColor.WHITE){
                 WhiteKingPos = getKingPosition(board, movingPiece.getTeamColor());
@@ -187,15 +188,13 @@ public class ChessGame {
             }
         }
 
-        //toggle turn at the very end
+        //5) toggle turn
         if(teamTurn == TeamColor.WHITE){
             teamTurn = TeamColor.BLACK;
         }
         else {
             teamTurn = TeamColor.WHITE;
         }
-        //throw new RuntimeException("Not implemented yet");
-
     }
 
     /**
@@ -217,6 +216,7 @@ public class ChessGame {
                 ChessPosition scanPos = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(scanPos);
                 if(piece != null && piece.getTeamColor() != teamColor){
+                    //get all the piecemoves for that enemypiece (not consdering check...) (I wonder why this works)
                     Collection<ChessMove> poss_moves = piece.pieceMoves(board, scanPos);
                     for(ChessMove move : poss_moves){
                         //if the destination of the enemy's move coincides with the king's current position
@@ -239,7 +239,25 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        //loop over all the pieces of a given color
+        for(int row = 1; row <= 8; row++){
+            for (int col = 1; col <= 8; col++){
+                ChessPosition scanPos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(scanPos);
+                if(piece != null && piece.getTeamColor() == teamColor){
+                    //get all the piecemoves for that enemypiece (not consdering check...) (I wonder why this works)
+                    Collection<ChessMove> validMoves = validMoves(scanPos);
+                    if(!validMoves.isEmpty()){
+                        return false;
+                        //if ANY of them have moves, return false.
+                    }
+                }
+            }
+        }
+        //but if every time you call valid moves and check the size of the collection, and the size is 0,
+        return true;
+        //then it is checkmate.
+        //you completed the whole loop and never found a possible move.
     }
 
     /**
@@ -250,7 +268,27 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        for(int row = 1; row <= 8; row++){
+            for (int col = 1; col <= 8; col++){
+                ChessPosition scanPos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(scanPos);
+                if(piece != null && piece.getTeamColor() == teamColor){
+                    //get all the piecemoves for that enemypiece (not consdering check...) (I wonder why this works)
+                    Collection<ChessMove> validMoves = validMoves(scanPos);
+                    if(!validMoves.isEmpty()){
+                        return false;
+                        //if ANY of them have moves, return false.
+                        //this means they have valid moves.
+                    }
+                }
+            }
+        }
+        if(!isInCheck(teamColor)){
+            //and is not in Check (King not in danger)
+            return true;
+        }
+        return false;
+
     }
 
     public ChessPosition getKingPosition(ChessBoard board, TeamColor teamColor) {
