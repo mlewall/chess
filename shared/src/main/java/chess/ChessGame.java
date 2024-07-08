@@ -85,9 +85,9 @@ public class ChessGame {
 
         teamTurn = startPiece.getTeamColor();
         Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition);
-        System.out.printf("Unfiltered moves: \n");
+//        System.out.printf("Unfiltered moves: \n");
         for (ChessMove move : unfiltered_moves) {
-            System.out.printf(move.toString());
+            //System.out.printf(move.toString());
             //update the board on a copy so it looks like we made the move without calling makeMove
             ChessBoard futureBoard = new ChessBoard(board); //make copy of the original board
 
@@ -111,21 +111,13 @@ public class ChessGame {
             this.board = og_board;
         }
 
-        System.out.println("Valid moves: \n");
-        for(ChessMove Validmove: validMoves){
-            System.out.printf(Validmove.toString());
-        }
+//        System.out.println("Valid moves: \n");
+//        for(ChessMove Validmove: validMoves){
+//            System.out.printf(Validmove.toString());
+//        }
 
-            //this function does not call makeMove
-            //but we technically haven't made any moves yet.
-            //do I need to temporarily copy the board and move that piece?
-
-            //if an enemy piece's MOVE destination matches with the King's destination
-            //if the move doesn't leave the king in check, then it's okay, add to validMoves
-            //do the move on a copy of the board?
         return validMoves;
     }
-
 
 
     /**
@@ -142,16 +134,58 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        //a chessmove has a start, an end, and a promotion piece.
-        //todo: implement this!
-        //toggle turn
+        ChessPosition startPositionOfMovingPiece = move.getStartPosition();
+        ChessPiece movingPiece = board.getPiece(startPositionOfMovingPiece);
+
+        //1) check for if not team turn
+        if(movingPiece == null){
+            throw new InvalidMoveException("Current piece is null for some reason");
+        }
+        ChessGame.TeamColor currPieceColor = movingPiece.getTeamColor();
+        if(currPieceColor != teamTurn){
+            throw new InvalidMoveException("Not your team's turn");
+        }
+
+        //2) is this proposed move in valid moves? (ie is the move invalid, can't move there)
+        Collection<ChessMove> validMoves = validMoves(startPositionOfMovingPiece);
+        //what if validMoves is empty? then is this just false by default?
+        //this depends on equals() working like I want it to! (do I need to override?)
+        if(!validMoves.contains(move)){
+            throw new InvalidMoveException("Move not in list of valid moves");
+        }
+
+        //do the move on the ACTUAL BOARD;
+        ChessPiece capturedPiece = board.getPiece(move.getEndPosition()); //if this piece is not null...
+        board.addPiece(move.getEndPosition(), movingPiece);
+        board.addPiece(move.getStartPosition(), null); //update startPos to null
+
+        if(isInCheck(teamTurn)){
+            //put the pieces back
+            board.addPiece(move.getStartPosition(), movingPiece);
+            board.addPiece(move.getEndPosition(), capturedPiece); //this might be null, might be an actual piece
+            throw new InvalidMoveException("Move placed King in check");
+        }
+
+        //todo: how to handle pawn promotion?
+
+        //update the king position
+        if(movingPiece.getPieceType()== ChessPiece.PieceType.KING){
+            if(movingPiece.getTeamColor() == TeamColor.WHITE){
+                WhiteKingPos = getKingPosition(board, movingPiece.getTeamColor());
+            }
+            else if(movingPiece.getTeamColor() == TeamColor.BLACK){
+                BlackKingPos = getKingPosition(board, movingPiece.getTeamColor());
+            }
+        }
+
+        //toggle turn at the very end
         if(teamTurn == TeamColor.WHITE){
             teamTurn = TeamColor.BLACK;
         }
         else {
             teamTurn = TeamColor.WHITE;
         }
-        throw new RuntimeException("Not implemented yet");
+        //throw new RuntimeException("Not implemented yet");
 
     }
 
@@ -164,9 +198,6 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-
-
-
     //the *actual given method*
     public boolean isInCheck(TeamColor teamColor) {
         //this happens for every possible move the rook can make, for example.
@@ -179,6 +210,8 @@ public class ChessGame {
                 if(piece != null && piece.getTeamColor() != teamColor){
                     Collection<ChessMove> poss_moves = piece.pieceMoves(board, scanPos);
                     for(ChessMove move : poss_moves){
+                        //if the destination of the enemy's move coincides with the king's current position
+                        //then the move would put us in check and the move wouldn't be valid.
                         if(move.getEndPosition().equals(getKingPosition(board, teamColor))){
                             return true;
                         }
@@ -187,12 +220,6 @@ public class ChessGame {
             }
         }
         return false;
-
-        //if the enemy team's pieces have the king in one of their possible moves
-        //call pieceMoves on
-        //for every spot on the board
-        //if there's a piece != null and
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -218,19 +245,21 @@ public class ChessGame {
     }
 
     public ChessPosition getKingPosition(ChessBoard board, TeamColor teamColor) {
-//        if(teamColor == TeamColor.WHITE && WhiteKingPos != null){
+//        todo: figue out why commenting this back in makes the tests fail...
+        //todo: figure out why "pieces cannot eliminate check" and "king cannot move into check" fail
+//        if(teamColor.equals(TeamColor.WHITE) && WhiteKingPos != null){
 //            return WhiteKingPos;
 //        }
-//        else if(teamColor == TeamColor.BLACK && BlackKingPos != null){
+//        else if(teamColor.equals(TeamColor.BLACK) && BlackKingPos != null){
 //            return BlackKingPos;
 //        }
-        //wondering if this is going to break for the test cases who won't find a king sometimes.
+//        wondering if this is going to break for the test cases who won't find a king sometimes.
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
                 ChessPosition searchPos = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(searchPos);
                 if(piece != null){
-                    if(piece.getPieceType().equals(ChessPiece.PieceType.KING) && piece.getTeamColor().equals(teamColor)){
+                    if(piece.getPieceType() == (ChessPiece.PieceType.KING) && piece.getTeamColor() == (teamColor)){
                         if(teamColor == TeamColor.BLACK){
                             BlackKingPos = searchPos;
                         }
@@ -267,17 +296,3 @@ public class ChessGame {
 //        }
 //    }
 //    return false;
-//
-//    //if(the enemy team's pieces have the king's position in one of their possible moves)
-//    //need(?): position of the current team's king (to be able to compare with
-//    //why would I need to pass in the chessboard?
-//
-//    //for square in squares (on board)
-//    //getPiece at location
-//    //if(piece != null && piece.getTeamColor != this.teamcolor)
-//    //piece.getmoves() --> all possible moves
-//    //for(move:enemyPieceMoves)
-//    //if(endpos == current King's position)
-//    //return true;
-////        return false;
-//}
