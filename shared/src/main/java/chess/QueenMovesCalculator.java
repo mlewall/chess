@@ -7,145 +7,42 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition og_position){
         Collection<ChessMove> moves = new ArrayList<>();
 
-        int start_row = og_position.getRow();
-        int start_col = og_position.getColumn();
-
         ChessGame.TeamColor teamcolor = board.getPiece(og_position).getTeamColor();
 
         //-----------DIAGONALS-----------//
-        int up_row = start_row;
-        int up_col = start_col;
-        while(inBounds(up_row+1, up_col+1)){
-            up_row++; up_col++;
-            ChessPosition new_pos = new ChessPosition(up_row, up_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            }
-            else{break;}
-        }
+        calculateMovesInDirection(moves, board, og_position, 1, 1, teamcolor); //up-right
+        calculateMovesInDirection(moves, board, og_position, -1, 1, teamcolor); //down-right
+        calculateMovesInDirection(moves, board, og_position, 1, -1, teamcolor); //up-left
+        calculateMovesInDirection(moves, board, og_position, -1, -1, teamcolor); //down-left
 
-        //go down-right
-        int down_row = start_row;
-        int right_col = start_col;
-        while(inBounds(down_row-1, right_col+1)){
-            down_row--; right_col++;
-            ChessPosition new_pos = new ChessPosition(down_row, right_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){break;}
-            }
-            else{break;}
-        }
-
-        //up-left
-        up_row = start_row;
-        int left_col = start_col;
-        while(inBounds(up_row+1, left_col-1)) {
-            up_row++; left_col--;
-            ChessPosition new_pos = new ChessPosition(up_row, left_col);
-            if (!blocked(board, new_pos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-
-        down_row = start_row;
-        left_col = start_col;
-        while(inBounds(down_row-1, left_col-1)){
-            down_row --; left_col--;
-            ChessPosition new_pos = new ChessPosition(down_row, left_col);
-            if (!blocked(board, new_pos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                //if there's an enemy here, then we break.
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            } else {
-                //if it's ever blocked, we should break.
-                break;
-            }
-        }
         //------------------LATERALS-------------//
-        up_row = start_row;
-        //int col = start_col;
-
-        //up (obviously we start in bounds)
-        while(inBounds(up_row+1, start_col)){
-            up_row++;
-            ChessPosition new_pos = new ChessPosition(up_row, start_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            }
-            else{
-                break;
-            }
-        }
-        //not at the top, not blocked){};
-        //"travel" up
-        //go down
-        down_row = start_row;
-        while(inBounds(down_row-1, start_col)){
-            down_row--;
-            ChessPosition new_pos = new ChessPosition(down_row, start_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            }
-            else{
-                break;
-            }
-        }
-        right_col = start_col;
-        while(inBounds(start_row, right_col+1)) {
-            right_col++;
-            ChessPosition new_pos = new ChessPosition(start_row, right_col);
-            if (!blocked(board, new_pos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-
-        left_col = start_col;
-        while(inBounds(start_row, left_col-1)){
-            left_col--;
-            ChessPosition new_pos = new ChessPosition(start_row, left_col);
-            if (!blocked(board, new_pos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                //if there's an enemy here, then we break.
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            } else {
-                //if it's ever blocked, we should break.
-                break;
-            }
-        }
+        calculateMovesInDirection(moves, board, og_position, 1, 0, teamcolor);
+        calculateMovesInDirection(moves, board, og_position, -1, 0, teamcolor);
+        calculateMovesInDirection(moves, board, og_position, 0, 1, teamcolor);
+        calculateMovesInDirection(moves, board, og_position, 0, -1, teamcolor);
 
         return moves;
+    }
+
+    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition og_position, int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
+        int row = og_position.getRow();
+        int col = og_position.getColumn();
+        while(inBounds(row+rowIncrement, col+colIncrement)){
+            row += rowIncrement;
+            col += colIncrement;
+            ChessPosition new_pos = new ChessPosition(row, col);
+            if (!blocked(board, new_pos, teamcolor)) {
+                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
+                moves.add(oneMove);
+                //if there's an enemy here, then we break.
+                if(enemyEncounter(board, new_pos, teamcolor)){
+                    break;
+                }
+            } else {
+                //if it's ever blocked, we should break.
+                break;
+            }
+        }
     }
 
     private boolean inBounds(int row, int col){

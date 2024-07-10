@@ -13,63 +13,24 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         ChessGame.TeamColor teamcolor = board.getPiece(og_position).getTeamColor();
 
         //go up-right
-        int up_row = start_row;
-        int up_col = start_col;
-        while(inBounds(up_row+1, up_col+1)){
-            up_row++; up_col++;
-            ChessPosition new_pos = new ChessPosition(up_row, up_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            }
-            else{
-                break;
-            }
-        }
-
+        calculateMovesInDirection(moves, board, og_position, 1, 1, teamcolor);
         //go down-right
-        int down_row = start_row;
-        int right_col = start_col;
-        while(inBounds(down_row-1, right_col+1)){
-            down_row--; right_col++;
-            ChessPosition new_pos = new ChessPosition(down_row, right_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            }
-            else{
-                break;
-            }
-        }
-
+        calculateMovesInDirection(moves, board, og_position, -1, 1, teamcolor);
         //up-left
-        up_row = start_row;
-        int left_col = start_col;
-        while(inBounds(up_row+1, left_col-1)) {
-            up_row++; left_col--;
-            ChessPosition new_pos = new ChessPosition(up_row, left_col);
-            if (!blocked(board, new_pos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
+        calculateMovesInDirection(moves, board, og_position, 1, -1, teamcolor);
+        //down-left
+        calculateMovesInDirection(moves, board, og_position, -1, -1, teamcolor);
 
-        down_row = start_row;
-        left_col = start_col;
-        while(inBounds(down_row-1, left_col-1)){
-            down_row --; left_col--;
-            ChessPosition new_pos = new ChessPosition(down_row, left_col);
+        return moves;
+    }
+
+    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition og_position, int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
+        int row = og_position.getRow();
+        int col = og_position.getColumn();
+        while(inBounds(row+rowIncrement, col+colIncrement)){
+            row += rowIncrement;
+            col += colIncrement;
+            ChessPosition new_pos = new ChessPosition(row, col);
             if (!blocked(board, new_pos, teamcolor)) {
                 ChessMove oneMove = new ChessMove(og_position, new_pos, null);
                 moves.add(oneMove);
@@ -82,8 +43,8 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
                 break;
             }
         }
-        return moves;
     }
+
     private boolean inBounds(int row, int col){
         //todo!!! remember the inclusivity here.
         if (row > 0 && row <= 8 && col > 0 && col <= 8){
@@ -108,6 +69,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         };
         return false;
     }
+
 
     private boolean promotion(ChessBoard board, ChessPosition endPos){
         //only Pawns get promoted

@@ -19,7 +19,7 @@ public class ChessGame {
 
     public ChessGame() {
         board.resetBoard(); //all pieces are in their starting locations
-        teamTurn = TeamColor.WHITE;//starting turn
+        teamTurn = TeamColor.WHITE; //starting turn
         WhiteKingPos = null;
         BlackKingPos = null;
     }
@@ -65,7 +65,6 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
-
 
     /**
      * Gets a valid moves for a piece at the given location.
@@ -120,7 +119,6 @@ public class ChessGame {
 
         return validMoves;
     }
-
 
     /**
      * Receives a given move and executes it, IF it is a legal move.
@@ -189,6 +187,10 @@ public class ChessGame {
         }
 
         //5) toggle turn
+        toggleTurn();
+    }
+
+    private void toggleTurn() {
         if(teamTurn == TeamColor.WHITE){
             teamTurn = TeamColor.BLACK;
         }
@@ -196,7 +198,6 @@ public class ChessGame {
             teamTurn = TeamColor.WHITE;
         }
     }
-
     /**
      * Determines if the given team is in check.
      * Check means the king is attacked -- the king must move to a position
@@ -321,25 +322,5 @@ public class ChessGame {
         return null;
     }
 
-    //todo: a getCachedKingPos method?
-    //todo: an updateCachedKingPos method?
 }
 
-//-----------------Another isInCheck method with different signature:
-//public boolean isInCheck(ChessBoard future_board, TeamColor teamColor){
-//    for(int i = 1; i <= 8; i++){
-//        for (int j = 1; j <= 8; j++){
-//            //at this time, the board should temporarily be a *future copy* of the original board (inside the "for")
-//            ChessPosition scanPos = new ChessPosition(i, j);
-//            ChessPiece piece = future_board.getPiece(scanPos);
-//            if(piece != null && piece.getTeamColor() != teamColor){
-//                Collection<ChessMove> poss_moves = piece.pieceMoves(future_board, scanPos);
-//                for(ChessMove move : poss_moves){
-//                    if(move.getEndPosition().equals(getKingPosition(future_board, teamColor))){
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    return false;

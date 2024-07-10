@@ -6,66 +6,23 @@ import java.util.ArrayList;
 public class RookMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition og_position){
         Collection<ChessMove> moves = new ArrayList<>(); //this will contain the final set of moves
-        int start_row = og_position.getRow();
-        int start_col = og_position.getColumn();
 
         ChessGame.TeamColor teamcolor = board.getPiece(og_position).getTeamColor();
 
-        int up_row = start_row;
-        int col = start_col;
+        calculateMovesInDirection(moves, board, og_position, 1, 0, teamcolor);
+        calculateMovesInDirection(moves, board, og_position, -1, 0, teamcolor);
+        calculateMovesInDirection(moves, board, og_position, 0, 1, teamcolor);
+        calculateMovesInDirection(moves, board, og_position, 0, -1, teamcolor);
+        return moves;
+    }
 
-        //up (obviously we start in bounds)
-        while(inBounds(up_row+1, start_col)){
-            up_row++;
-            ChessPosition new_pos = new ChessPosition(up_row, start_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            }
-            else{
-                break;
-            }
-        }
-                //not at the top, not blocked){};
-            //"travel" up
-        //go down
-        int down_row = start_row;
-        while(inBounds(down_row-1, col)){
-            down_row--;
-            ChessPosition new_pos = new ChessPosition(down_row, start_col);
-            if(!blocked(board, new_pos, teamcolor)){
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            }
-            else{
-                break;
-            }
-        }
-        int right_col = start_col;
-        while(inBounds(start_row, right_col+1)) {
-            right_col++;
-            ChessPosition new_pos = new ChessPosition(start_row, right_col);
-            if (!blocked(board, new_pos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
-                moves.add(oneMove);
-                if(enemyEncounter(board, new_pos, teamcolor)){
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-
-        int left_col = start_col;
-        while(inBounds(start_row, left_col-1)){
-            left_col--;
-            ChessPosition new_pos = new ChessPosition(start_row, left_col);
+    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition og_position, int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
+        int row = og_position.getRow();
+        int col = og_position.getColumn();
+        while(inBounds(row+rowIncrement, col+colIncrement)){
+            row += rowIncrement;
+            col += colIncrement;
+            ChessPosition new_pos = new ChessPosition(row, col);
             if (!blocked(board, new_pos, teamcolor)) {
                 ChessMove oneMove = new ChessMove(og_position, new_pos, null);
                 moves.add(oneMove);
@@ -78,8 +35,10 @@ public class RookMovesCalculator implements PieceMovesCalculator {
                 break;
             }
         }
-        return moves;
+
     }
+
+
     private boolean inBounds(int row, int col){
         //todo!!! remember the inclusivity here.
         if (row > 0 && row <= 8 && col > 0 && col <= 8){
