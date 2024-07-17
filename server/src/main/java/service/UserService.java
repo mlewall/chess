@@ -1,19 +1,29 @@
 package service;
 
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.AuthDAO;
+import reqres.LoginRequest;
+import reqres.LoginResult;
+import dataaccess.memory.MemoryUserDAO;
 import dataaccess.UserDAO;
 import model.*;
-import service.ReqRes.*;
 
 import java.util.UUID;
 
 /* Service objects take in a XRequest and return a XResponse */
 
 public class UserService {
+    public final UserDAO userDAO;
+    public final AuthDAO authDAO;
     //contains methods for register, login, logout
-    public static LoginResult login(LoginRequest r) {
+    //pass in the DAO generated at the server level (?)
+    public UserService(UserDAO userDAO, AuthDAO authDAO){
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+    }
+
+
+    public LoginResult login(LoginRequest r) {
         //look up the username in the database
         //if there is a username:
             //if username matches password?
@@ -23,14 +33,13 @@ public class UserService {
         String password = r.password();
         String authToken = ""; //this will be filled in later
 
-        UserDAO currLookup = new MemoryUserDAO(); //this will have to change for the server
-        UserData user = currLookup.getUserData(username);
-        if (user == null) {
-            //then the user didn't exist in the system, throw some kind of error
+        UserData singleUserData = userDAO.getUserData(username);
+        if (singleUserData == null) {
+            //todo: then the user didn't exist in the system, throw some kind of error
             return null;
         }
         else{
-            if (user.password().equals(password)) {
+            if (singleUserData.password().equals(password)) {
                 //generate an authentication token
                 authToken = UUID.randomUUID().toString();
             }

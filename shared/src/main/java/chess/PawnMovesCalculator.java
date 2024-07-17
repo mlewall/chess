@@ -155,6 +155,3 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
     }
 }
 
-//todo: consdier condensing this and making another variable +1 (white) or -1 (black) that controls this line:
-//ChessPosition poss_pos = new ChessPosition(og_position.getRow()+2, og_position.getColumn());
-

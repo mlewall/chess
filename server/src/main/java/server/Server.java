@@ -1,18 +1,40 @@
 package server;
+import dataaccess.*;
+import dataaccess.memory.*;
+import reqres.LoginRequest;
+import reqres.LoginResult;
 import com.google.gson.Gson;
 
-import model.*;
 import service.*;
 
-import service.ReqRes.*;
 import spark.*; //includes spark.Request and spark.Response
 
 public class Server {
+    //todo: initialize the DAOs here as fields (so there is just one of each)
+    UserService userService;
+    GameService gameService;
+    ClearService clearService;
+
+
+    public Server(){
+        //instantiate local variable DAOs & pass them to services
+        UserDAO users = new MemoryUserDAO();
+        AuthDAO auths = new MemoryAuthDAO();
+        GameDAO games = new MemoryGameDAO();
+
+        this.userService = new UserService(users, auths);
+        this.gameService = new GameService(games, auths);
+        this.clearService = new ClearService();
+
+        //OR instantiate services with
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
-
         Spark.staticFiles.location("web");
+
+        //or do DAOs get initialized here?
+        //dependency injection
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::clearHandler); //delete database
@@ -52,12 +74,9 @@ public class Server {
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
         //LoginRequest contains username, pw: UserData[username=embopgirl, password=yeehaw]
 
-        //service call
-        LoginResult username_authToken = UserService.login(loginRequest);
-
+        LoginResult username_authToken = userService.login(loginRequest); //service call
         return new Gson().toJson(username_authToken);
     }
-
 
     private String clearHandler(Request request, Response response) {
         return null;

@@ -1,5 +1,6 @@
-package dataaccess;
+package dataaccess.database;
 
+import dataaccess.AuthDAO;
 import model.UserData;
 
 public class SQLAuthDAO implements AuthDAO {

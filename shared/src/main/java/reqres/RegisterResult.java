@@ -1,4 +1,4 @@
-package service.ReqRes;
+package reqres;
 
 public class RegisterResult {
 }
