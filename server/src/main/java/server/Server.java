@@ -50,7 +50,7 @@ public class Server {
     private Object loginHandler(Request request, Response response) {
         //deserialize JSON (the request body)
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
-        //model contains username, pw, and email: UserData[username=embopgirl, password=yeehaw, email=yurt.yahoo.com]
+        //LoginRequest contains username, pw: UserData[username=embopgirl, password=yeehaw]
 
         //service call
         LoginResult username_authToken = UserService.login(loginRequest);
