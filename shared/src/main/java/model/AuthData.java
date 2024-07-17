@@ -1,5 +1,7 @@
 package model;
 
+//links the authToken with the username.
+
 public record AuthData(String authToken, String username) {}
 
 /*note that JavaRecords are SICK because of a few reasons:
