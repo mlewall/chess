@@ -7,6 +7,9 @@ import model.UserData;
 import java.util.Collection;
 
 public interface AuthDAO {
-    //crud
+    public boolean isEmpty();
+    public void clear();
+
     public UserData getUser(String username); //UserData contains
+
 }

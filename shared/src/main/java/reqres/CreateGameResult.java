@@ -1,4 +1,4 @@
 package reqres;
 
-public class CreateGameResult {
+public class CreateGameResult implements ServiceResult {
 }

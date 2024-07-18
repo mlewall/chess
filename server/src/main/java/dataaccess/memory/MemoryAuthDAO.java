@@ -12,6 +12,14 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public MemoryAuthDAO(){};
 
+    public boolean isEmpty(){
+        return auths.isEmpty();
+    }
+
+    public void clear(){
+        auths.clear();
+    }
+
     public UserData getUser(String username){
         return null;
     }

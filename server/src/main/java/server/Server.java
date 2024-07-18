@@ -2,12 +2,9 @@ package server;
 import dataaccess.*;
 import dataaccess.memory.*;
 import org.eclipse.jetty.server.Authentication;
-import reqres.FailureResult;
-import reqres.LoginRequest;
-import reqres.LoginResult;
+import reqres.*;
 import com.google.gson.Gson;
 
-import reqres.ServiceResult;
 import service.*;
 
 import spark.*; //includes spark.Request and spark.Response
@@ -27,7 +24,7 @@ public class Server {
 
         this.userService = new UserService(users, auths);
         this.gameService = new GameService(games, auths);
-        this.clearService = new ClearService();
+        this.clearService = new ClearService(users, auths, games);
 
         //OR instantiate services with
     }
@@ -87,8 +84,11 @@ public class Server {
         return null;
     }
 
-    private String clearHandler(Request request, Response response) {
-        return null;
+    private Object clearHandler(Request request, Response response) throws DataAccessException {
+        var clearRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
+        ServiceResult result = clearService.resetDatabases();
+        response.status(200);
+        return new Gson().toJson(result);
     }
     private String registerHandler(Request request, Response response) {
         return null;
