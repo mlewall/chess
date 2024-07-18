@@ -9,6 +9,8 @@ import java.util.Map;
 public class MemoryGameDAO implements GameDAO {
     static final Map<String, GameData> games = new HashMap<>();
 
+    public MemoryGameDAO() {}
+
     public boolean isEmpty(){
         return games.isEmpty();
     }
@@ -17,5 +19,4 @@ public class MemoryGameDAO implements GameDAO {
         games.clear();
     }
 
-    public MemoryGameDAO() {}
 }

@@ -1,4 +1,50 @@
-package java.service;
+package service;
+
+import dataaccess.*;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
+import dataaccess.memory.MemoryUserDAO;
+import model.UserData;
+import org.eclipse.jetty.server.Authentication;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import service.ClearService;
 
 public class ClearServiceTests {
-}
+    UserDAO userDAO;
+    AuthDAO authDAO;
+    GameDAO gameDAO;
+    ClearService clearService;
+
+    @BeforeEach
+    public void setUp() {
+        this.userDAO = new MemoryUserDAO();
+        this.authDAO = new MemoryAuthDAO();
+        this.gameDAO = new MemoryGameDAO();
+
+        this.clearService = new ClearService(userDAO, authDAO, gameDAO);
+    }
+
+    @Test
+    public void clearEmptyDataBase(){
+        clearService.resetDatabases();
+        assert userDAO.isEmpty();
+        assert authDAO.isEmpty();
+        assert gameDAO.isEmpty();
+    }
+
+    @Test
+    public void clearNonEmptyDataBase(){
+        userDAO.insertFakeUser();
+        clearService.resetDatabases();
+        assert userDAO.isEmpty();
+        assert authDAO.isEmpty();
+        assert gameDAO.isEmpty();
+
+    }
+
+
+
+    }
+

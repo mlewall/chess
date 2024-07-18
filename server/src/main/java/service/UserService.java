@@ -3,9 +3,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
-import reqres.FailureResult;
-import reqres.LoginRequest;
-import reqres.LoginResult;
+import reqres.*;
 import dataaccess.memory.MemoryUserDAO;
 import dataaccess.UserDAO;
 import model.*;
@@ -25,28 +23,22 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public ServiceResult login(LoginRequest r) {
+    public ServiceResult login(LoginRequest r) throws DataAccessException {
         String username = r.username();
         String password = r.password();
         String authToken = ""; //this will be filled in later
 
-        try{
-            UserData singleUserData = userDAO.getUserData(username);
-            if (singleUserData.password().equals(password)) {
-                //generate an authentication token
-                authToken = UUID.randomUUID().toString();
-            }
-            else{ //passwords don't match
-                FailureResult errorMsg = new FailureResult("Error: unauthorized");
-                return errorMsg;
-            }
+        UserData singleUserData = userDAO.getUserData(username);
+        if (singleUserData == null || !singleUserData.password().equals(password)) {
+            throw new DataAccessException(401, "Error: Unauthorized");
         }
-        catch (DataAccessException e) { //username was not found in the database.
-            FailureResult errorMsg = new FailureResult(e.getMessage());
-            return errorMsg;
-        }
-        LoginResult rr = new LoginResult(username, authToken); //a record that takes a username and authToken
-        return rr;
+        authToken = UUID.randomUUID().toString();
+        return new LoginResult(username, authToken); //a record that takes a username and authToken;
+    }
+
+    //comes in with an auth token
+    public ServiceResult logout(LogoutRequest r) throws DataAccessException {
+        return null;
     }
 
     //public static RegisterResult register(RegisterRequest r) {}

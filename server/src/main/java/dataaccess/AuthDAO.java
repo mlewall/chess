@@ -10,6 +10,7 @@ public interface AuthDAO {
     public boolean isEmpty();
     public void clear();
 
-    public UserData getUser(String username); //UserData contains
+    public void insertFakeAuth();
+    public AuthData getAuthData(String username); //UserData contains
 
 }

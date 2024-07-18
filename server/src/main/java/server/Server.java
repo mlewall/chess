@@ -9,6 +9,8 @@ import service.*;
 
 import spark.*; //includes spark.Request and spark.Response
 
+import java.util.Map;
+
 public class Server {
     //todo: initialize the DAOs here as fields (so there is just one of each)
     UserService userService;
@@ -47,6 +49,9 @@ public class Server {
         Spark.post("/game", this::createGameHandler); //createGame
         Spark.put("/game", this::joinHandler); //joinGame
 
+        Spark.exception(DataAccessException.class, this::exceptionHandler);
+
+        //add another things for exceptions
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
@@ -67,27 +72,24 @@ public class Server {
         them returning an Object but I think that maybe String will be better because the JSON strings are ideally what
         they all return.
     */
+    private void exceptionHandler(DataAccessException ex, Request request, Response response) {
+        //throw all the problems and handle them up to this server level
+        //catch the exception and then set the status code, set response body
+        response.status(ex.getStatusCode());
+        response.body(new Gson().toJson(Map.of("message", ex.getMessage())));
+    }
 
     //needs to return an object: spark's requirement
-    private Object loginHandler(Request request, Response response) {
+    private Object loginHandler(Request request, Response response) throws DataAccessException{
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
         ServiceResult result = userService.login(loginRequest);
-        if(result instanceof LoginResult){
-            response.status(200);
-            return new Gson().toJson(result);
-        }
-        else if(result instanceof FailureResult){
-            response.status(401);
-            return new Gson().toJson(result);
-        }
-        //LoginRequest contains username, pw: UserData[username=embopgirl, password=yeehaw]
-        return null;
+        return new Gson().toJson(result);
     }
 
     private Object clearHandler(Request request, Response response) throws DataAccessException {
-        var clearRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
+        //var clearRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
         ServiceResult result = clearService.resetDatabases();
-        response.status(200);
+//        response.status(200);
         return new Gson().toJson(result);
     }
     private String registerHandler(Request request, Response response) {

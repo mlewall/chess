@@ -15,14 +15,14 @@ public class ClearService {
         this.gameDAO = gameDAO;
     }
 
-    public ClearResult resetDatabases() throws DataAccessException {
-        userDAO.insertFakeUser();
+    public ClearResult resetDatabases() {
+        //userDAO.insertFakeUser();
         userDAO.clear();
         authDAO.clear();
         gameDAO.clear();
         //todo: figure out exactly where the errors are supposed to be handled here.
         if(!userDAO.isEmpty() && !authDAO.isEmpty() && !gameDAO.isEmpty()){
-            throw new DataAccessException("Error while clearing databases");
+            return null;
         }
         return new ClearResult();
 
