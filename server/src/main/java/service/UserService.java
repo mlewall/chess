@@ -41,5 +41,16 @@ public class UserService {
         return null;
     }
 
+    public ServiceResult register(RegisterRequest r) throws DataAccessException{
+        UserData userData = new UserData(r.username(), r.password(), r.email());
+        userDAO.insertNewUser(userData);
+        String authToken = UUID.randomUUID().toString();
+        return new RegisterResult(r.username(), authToken);
+
+        //400 is bad request (not sure when this is supposed to come up actually)
+        //403 is already taken (implemented in the DAO class)
+        //500 is a server error (ask about these)
+    }
+
     //public static RegisterResult register(RegisterRequest r) {}
 }

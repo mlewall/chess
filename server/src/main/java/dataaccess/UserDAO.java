@@ -7,5 +7,7 @@ public interface UserDAO {
     public void clear();
     public UserData getUserData(String username) throws DataAccessException;
     //public UserData getUserData(String username, String password);
+    public void insertNewUser(UserData userData) throws DataAccessException;
+
     public void insertFakeUser();
 }

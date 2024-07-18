@@ -92,8 +92,10 @@ public class Server {
 //        response.status(200);
         return new Gson().toJson(result);
     }
-    private String registerHandler(Request request, Response response) {
-        return null;
+    private String registerHandler(Request request, Response response) throws DataAccessException {
+        var registerRequest = new Gson().fromJson(request.body(), RegisterRequest.class); //what class is supposed to go here?
+        ServiceResult result = userService.register(registerRequest);
+        return new Gson().toJson(result);
     }
     //put login back here
     private Object logoutHandler(Request request, Response response) {

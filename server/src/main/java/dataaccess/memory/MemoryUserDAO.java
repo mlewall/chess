@@ -10,6 +10,7 @@ import java.util.Map;
 //crud methods
 //extends?
 public class MemoryUserDAO implements UserDAO {
+    //the key is the username?
     private static final Map<String, UserData> users = new HashMap<>();
 
     public MemoryUserDAO() {}
@@ -26,17 +27,24 @@ public class MemoryUserDAO implements UserDAO {
 
     //2) retrieve user
     public void insertFakeUser() {
-        UserData fake = new UserData("embopgirl", "chomp", "cheese.com");
-        users.put("embopgirl", fake);
+        UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
+        users.put("fakeUsername", fake);
     }
 
     public UserData getUserData(String username) throws DataAccessException {
-        insertFakeUser(); //for DEBUGGING
+        //insertFakeUser(); //for DEBUGGING
         if(users.get(username) != null){
             return users.get(username);
         }
         throw new DataAccessException(401, "Error: Unauthorized");
-        //returns the whole user data, returns null if not found
+    }
+
+    public void insertNewUser(UserData user) throws DataAccessException {
+        String username = user.username();
+        if(users.get(username) != null){
+            throw new DataAccessException(403, "Error: already taken");
+        }
+        users.put(user.username(), user);
     }
 
     //3)update user(?)

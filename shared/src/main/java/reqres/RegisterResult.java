@@ -1,4 +1,4 @@
 package reqres;
 
-public record RegisterResult(String username, String password, String email) implements ServiceResult{
+public record RegisterResult(String username, String authToken) implements ServiceResult{
 }
