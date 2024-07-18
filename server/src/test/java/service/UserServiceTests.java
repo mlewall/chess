@@ -7,6 +7,7 @@ import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reqres.*;
 import reqres.ServiceResult;
@@ -26,8 +27,9 @@ class UserServiceTests {
         userDAO.insertFakeUser();
         authDAO.insertFakeAuth();
     }
-    //a test for valid username/pw combination
+
     @Test
+    //@DisplayName("Valid Username and Password")
     public void validLogin() throws DataAccessException{
         setUp();
         LoginRequest loginRequest = new LoginRequest("embopgirl", "chomp");
@@ -38,8 +40,35 @@ class UserServiceTests {
         assert ((LoginResult) result).authToken() != null; //authToken was generated
         }
 
-    }
     //valid username/password combo
+    @Test
+    //@DisplayName("invalid Password")
+    public void invalidPassword() throws DataAccessException{
+        setUp();
+        LoginRequest loginRequest = new LoginRequest("embopgirl", "incorrectPassword");
+
+        DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.login(loginRequest));
+
+        assertEquals(401, ex.getStatusCode());
+        assertEquals("Error: Unauthorized", ex.getMessage());
+    }
+
+
+    @Test
+    public void invalidUsername() throws DataAccessException{
+        setUp();
+        LoginRequest loginRequest = new LoginRequest("nonexistentUser", "chomp");
+
+        DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.login(loginRequest));
+
+        assertEquals(401, ex.getStatusCode());
+        assertEquals("Error: Unauthorized", ex.getMessage());
+    }
+}
+
+
+
+
 
     //valid username, invalid password
 

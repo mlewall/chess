@@ -35,7 +35,7 @@ public class MemoryUserDAO implements UserDAO {
         if(users.get(username) != null){
             return users.get(username);
         }
-        throw new DataAccessException(401, "Username not found");
+        throw new DataAccessException(401, "Error: Unauthorized");
         //returns the whole user data, returns null if not found
     }
 
