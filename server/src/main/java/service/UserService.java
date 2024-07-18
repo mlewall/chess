@@ -2,11 +2,14 @@ package service;
 
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
+import reqres.FailureResult;
 import reqres.LoginRequest;
 import reqres.LoginResult;
 import dataaccess.memory.MemoryUserDAO;
 import dataaccess.UserDAO;
 import model.*;
+import reqres.ServiceResult;
 
 import java.util.UUID;
 
@@ -23,7 +26,7 @@ public class UserService {
     }
 
 
-    public LoginResult login(LoginRequest r) {
+    public ServiceResult login(LoginRequest r) {
         //look up the username in the database
         //if there is a username:
             //if username matches password?
@@ -33,16 +36,24 @@ public class UserService {
         String password = r.password();
         String authToken = ""; //this will be filled in later
 
-        UserData singleUserData = userDAO.getUserData(username);
-        if (singleUserData == null) {
-            //todo: then the user didn't exist in the system, throw some kind of error
-            return null;
-        }
-        else{
+        try{
+            UserData singleUserData = userDAO.getUserData(username);
             if (singleUserData.password().equals(password)) {
                 //generate an authentication token
                 authToken = UUID.randomUUID().toString();
             }
+            else{
+                FailureResult errorMsg = new FailureResult("Error: unauthorized", 401);
+                return errorMsg;
+                //how to make the failure response code 401?
+                //passwords didn't match; return something about an incorrect password
+            }
+        }
+        catch (DataAccessException e) {
+            //username was not found in the database.
+            //do I know how to deal with that here?
+            FailureResult errorMsg = new FailureResult(e.getMessage(), 401);
+            return errorMsg;
         }
 
         LoginResult rr = new LoginResult(username, authToken); //a record that takes a username and authToken

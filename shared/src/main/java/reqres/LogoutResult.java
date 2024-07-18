@@ -1,4 +1,4 @@
 package reqres;
 
-public class LogoutResult {
+public class LogoutResult implements ServiceResult{
 }

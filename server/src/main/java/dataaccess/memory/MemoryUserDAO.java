@@ -1,5 +1,6 @@
 package dataaccess.memory;
 
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
 
@@ -25,9 +26,12 @@ public class MemoryUserDAO implements UserDAO {
         users.put("embopgirl", fake);
     }
 
-    public UserData getUserData(String username){
+    public UserData getUserData(String username) throws DataAccessException {
         insertFakeUser(); //for DEBUGGING
-        return MemoryDatabase.getUserData(username);
+        if(users.get(username) != null){
+            return users.get(username);
+        }
+        throw new DataAccessException("Username not found");
         //returns the whole user data, returns null if not found
     }
 
