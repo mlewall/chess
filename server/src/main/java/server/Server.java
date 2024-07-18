@@ -1,6 +1,8 @@
 package server;
 import dataaccess.*;
 import dataaccess.memory.*;
+import org.eclipse.jetty.server.Authentication;
+import reqres.FailureResult;
 import reqres.LoginRequest;
 import reqres.LoginResult;
 import com.google.gson.Gson;
@@ -72,11 +74,17 @@ public class Server {
     //needs to return an object: spark's requirement
     private Object loginHandler(Request request, Response response) {
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
-
-        ServiceResult username_authToken = userService.login(loginRequest);
+        ServiceResult result = userService.login(loginRequest);
+        if(result instanceof LoginResult){
+            response.status(200);
+            return new Gson().toJson(result);
+        }
+        else if(result instanceof FailureResult){
+            response.status(401);
+            return new Gson().toJson(result);
+        }
         //LoginRequest contains username, pw: UserData[username=embopgirl, password=yeehaw]
-        return new Gson().toJson(username_authToken);
-
+        return null;
     }
 
     private String clearHandler(Request request, Response response) {
