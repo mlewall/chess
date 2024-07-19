@@ -13,4 +13,6 @@ public interface AuthDAO {
     public void insertFakeAuth();
     public AuthData getAuthData(String username); //UserData contains
 
+    void insertNewAuth(AuthData authData);
+    void remove(String authToken);
 }

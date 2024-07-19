@@ -33,24 +33,39 @@ public class UserService {
             throw new DataAccessException(401, "Error: Unauthorized");
         }
         authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, r.password());
+        authDAO.insertNewAuth(authData);
         return new LoginResult(username, authToken); //a record that takes a username and authToken;
     }
 
     //comes in with an auth token
     public ServiceResult logout(LogoutRequest r) throws DataAccessException {
-        return null;
+        String suppliedAuthToken = r.authToken();
+        if (suppliedAuthToken == null || suppliedAuthToken.isEmpty()) {
+            throw new DataAccessException(401, "Error: Unauthorized");
+        }
+        //had authToken, but it was wrong
+        AuthData authData = authDAO.getAuthData(suppliedAuthToken);
+        if (authData == null) { // we didn't find the authToken in there.
+            throw new DataAccessException(401, "Error: Unauthorized");
+        }
+        authDAO.remove(suppliedAuthToken);
+        return new LogoutResult();
+
     }
 
     public ServiceResult register(RegisterRequest r) throws DataAccessException{
         UserData userData = new UserData(r.username(), r.password(), r.email());
         userDAO.insertNewUser(userData);
+
         String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, r.password());
+        authDAO.insertNewAuth(authData);
         return new RegisterResult(r.username(), authToken);
 
-        //400 is bad request (not sure when this is supposed to come up actually)
+        //todo: 400 is bad request (not sure when this is supposed to come up actually)
         //403 is already taken (implemented in the DAO class)
-        //500 is a server error (ask about these)
+        //todo: 500 is a server error (ask about these)
     }
 
-    //public static RegisterResult register(RegisterRequest r) {}
 }

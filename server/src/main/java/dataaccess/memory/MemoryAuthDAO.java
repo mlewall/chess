@@ -13,12 +13,12 @@ public class MemoryAuthDAO implements AuthDAO {
      */
     static final Map<String, AuthData> auths = new HashMap<>();
 
+    public MemoryAuthDAO(){};
+
     public void insertFakeAuth() {
         AuthData fake = new AuthData("testAuthToken", "embopgirl");
         auths.put("testAuthToken", fake);
     }
-
-    public MemoryAuthDAO(){};
 
     public boolean isEmpty(){
         return auths.isEmpty();
@@ -28,7 +28,15 @@ public class MemoryAuthDAO implements AuthDAO {
         auths.clear();
     }
 
-    public AuthData getAuthData(String username){
-        return null;
+    public AuthData getAuthData(String authToken){
+        return auths.get(authToken);
+    }
+
+    public void insertNewAuth(AuthData authData){
+        auths.put(authData.authToken(), authData);
+    }
+
+    public void remove(String authToken){
+        auths.remove(authToken);
     }
 }

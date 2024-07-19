@@ -73,6 +73,7 @@ class UserServiceTests {
         assert result instanceof RegisterResult;
         assert ((RegisterResult) result).username().equals("hillbilly");
         assert ((RegisterResult) result).authToken() != null;
+        //todo: add another check that ensures the authData is actually in the database?
     }
 
     @Test

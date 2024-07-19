@@ -80,16 +80,13 @@ public class Server {
     }
 
     //needs to return an object: spark's requirement
+    private Object clearHandler(Request request, Response response) throws DataAccessException {
+        ServiceResult result = clearService.resetDatabases();
+        return new Gson().toJson(result);
+    }
     private Object loginHandler(Request request, Response response) throws DataAccessException{
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
         ServiceResult result = userService.login(loginRequest);
-        return new Gson().toJson(result);
-    }
-
-    private Object clearHandler(Request request, Response response) throws DataAccessException {
-        //var clearRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?
-        ServiceResult result = clearService.resetDatabases();
-//        response.status(200);
         return new Gson().toJson(result);
     }
     private String registerHandler(Request request, Response response) throws DataAccessException {
@@ -97,17 +94,18 @@ public class Server {
         ServiceResult result = userService.register(registerRequest);
         return new Gson().toJson(result);
     }
-    //put login back here
-    private Object logoutHandler(Request request, Response response) {
+    private Object logoutHandler(Request request, Response response) throws DataAccessException {
+        LogoutRequest logoutRequest = new LogoutRequest(request.headers("authorization"));
+        ServiceResult result = userService.logout(logoutRequest);
+        return new Gson().toJson(result);
+    }
+    private Object listHandler(Request request, Response response) throws DataAccessException {
         return null;
     }
-    private Object listHandler(Request request, Response response) {
+    private Object createGameHandler(Request request, Response response) throws DataAccessException {
         return null;
     }
-    private Object createGameHandler(Request request, Response response) {
-        return null;
-    }
-    private Object joinHandler(Request request, Response response) {
+    private Object joinHandler(Request request, Response response) throws DataAccessException {
         return null;
     }
 }
