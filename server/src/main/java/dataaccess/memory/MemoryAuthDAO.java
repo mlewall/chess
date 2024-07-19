@@ -11,13 +11,13 @@ public class MemoryAuthDAO implements AuthDAO {
     /* Key: authToken (what we mostly use to look things up
         AuthData: an authToken and a username
      */
-    static final Map<String, AuthData> auths = new HashMap<>();
+    public static final Map<String, AuthData> auths = new HashMap<>();
 
     public MemoryAuthDAO(){};
 
     public void insertFakeAuth() {
-        AuthData fake = new AuthData("testAuthToken", "embopgirl");
-        auths.put("testAuthToken", fake);
+        AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
+        auths.put("fakeAuthToken", fakeAuth);
     }
 
     public boolean isEmpty(){
@@ -30,6 +30,7 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public AuthData getAuthData(String authToken){
         return auths.get(authToken);
+        //todo: do these need to be the ones to throw the exceptions?
     }
 
     public void insertNewAuth(AuthData authData){
@@ -39,4 +40,6 @@ public class MemoryAuthDAO implements AuthDAO {
     public void remove(String authToken){
         auths.remove(authToken);
     }
+
+
 }

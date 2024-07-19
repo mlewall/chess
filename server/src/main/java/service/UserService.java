@@ -30,7 +30,7 @@ public class UserService {
 
         UserData singleUserData = userDAO.getUserData(username);
         if (singleUserData == null || !singleUserData.password().equals(password)) {
-            throw new DataAccessException(401, "Error: Unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken, r.password());
@@ -42,12 +42,12 @@ public class UserService {
     public ServiceResult logout(LogoutRequest r) throws DataAccessException {
         String suppliedAuthToken = r.authToken();
         if (suppliedAuthToken == null || suppliedAuthToken.isEmpty()) {
-            throw new DataAccessException(401, "Error: Unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         //had authToken, but it was wrong
         AuthData authData = authDAO.getAuthData(suppliedAuthToken);
         if (authData == null) { // we didn't find the authToken in there.
-            throw new DataAccessException(401, "Error: Unauthorized");
+            throw new DataAccessException(401, "Error: unauthorized");
         }
         authDAO.remove(suppliedAuthToken);
         return new LogoutResult();

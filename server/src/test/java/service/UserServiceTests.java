@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import reqres.*;
 import reqres.ServiceResult;
 
+import static dataaccess.memory.MemoryAuthDAO.auths;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTests {
@@ -50,7 +51,7 @@ class UserServiceTests {
         DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.login(loginRequest));
 
         assertEquals(401, ex.getStatusCode());
-        assertEquals("Error: Unauthorized", ex.getMessage());
+        assertEquals("Error: unauthorized", ex.getMessage());
     }
 
 
@@ -62,7 +63,7 @@ class UserServiceTests {
         DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.login(loginRequest));
 
         assertEquals(401, ex.getStatusCode());
-        assertEquals("Error: Unauthorized", ex.getMessage());
+        assertEquals("Error: unauthorized", ex.getMessage());
     }
 
     @Test
@@ -84,6 +85,27 @@ class UserServiceTests {
         DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.register(registerRequest));
         assertEquals(403, ex.getStatusCode());
         assertEquals("Error: already taken", ex.getMessage());
+    }
+
+    @Test
+    public void logoutValidUser() throws DataAccessException{
+        setUp(); // inserts fakeUser fakeUsername, fakePassword, fakeAuthToken
+        LogoutRequest logoutRequest = new LogoutRequest("fakeAuthToken");
+        ServiceResult result = userService.logout(logoutRequest);
+        assert result instanceof LogoutResult; //make sure we got a LogoutResult and not an error
+        assert !auths.containsKey("fakeAuthToken"); //make sure it's deleted from the db
+        //assert something else?
+    }
+
+    @Test
+    public void logoutInvalidAuthToken() throws DataAccessException{
+        setUp();
+        LogoutRequest logoutRequest = new LogoutRequest("invalidAuthToken");
+        DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.logout(logoutRequest));
+
+        assertEquals(401, ex.getStatusCode());
+        assertEquals("Error: unauthorized", ex.getMessage());
+
     }
 
 
