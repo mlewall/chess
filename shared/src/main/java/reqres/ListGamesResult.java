@@ -1,4 +1,6 @@
 package reqres;
 
-public record ListGamesResult() {
+import java.util.ArrayList;
+
+public record ListGamesResult(ArrayList<model.SimplifiedGameData> allGames) implements ServiceResult{
 }

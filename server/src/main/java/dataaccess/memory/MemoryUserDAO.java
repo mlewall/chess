@@ -13,7 +13,9 @@ public class MemoryUserDAO implements UserDAO {
     //the key is the username?
     private static final Map<String, UserData> users = new HashMap<>();
 
-    public MemoryUserDAO() {}
+    public MemoryUserDAO() {
+        insertFakeUser();
+    }
 
     public boolean isEmpty(){
         return users.isEmpty();
@@ -46,11 +48,5 @@ public class MemoryUserDAO implements UserDAO {
         }
         users.put(user.username(), user);
     }
-
-    //3)update user(?)
-
-
-    //4) delete user
-
 
 }

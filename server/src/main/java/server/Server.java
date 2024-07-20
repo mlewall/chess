@@ -100,10 +100,18 @@ public class Server {
         return new Gson().toJson(result);
     }
     private Object listHandler(Request request, Response response) throws DataAccessException {
-        return null;
+        ListGamesRequest listRequest = new ListGamesRequest(request.headers("authorization"));
+        ServiceResult result = gameService.listGames(listRequest);
+        return new Gson().toJson(result);
     }
     private Object createGameHandler(Request request, Response response) throws DataAccessException {
-        return null;
+        String authToken = request.headers("authorization");
+        Map<String, String> jsonMap = new Gson().fromJson(request.body(), Map.class);
+        String gameName = jsonMap.get("gameName");
+        CreateGameRequest createRequest = new CreateGameRequest(authToken, gameName);
+        ServiceResult result = gameService.createGame(createRequest);
+        return new Gson().toJson(result);
+
     }
     private Object joinHandler(Request request, Response response) throws DataAccessException {
         return null;
