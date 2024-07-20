@@ -9,6 +9,8 @@ import java.util.List;
 public interface GameDAO {
     boolean isEmpty();
     void clear();
+    void addFakeGame();
+    void addManyFakeGames();
     ArrayList<SimplifiedGameData> getAllGames();
 
     //GameData getGame(String s);

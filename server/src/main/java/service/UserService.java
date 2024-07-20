@@ -4,7 +4,6 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import reqres.*;
-import dataaccess.memory.MemoryUserDAO;
 import dataaccess.UserDAO;
 import model.*;
 import reqres.ServiceResult;
@@ -24,25 +23,24 @@ public class UserService {
     }
 
     public ServiceResult login(LoginRequest r) throws DataAccessException {
-        String username = r.username();
-        String password = r.password();
-        String authToken = ""; //this will be filled in later
-
-        UserData singleUserData = userDAO.getUserData(username);
-        if (singleUserData == null || !singleUserData.password().equals(password)) {
+        if(r.username() == null || r.username().isBlank() || r.password() == null || r.password().isBlank()){
+            throw new DataAccessException(400, "Error: bad request");
+        }
+        UserData singleUserData = userDAO.getUserData(r.username());
+        if (singleUserData == null || !singleUserData.password().equals(r.password())) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
-        authToken = UUID.randomUUID().toString();
+        String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken, r.password());
-        authDAO.insertNewAuth(authData);
-        return new LoginResult(username, authToken); //a record that takes a username and authToken;
+        authDAO.addNewAuth(authData);
+        return new LoginResult(r.username(), authToken); //a record that takes a username and authToken;
     }
 
     //comes in with an auth token
     public ServiceResult logout(LogoutRequest r) throws DataAccessException {
         String suppliedAuthToken = r.authToken();
-        if (suppliedAuthToken == null || suppliedAuthToken.isEmpty()) {
-            throw new DataAccessException(401, "Error: unauthorized");
+        if (suppliedAuthToken == null || suppliedAuthToken.isBlank()) {
+            throw new DataAccessException(400, "Error: bad request");
         }
         //had authToken, but it was wrong
         AuthData authData = authDAO.getAuthData(suppliedAuthToken);
@@ -55,12 +53,17 @@ public class UserService {
     }
 
     public ServiceResult register(RegisterRequest r) throws DataAccessException{
+        if(r.username() == null || r.username().isBlank()
+        || r.password() == null || r.password().isBlank()
+        || r.email() == null || r.email().isBlank()){
+            throw new DataAccessException(400, "Error: bad request");
+        }
         UserData userData = new UserData(r.username(), r.password(), r.email());
-        userDAO.insertNewUser(userData);
+        userDAO.insertNewUser(userData); //this will throw the error from the dataAccess class if there's a duplicate username
 
         String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken, r.password());
-        authDAO.insertNewAuth(authData);
+        authDAO.addNewAuth(authData);
         return new RegisterResult(r.username(), authToken);
 
         //todo: 400 is bad request (not sure when this is supposed to come up actually)

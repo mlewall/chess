@@ -38,7 +38,7 @@ public class MemoryUserDAO implements UserDAO {
         if(users.get(username) != null){
             return users.get(username);
         }
-        throw new DataAccessException(401, "Error: unauthorized");
+        return null;
     }
 
     public void insertNewUser(UserData user) throws DataAccessException {

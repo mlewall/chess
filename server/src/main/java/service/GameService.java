@@ -23,8 +23,10 @@ public class GameService {
     }
 
     public ServiceResult listGames(ListGamesRequest r) throws DataAccessException {
-        String authToken = r.authToken();
-        AuthData authData = authDAO.getAuthData(authToken);
+        if(r.authToken() == null || r.authToken().isBlank()){
+            throw new DataAccessException(400, "Error: bad request");
+        }
+        AuthData authData = authDAO.getAuthData(r.authToken());
         if(authData == null){
             //invalid authToken
             throw new DataAccessException(401, "Error: unauthorized");
@@ -35,10 +37,13 @@ public class GameService {
     }
 
     public ServiceResult createGame(CreateGameRequest r) throws DataAccessException {
-        String authToken = r.authToken();
-        AuthData authData = authDAO.getAuthData(authToken);
+        if(r.authToken() == null || r.authToken().isBlank()){
+            throw new DataAccessException(400, "Error: bad request");
+        }
+        AuthData authData = authDAO.getAuthData(r.authToken());
+        //todo: do I need to consider validating the authorization every time?
         if(authData == null){
-            throw new DataAccessException(401, "Error: unauthorized");
+            throw new DataAccessException(401, "Error: unable to find auth data given authToken (wrong authToken)");
         }
         int newGameID = createGameID();
         //try again and again till you get a unique one (this shouldn't happen very often)
@@ -51,11 +56,33 @@ public class GameService {
         return result;
     }
 
+    //this may be overkill
     public int createGameID() {
         //returns a 6-digit ID
         Random random = new Random();
         long timestamp = System.currentTimeMillis() % 1000000; // gets the last 6 digits of timestamp
         int randomPart = random.nextInt(1000); // gets random 3-digit number
         return (int)(timestamp * 1000 + randomPart); //combine them and cast as int
+    }
+
+    public ServiceResult joinGame(JoinGameRequest r) throws DataAccessException {
+        //joinGame takes authToken, playerColor, and a game ID
+        if(r.authToken() == null || r.authToken().isBlank()){
+            throw new DataAccessException(400, "Error: missing authToken");
+        }
+        if(r.gameID() <= 0){ //how to check effectively that a gameid was supplied?
+            throw new DataAccessException(400, "Error: invalid or missing gameID");
+        }
+        if(r.gameColor() == null || r.gameColor().isBlank()){
+            throw new DataAccessException(400, "Error: invalid team color");
+        }
+
+        AuthData authData = authDAO.getAuthData(r.authToken());
+        //todo: do I need to consider validating the authorization every time?
+        if(authData == null){
+            throw new DataAccessException(401, "Error: unauthorized (bad authToken)");
+        }
+
+
     }
 }

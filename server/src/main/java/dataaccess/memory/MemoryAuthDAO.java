@@ -15,7 +15,7 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public MemoryAuthDAO(){};
 
-    public void insertFakeAuth() {
+    public void addFakeAuth() {
         AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
         auths.put("fakeAuthToken", fakeAuth);
     }
@@ -33,7 +33,7 @@ public class MemoryAuthDAO implements AuthDAO {
         //todo: do these need to be the ones to throw the exceptions?
     }
 
-    public void insertNewAuth(AuthData authData){
+    public void addNewAuth(AuthData authData){
         auths.put(authData.authToken(), authData);
     }
 

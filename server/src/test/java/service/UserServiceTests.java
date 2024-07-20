@@ -1,13 +1,7 @@
 package service;
-import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryUserDAO;
-import model.UserData;
-import org.eclipse.jetty.server.Authentication;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reqres.*;
 import reqres.ServiceResult;
@@ -26,7 +20,7 @@ class UserServiceTests {
         this.userService = new UserService(userDAO, authDAO);
 
         userDAO.insertFakeUser();
-        authDAO.insertFakeAuth();
+        authDAO.addFakeAuth();
     }
 
     @Test
@@ -86,6 +80,8 @@ class UserServiceTests {
         assertEquals(403, ex.getStatusCode());
         assertEquals("Error: already taken", ex.getMessage());
     }
+
+
 
     @Test
     public void logoutValidUser() throws DataAccessException{
