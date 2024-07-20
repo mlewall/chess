@@ -3,14 +3,10 @@ package service;
 import dataaccess.*;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
-import dataaccess.memory.MemoryUserDAO;
-import model.SimplifiedGameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reqres.*;
 import model.GameData;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +32,7 @@ public class GameServiceTests {
     public void listGamesNoGamesOK() throws DataAccessException {
         ListGamesRequest request = new ListGamesRequest("fakeAuthToken");
         ListGamesResult result = (ListGamesResult) gameService.listGames(request);
-        assert result.allGames() != null;
+        assert result.games() != null;
     }
 
     @Test
@@ -44,8 +40,8 @@ public class GameServiceTests {
         gameDAO.addFakeGame();
         ListGamesRequest request = new ListGamesRequest("fakeAuthToken");
         ListGamesResult result = (ListGamesResult) gameService.listGames(request);
-        assert result.allGames() != null;
-        assert result.allGames().size() == 1;
+        assert result.games() != null;
+        assert result.games().size() == 1;
     }
 
     @Test
@@ -54,8 +50,8 @@ public class GameServiceTests {
         gameDAO.addManyFakeGames();
         ListGamesRequest request = new ListGamesRequest("fakeAuthToken");
         ListGamesResult result = (ListGamesResult) gameService.listGames(request);
-        assert result.allGames() != null;
-        assert result.allGames().size() == 4;
+        assert result.games() != null;
+        assert result.games().size() == 4;
     }
 
     @Test
@@ -70,9 +66,9 @@ public class GameServiceTests {
     @Test
     public void createGameSuccess() throws DataAccessException {
         CreateGameRequest request = new CreateGameRequest("fakeAuthToken", "myFirstGame");
-        int dbSizeBefore = gameDAO.getAllGames().size();
+        int dbSizeBefore = gameDAO.getGames().size();
         CreateGameResult result = (CreateGameResult) gameService.createGame(request);
-        int dbSizeAfter = gameDAO.getAllGames().size();
+        int dbSizeAfter = gameDAO.getGames().size();
 
         assertEquals((dbSizeBefore + 1), dbSizeAfter);
         assertTrue(result.gameID() > 0); //gameIDs should be positive integers.
@@ -86,10 +82,10 @@ public class GameServiceTests {
     public void createGameDuplicateGameNames() throws DataAccessException {
         CreateGameRequest request = new CreateGameRequest("fakeAuthToken", "game1");
         CreateGameResult result = (CreateGameResult) gameService.createGame(request);
-        int dbSizeBefore = gameDAO.getAllGames().size();
+        int dbSizeBefore = gameDAO.getGames().size();
         CreateGameRequest request2 = new CreateGameRequest("fakeAuthToken", "game1");
         CreateGameResult result2 = (CreateGameResult) gameService.createGame(request2);
-        int dbSizeAfter = gameDAO.getAllGames().size();
+        int dbSizeAfter = gameDAO.getGames().size();
         assertEquals((dbSizeBefore + 1), dbSizeAfter);
     }
 

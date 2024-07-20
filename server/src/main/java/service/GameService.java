@@ -31,7 +31,7 @@ public class GameService {
             //invalid authToken
             throw new DataAccessException(401, "Error: unauthorized");
         }
-        ArrayList<SimplifiedGameData> allGames = gameDAO.getAllGames();
+        ArrayList<GameData> allGames = gameDAO.getGames();
         ListGamesResult result = new ListGamesResult(allGames);
         return result;
     }
@@ -50,7 +50,7 @@ public class GameService {
         while(gameDAO.getGame(newGameID) != null){
             newGameID = createGameID();
         }
-        GameData newGame = new GameData(newGameID, "", "", r.gameName(), new ChessGame());
+        GameData newGame = new GameData(newGameID, null, null, r.gameName(), new ChessGame());
         gameDAO.addGame(newGameID, newGame);
         CreateGameResult result = new CreateGameResult(newGameID);
         return result;
@@ -67,6 +67,48 @@ public class GameService {
 
     public ServiceResult joinGame(JoinGameRequest r) throws DataAccessException {
         //joinGame takes authToken, playerColor, and a game ID
+
+        //this isValidJoinInput method will throw 400- bad requests for invalid request input
+        if(isValidJoinInput(r)) {
+            //validate authorization
+            AuthData authData = authDAO.getAuthData(r.authToken()); //todo: do I need to consider validating the authorization every time?
+            if (authData == null) {
+                throw new DataAccessException(401, "Error: unauthorized (bad authToken)");
+            }
+
+            GameData ogGame = gameDAO.getGame(r.gameID());
+            if (ogGame == null) {
+                throw new DataAccessException(401, "Error: game not found");
+            }
+
+            String username = authData.username();
+
+            //request to join white, black, or invalid join color.
+            // Copy over all data from old game, but add in username of the new player.
+            // GameDAO handles entering new record.
+            if((r.gameColor().equals("WHITE") && (ogGame.whiteUsername() == null || ogGame.whiteUsername().isBlank()))){
+                GameData updatedGame = new GameData(ogGame.gameID(), username, ogGame.blackUsername(), ogGame.gameName(), ogGame.game());
+                gameDAO.updateGame(ogGame, updatedGame);
+            }
+            else if((r.gameColor().equals("BLACK") && (ogGame.blackUsername() == null || ogGame.blackUsername().isBlank()))){
+                GameData updatedGame = new GameData(ogGame.gameID(), ogGame.whiteUsername(), username, ogGame.gameName(), ogGame.game());
+                gameDAO.updateGame(ogGame, updatedGame);
+            }
+            else{
+                throw new DataAccessException(403, "Error: player of that color already exists");
+            }
+
+            return new JoinGameResult();
+
+        }
+        //we shouldn't ever get here todo: maybe take this out
+        throw new DataAccessException(401, "Error: invalid JoinGameRequest");
+
+
+
+
+    }
+    boolean isValidJoinInput(JoinGameRequest r) throws DataAccessException {
         if(r.authToken() == null || r.authToken().isBlank()){
             throw new DataAccessException(400, "Error: missing authToken");
         }
@@ -76,13 +118,6 @@ public class GameService {
         if(r.gameColor() == null || r.gameColor().isBlank()){
             throw new DataAccessException(400, "Error: invalid team color");
         }
-
-        AuthData authData = authDAO.getAuthData(r.authToken());
-        //todo: do I need to consider validating the authorization every time?
-        if(authData == null){
-            throw new DataAccessException(401, "Error: unauthorized (bad authToken)");
-        }
-
-
+        return true;
     }
 }

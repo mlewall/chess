@@ -13,28 +13,17 @@ public class MemoryGameDAO implements GameDAO {
     static final Map<Integer, GameData> games = new HashMap<>();
     //static final Map<String, Integer> gameNameToID = new HashMap<>();
 
-    public MemoryGameDAO() {
-        //todo: remove this, it's just for testing
-        //addFakeGame();
-    }
+    public MemoryGameDAO() {}
 
-    public boolean isEmpty(){
-        return games.isEmpty();
-    }
-
-    public void clear(){
-        games.clear();
-    }
-
-    public void addFakeGame(){
+    /* these are test methods*/
+    public void addFakeGame() {
         ChessGame fakeChessGame = new ChessGame();
         GameData game1 = new GameData(1234, "", "", "fakeChessGame",
                 fakeChessGame);
         games.put(1234, game1);
         //gameNameToID.put("fakeChessGame", 1234);
     }
-
-    public void addManyFakeGames(){
+    public void addManyFakeGames() {
         //only called in the tests
         ChessGame fakeChessGame1 = new ChessGame();
         ChessGame fakeChessGame2 = new ChessGame();
@@ -50,27 +39,47 @@ public class MemoryGameDAO implements GameDAO {
         games.put(3, game3);
 
     }
+    public boolean isEmpty() {
+        return games.isEmpty();
+    }
 
-    public GameData getGame(int gameID){
+    //--------------------------------------//
+
+    public void clear() {
+        games.clear();
+    }
+
+    public GameData getGame(int gameID) {
         return games.get(gameID);
     }
 
-//    public GameData getGame(String gameName){
-//        return games.get(gameNameToID.get(gameName));
-//    }
+    public ArrayList<GameData> getGames() {
+        ArrayList<GameData> allGames = new ArrayList<>();
+        //this exists just to remove the final ChessGame object
+
+        //            SimplifiedGameData curr = new SimplifiedGameData(game.gameID(), game.whiteUsername(), game.blackUsername(),
+        //                    game.gameName());
+        allGames.addAll(games.values());
+        return allGames;
+    }
 
     public void addGame(int gameID, GameData game) {
         games.put(gameID, game);
     }
 
-    public ArrayList<SimplifiedGameData> getAllGames(){
-        ArrayList<SimplifiedGameData> allGames = new ArrayList<>();
-        //this exists just to remove the final ChessGame object
-        for(GameData game: games.values()){
-            SimplifiedGameData curr = new SimplifiedGameData(game.gameID(), game.whiteUsername(), game.blackUsername(),
-                    game.gameName());
-            allGames.add(curr);
-        }
-        return allGames;
+    public void updateGame(GameData oldGame, GameData newGame) {
+        //these should have the exact same ID (because they're copied over)
+        games.remove(oldGame.gameID());
+        games.put(newGame.gameID(), newGame);
     }
+
+    public void removeGame(int gameID) {
+        games.remove(gameID);
+    }
+
+    //    public GameData getGame(String gameName){
+//        return games.get(gameNameToID.get(gameName));
+//    }
 }
+
+

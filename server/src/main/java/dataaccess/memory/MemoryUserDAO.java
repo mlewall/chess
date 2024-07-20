@@ -14,7 +14,7 @@ public class MemoryUserDAO implements UserDAO {
     private static final Map<String, UserData> users = new HashMap<>();
 
     public MemoryUserDAO() {
-        insertFakeUser();
+        //insertFakeUser();
     }
 
     public boolean isEmpty(){

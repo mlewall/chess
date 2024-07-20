@@ -1,4 +1,5 @@
 package server;
+import com.google.gson.JsonObject;
 import dataaccess.*;
 import dataaccess.memory.*;
 import org.eclipse.jetty.server.Authentication;
@@ -114,6 +115,26 @@ public class Server {
 
     }
     private Object joinHandler(Request request, Response response) throws DataAccessException {
-        return null;
+        Gson gson =  new Gson();
+        String authToken = request.headers("authorization");
+        JsonObject content = gson.fromJson(request.body(), JsonObject.class);
+        if(content.get("playerColor") == null || content.get("gameID")== null){
+            ServiceResult result = new FailureResult("Error: bad request");
+            response.status(400);
+            return gson.toJson(result);
+        }
+        String playerColor = content.get("playerColor").getAsString();
+        int gameID = content.get("gameID").getAsInt();
+//
+        JoinGameRequest joinRequest = new JoinGameRequest(authToken, playerColor, gameID);
+        ServiceResult result = gameService.joinGame(joinRequest);
+        return new Gson().toJson(result);
     }
+    
+    //500 errors are related to server and client miscommunicating
+    //throw with the message
+    //catch in handlers
+    //depending on type of message included in the error
+    //if not recognized basically
+
 }

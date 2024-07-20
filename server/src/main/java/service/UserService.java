@@ -31,7 +31,7 @@ public class UserService {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         String authToken = UUID.randomUUID().toString();
-        AuthData authData = new AuthData(authToken, r.password());
+        AuthData authData = new AuthData(authToken, r.username());
         authDAO.addNewAuth(authData);
         return new LoginResult(r.username(), authToken); //a record that takes a username and authToken;
     }
@@ -62,7 +62,7 @@ public class UserService {
         userDAO.insertNewUser(userData); //this will throw the error from the dataAccess class if there's a duplicate username
 
         String authToken = UUID.randomUUID().toString();
-        AuthData authData = new AuthData(authToken, r.password());
+        AuthData authData = new AuthData(authToken, r.username());
         authDAO.addNewAuth(authData);
         return new RegisterResult(r.username(), authToken);
 
