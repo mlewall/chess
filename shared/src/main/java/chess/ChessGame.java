@@ -134,7 +134,7 @@ public class ChessGame {
         ChessPosition startPositionOfMovingPiece = move.getStartPosition();
         ChessPiece movingPiece = board.getPiece(startPositionOfMovingPiece);
 
-        //1) check for if not team turn
+        //0) check for if not team turn
         if(movingPiece == null){
             throw new InvalidMoveException("Current piece is null for some reason");
         }
@@ -221,7 +221,7 @@ public class ChessGame {
                 //if it's an enemy piece
                 if(piece != null && piece.getTeamColor() != teamColor){
                     //get all the pieceMoves for that enemyPiece (not considering check...) (I wonder why this works)
-                    if(canEnemyPieceAttackKing(kingPosition, piece, scanPos)){
+                    if(enemyPieceCanAttackKing(kingPosition, piece, scanPos)){
                         return true;
                     }
                 }
@@ -230,7 +230,7 @@ public class ChessGame {
         return false;
     }
 
-    public boolean canEnemyPieceAttackKing(ChessPosition kingPosition, ChessPiece piece, ChessPosition scanPos) {
+    public boolean enemyPieceCanAttackKing(ChessPosition kingPosition, ChessPiece piece, ChessPosition scanPos) {
         Collection<ChessMove> possMoves = piece.pieceMoves(board, scanPos);
         for (ChessMove move : possMoves) {
             //if the destination of the enemy's move coincides with the king's current position
@@ -250,23 +250,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        //loop over all the pieces of a given color
-        for(int row = 1; row <= 8; row++){
-            for (int col = 1; col <= 8; col++){
-                ChessPosition scanPos = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(scanPos);
-                if(piece != null && piece.getTeamColor() == teamColor){
-                    //get all the piecemoves for that enemypiece (not consdering check...) (I wonder why this works)
-                    Collection<ChessMove> validMoves = validMoves(scanPos);
-                    if(!validMoves.isEmpty()){
-                        return false;
-                        //if ANY of them have moves, return false.
-                    }
-                }
-            }
+        if(isInCheck(teamColor) && hasNoLegalMoves(teamColor)){
+            return true;
         }
         //but if every time you call valid moves and check the size of the collection, and the size is 0,
-        return true;
+        return false;
     }
 
     /**
@@ -277,27 +265,28 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        if(hasNoLegalMoves(teamColor) && !isInCheck(teamColor)){
+            //and is not in Check (King not in danger)
+            return true;
+        }
+        return false;
+    }
+
+    public boolean hasNoLegalMoves(TeamColor teamColor) {
         for(int row = 1; row <= 8; row++){
             for (int col = 1; col <= 8; col++){
                 ChessPosition scanPos = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(scanPos);
                 if(piece != null && piece.getTeamColor() == teamColor){
-                    //get all the piecemoves for that enemypiece (not consdering check...) (I wonder why this works)
+                    //get all the pieceMoves for that enemyPiece (not considering check...)
                     Collection<ChessMove> validMoves = validMoves(scanPos);
                     if(!validMoves.isEmpty()){
-                        return false;
-                        //if ANY of them have moves, return false.
-                        //this means they have valid moves.
+                        return false; //if ANY of them have moves, return false.
                     }
                 }
             }
         }
-        if(!isInCheck(teamColor)){
-            //and is not in Check (King not in danger)
-            return true;
-        }
-        return false;
-
+        return true;
     }
 
     public ChessPosition getKingPosition(ChessBoard board, TeamColor teamColor) {

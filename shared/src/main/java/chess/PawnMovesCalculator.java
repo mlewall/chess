@@ -5,36 +5,16 @@ import java.util.ArrayList;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition ogPosition){
-        int startRow = ogPosition.getRow();
-        int startColumn = ogPosition.getColumn();
-        boolean startingMove;
-        ChessGame.TeamColor teamColor = board.getPiece(ogPosition).getTeamColor(); //we should be good getting here, start is inBounds
         Collection<ChessMove> moves = new ArrayList<>();
 
-        //todo: must specify what team color (row 2 + white = start, but not 7)(starting conditions)
-        if((ogPosition.getRow() == 2 && teamColor == ChessGame.TeamColor.WHITE)||
-                (ogPosition.getRow() == 7 && ChessGame.TeamColor.BLACK == teamColor)){
-            startingMove = true;
-        }
-        else{startingMove = false;}
+        int startRow = ogPosition.getRow();
+        int startColumn = ogPosition.getColumn();
+        ChessGame.TeamColor teamColor = board.getPiece(ogPosition).getTeamColor(); //we should be good getting here, start is inBounds
+        boolean startingMove = isStartingMove(startRow, teamColor);
 
-        //DOUBLES
-        // These are always straight ahead (in bounds), but also need to be checked for enemies.
-        // could be blocked since pieces move. and a move could come later in the game
-        if(startingMove && teamColor == ChessGame.TeamColor.WHITE){
-            ChessPosition possPos = new ChessPosition(ogPosition.getRow()+2, ogPosition.getColumn());
-            if(notBlocked(board, possPos, teamColor) && notFrontBlocked(board, ogPosition, teamColor)){
-                ChessMove newMove = new ChessMove(ogPosition, possPos, null); //won't ever be promoted on first turn
-                moves.add(newMove);
-            }
-        }
-        else if(startingMove && teamColor == ChessGame.TeamColor.BLACK){
-            //black pawn's first move = row - 2 (moving down the board)
-            ChessPosition possPos = new ChessPosition(ogPosition.getRow()-2, ogPosition.getColumn());
-            if(notBlocked(board, possPos, teamColor) && notFrontBlocked(board, ogPosition, teamColor)){
-                ChessMove newMove = new ChessMove(ogPosition, possPos, null); //won't ever be promoted on first turn
-                moves.add(newMove);
-            }
+        //add DOUBLES
+        if(startingMove){
+            addDoubleMoves(ogPosition, teamColor, board, moves);
         }
 
         //right and left are only added if you're taking a piece
@@ -52,27 +32,16 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             moveSet = blackPossibilities;
         }
 
-
         for (int[] possibility : moveSet) {
             int newRow = startRow + possibility[0];
             int newColumn = startColumn + possibility[1];
             ChessPosition possPosition = new ChessPosition(newRow, newColumn);
-
-            // move is straight ahead, and it's not blocked (ie no pieces ahead).
-            //front_blocked needs the ogPosition, not the possible position
             if(inBounds(newRow, newColumn)) {
                 if (((newColumn == startColumn) && notFrontBlocked(board, ogPosition, teamColor)) ||
                         ((newColumn != startColumn) && inBounds(newRow, newColumn) && enemyEncounter(board, possPosition, teamColor))) {
                     if (promotion(possPosition)) {
                         //if it's a promotion, loop through the enum and add those moves.
-                        for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
-                            //exclude PAWN and KING
-                            if ((type.toString() != "PAWN") && (type.toString() != "KING")) {
-                                ChessMove newMove = new ChessMove(ogPosition, possPosition, type);
-                                moves.add(newMove);
-                                //this should add all possible promotions to the possible moves
-                            }
-                        }
+                        addPromotions(ogPosition, possPosition, moves);
                     }
                     //not a promotion but still a one-forward step ahead move. Not blocked still, still in bounds, still straight ahead
                     else {
@@ -85,9 +54,20 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return moves;
     }
 
+    private void addPromotions(ChessPosition ogPosition, ChessPosition possPosition, Collection<ChessMove> moves){
+        for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
+            //exclude PAWN and KING
+            if ((type.toString() != "PAWN") && (type.toString() != "KING")) {
+                ChessMove newMove = new ChessMove(ogPosition, possPosition, type);
+                moves.add(newMove);
+                //this should add all possible promotions to the possible moves
+            }
+        }
+    }
+
     private boolean inBounds(int row, int col){
         //todo!!! remember the inclusivity here.
-        //shared betwen classes
+        //shared between classes
         if (row > 0 && row <= 8 && col > 0 && col <= 8){
             return true;
         }
@@ -139,6 +119,33 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         //this blocked is only used to check for the double front move for the pawn (in its edited form)
         ChessPiece pieceAtDest = board.getPiece(possPosition);
         return pieceAtDest == null;
+    }
+
+    private boolean isStartingMove(int row, ChessGame.TeamColor teamColor){
+        if((row == 2 && teamColor == ChessGame.TeamColor.WHITE)||
+                (row == 7 && ChessGame.TeamColor.BLACK == teamColor)){
+            return true;
+        }
+        return false;
+    }
+
+    private void addDoubleMoves(ChessPosition ogPosition,
+                                ChessGame.TeamColor teamColor, ChessBoard board, Collection<ChessMove> moves){
+        if(teamColor == ChessGame.TeamColor.WHITE){
+            ChessPosition possPos = new ChessPosition(ogPosition.getRow()+2, ogPosition.getColumn());
+            if(notBlocked(board, possPos, teamColor) && notFrontBlocked(board, ogPosition, teamColor)){
+                ChessMove newMove = new ChessMove(ogPosition, possPos, null); //won't ever be promoted on first turn
+                moves.add(newMove);
+            }
+        }
+        else if(teamColor == ChessGame.TeamColor.BLACK){
+            //black pawn's first move = row - 2 (moving down the board)
+            ChessPosition possPos = new ChessPosition(ogPosition.getRow()-2, ogPosition.getColumn());
+            if(notBlocked(board, possPos, teamColor) && notFrontBlocked(board, ogPosition, teamColor)){
+                ChessMove newMove = new ChessMove(ogPosition, possPos, null); //won't ever be promoted on first turn
+                moves.add(newMove);
+            }
+        }
     }
 }
 
