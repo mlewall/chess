@@ -25,7 +25,7 @@ public class GameServiceTests {
         gameDAO.clear();
         authDAO.clear();
 
-        authDAO.addFakeAuth();
+        authDAO.addFakeAuth(); //"fakeAuthToken", "fakeUsername"
     }
 
     @Test
@@ -102,6 +102,34 @@ public class GameServiceTests {
     }
 
     @Test
-    public void join() throws DataAccessException {}
+    public void joinSuccess() throws DataAccessException {
+        gameDAO.addFakeGame(); //adds: GameData(1234, null, null, "fakeChessGame",fakeChessGame)
+        JoinGameRequest request = new JoinGameRequest("fakeAuthToken", "WHITE", 1234);
+        JoinGameResult result = (JoinGameResult) gameService.joinGame(request);
+        assert result.getStatusCode() == 200;
+        GameData game = gameDAO.getGame(1234); //current game
+        //(the values of the gameName and chessGame shouldn't have changed)
+        assert (game.equals(new GameData(1234, "fakeUsername", null,  game.gameName(), game.game())));
+    }
+
+    @Test
+    public void failToJoinNonexistentGame() throws DataAccessException {
+        gameDAO.addFakeGame();
+        JoinGameRequest request = new JoinGameRequest("fakeAuthToken", "WHITE", 8008);
+        DataAccessException ex = assertThrows(DataAccessException.class, () -> gameService.joinGame(request));
+        assertEquals(400, ex.getStatusCode());
+        assertTrue(ex.getMessage().matches("Error: .*"));
+    }
+
+    @Test
+    public void joinBadAuthToken() throws DataAccessException {
+        gameDAO.addFakeGame();
+        JoinGameRequest request = new JoinGameRequest("badAuth", "BLACK", 1234);
+        DataAccessException ex = assertThrows(DataAccessException.class, () -> gameService.joinGame(request));
+        assertEquals(401, ex.getStatusCode());
+        assertTrue(ex.getMessage().matches("Error: .*"));
+    }
+
+
 
 }

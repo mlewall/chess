@@ -72,7 +72,7 @@ public class GameService {
         //joinGame takes authToken, playerColor, and a game ID
 
         //this isValidJoinInput method will throw 400- bad requests for invalid request input
-        if(isValidJoinInput(r)) {
+        if(isCompleteJoinInput(r)) {
             //validate authorization
             AuthData authData = authDAO.getAuthData(r.authToken()); //todo: do I need to consider validating the authorization every time?
             if (authData == null) {
@@ -81,7 +81,7 @@ public class GameService {
 
             GameData ogGame = gameDAO.getGame(r.gameID());
             if (ogGame == null) {
-                throw new DataAccessException(401, "Error: game not found");
+                throw new DataAccessException(400, "Error: game not found (bad request)");
             }
 
             String username = authData.username();
@@ -111,15 +111,15 @@ public class GameService {
 
 
     }
-    boolean isValidJoinInput(JoinGameRequest r) throws DataAccessException {
+    boolean isCompleteJoinInput(JoinGameRequest r) throws DataAccessException {
         if(r.authToken() == null || r.authToken().isBlank()){
-            throw new DataAccessException(400, "Error: missing authToken");
+            throw new DataAccessException(400, "Error: missing/null authToken");
         }
         if(r.gameID() <= 0){ //how to check effectively that a gameid was supplied?
-            throw new DataAccessException(400, "Error: invalid or missing gameID");
+            throw new DataAccessException(400, "Error: missing/null gameID");
         }
         if(r.gameColor() == null || r.gameColor().isBlank()){
-            throw new DataAccessException(400, "Error: invalid team color");
+            throw new DataAccessException(400, "Error: missing/null teamColor");
         }
         return true;
     }
