@@ -7,12 +7,9 @@ that will implement them.*/
 
 import java.util.Collection;
 
-//Note: interface methods are implicitly abstract and public
-
-
-
+//Note: interface methods are implicitly abstract and public. This interface is implemented by an abstract class.
 public interface PieceMovesCalculator {
     Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition position);
     //this is a single method
-    //all implementing classes must provide
+    //all implementing classes MUST provide (through the abstract method)
 }
