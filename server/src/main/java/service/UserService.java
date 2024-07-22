@@ -16,7 +16,8 @@ public class UserService {
     public final UserDAO userDAO;
     public final AuthDAO authDAO;
     //contains methods for register, login, logout
-    //pass in the DAO generated at the server level (?)
+
+    //pass in the DAO generated at the server level
     public UserService(UserDAO userDAO, AuthDAO authDAO){
         this.userDAO = userDAO;
         this.authDAO = authDAO;
@@ -66,9 +67,7 @@ public class UserService {
         authDAO.addNewAuth(authData);
         return new RegisterResult(r.username(), authToken);
 
-        //todo: 400 is bad request (not sure when this is supposed to come up actually)
-        //403 is already taken (implemented in the DAO class)
-        //todo: 500 is a server error (ask about these)
+        //figure out the 500 errors
     }
 
 }

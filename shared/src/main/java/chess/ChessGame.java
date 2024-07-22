@@ -114,11 +114,6 @@ public class ChessGame {
             this.board = ogBoard;
         }
 
-//        System.out.println("Valid moves: \n");
-//        for(ChessMove Validmove: validMoves){
-//            System.out.printf(Validmove.toString());
-//        }
-
         return validMoves;
     }
 
@@ -295,15 +290,7 @@ public class ChessGame {
     }
 
     public ChessPosition getKingPosition(ChessBoard board, TeamColor teamColor) {
-//        todo: figue out why commenting this back in makes the tests fail...
-        //todo: figure out why "pieces cannot eliminate check" and "king cannot move into check" fail
-//        if(teamColor.equals(TeamColor.WHITE) && WhiteKingPos != null){
-//            return WhiteKingPos;
-//        }
-//        else if(teamColor.equals(TeamColor.BLACK) && BlackKingPos != null){
-//            return BlackKingPos;
-//        }
-//        wondering if this is going to break for the test cases who won't find a king sometimes.
+        //figure out why "pieces cannot eliminate check" and "king cannot move into check" fail
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
                 ChessPosition searchPos = new ChessPosition(i, j);
