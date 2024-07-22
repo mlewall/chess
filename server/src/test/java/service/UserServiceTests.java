@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import reqres.*;
 import reqres.ServiceResult;
 
-import static dataaccess.memory.MemoryAuthDAO.auths;
+import static dataaccess.memory.MemoryAuthDAO.AUTHS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTests {
@@ -89,7 +89,7 @@ class UserServiceTests {
         LogoutRequest logoutRequest = new LogoutRequest("fakeAuthToken");
         ServiceResult result = userService.logout(logoutRequest);
         assert result instanceof LogoutResult; //make sure we got a LogoutResult and not an error
-        assert !auths.containsKey("fakeAuthToken"); //make sure it's deleted from the db
+        assert !AUTHS.containsKey("fakeAuthToken"); //make sure it's deleted from the db
         //assert something else?
     }
 

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO {
-    static final Map<Integer, GameData> games = new HashMap<>();
+    static final Map<Integer, GameData> GAMES = new HashMap<>();
     //static final Map<String, Integer> gameNameToID = new HashMap<>();
 
     public MemoryGameDAO() {}
@@ -20,7 +20,7 @@ public class MemoryGameDAO implements GameDAO {
         ChessGame fakeChessGame = new ChessGame();
         GameData game1 = new GameData(1234, null, null, "fakeChessGame",
                 fakeChessGame);
-        games.put(1234, game1);
+        GAMES.put(1234, game1);
         //gameNameToID.put("fakeChessGame", 1234);
     }
     public void addManyFakeGames() {
@@ -34,23 +34,23 @@ public class MemoryGameDAO implements GameDAO {
                 fakeChessGame2);
         GameData game3 = new GameData(3, "snow", "yeet", "fakeChessGame3",
                 fakeChessGame3);
-        games.put(1, game1);
-        games.put(2, game2);
-        games.put(3, game3);
+        GAMES.put(1, game1);
+        GAMES.put(2, game2);
+        GAMES.put(3, game3);
 
     }
     public boolean isEmpty() {
-        return games.isEmpty();
+        return GAMES.isEmpty();
     }
 
     //--------------------------------------//
 
     public void clear() {
-        games.clear();
+        GAMES.clear();
     }
 
     public GameData getGame(int gameID) {
-        return games.get(gameID);
+        return GAMES.get(gameID);
     }
 
     public ArrayList<SimplifiedGameData> getGames() {
@@ -58,7 +58,7 @@ public class MemoryGameDAO implements GameDAO {
         ArrayList<SimplifiedGameData> allGames = new ArrayList<>();
 
         //this exists just to remove the final ChessGame object
-        for(GameData game: games.values()) {
+        for(GameData game: GAMES.values()) {
             SimplifiedGameData curr = new SimplifiedGameData(game.gameID(), game.whiteUsername(), game.blackUsername(),
                     game.gameName());
             allGames.add(curr);
@@ -69,17 +69,17 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     public void addGame(int gameID, GameData game) {
-        games.put(gameID, game);
+        GAMES.put(gameID, game);
     }
 
     public void updateGame(GameData oldGame, GameData newGame) {
         //these should have the exact same ID (because they're copied over)
-        games.remove(oldGame.gameID());
-        games.put(newGame.gameID(), newGame);
+        GAMES.remove(oldGame.gameID());
+        GAMES.put(newGame.gameID(), newGame);
     }
 
     public void removeGame(int gameID) {
-        games.remove(gameID);
+        GAMES.remove(gameID);
     }
 
 }

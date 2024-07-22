@@ -14,14 +14,14 @@ public class ChessGame {
     private ChessBoard board = new ChessBoard();
 
     //not sure if I want to use cached KingPositions.
-    private ChessPosition WhiteKingPos;
-    private ChessPosition BlackKingPos;
+    private ChessPosition whiteKingPos;
+    private ChessPosition blackKingPos;
 
     public ChessGame() {
         board.resetBoard(); //all pieces are in their starting locations
         teamTurn = TeamColor.WHITE; //starting turn
-        WhiteKingPos = null;
-        BlackKingPos = null;
+        whiteKingPos = null;
+        blackKingPos = null;
     }
 
     /**
@@ -85,9 +85,9 @@ public class ChessGame {
             return null;} //return null if no piece at start position
 
         teamTurn = startPiece.getTeamColor();
-        Collection<ChessMove> unfiltered_moves = startPiece.pieceMoves(board, startPosition);
+        Collection<ChessMove> unfilteredMoves = startPiece.pieceMoves(board, startPosition);
 //        System.out.printf("Unfiltered moves: \n");
-        for (ChessMove move : unfiltered_moves) {
+        for (ChessMove move : unfilteredMoves) {
             //System.out.printf(move.toString());
             //update the board on a copy so it looks like we made the move without calling makeMove
             ChessBoard futureBoard = new ChessBoard(board); //make copy of the original board
@@ -99,17 +99,19 @@ public class ChessGame {
 
 
             //cache the king positions? todo: just make sure to update them!
-            if(teamTurn == TeamColor.BLACK) {BlackKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
-            else{WhiteKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
+            if(teamTurn == TeamColor.BLACK) {
+                blackKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
+            else{
+                whiteKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
 
-            ChessBoard og_board = this.board;
+            ChessBoard ogBoard = this.board;
             this.board = futureBoard;
 
             if(!isInCheck(teamTurn)){
                 validMoves.add(move);
             }
 
-            this.board = og_board;
+            this.board = ogBoard;
         }
 
 //        System.out.println("Valid moves: \n");
@@ -179,10 +181,10 @@ public class ChessGame {
         //4) update the king position (if king moved)
         if(movingPiece.getPieceType()== ChessPiece.PieceType.KING){
             if(movingPiece.getTeamColor() == TeamColor.WHITE){
-                WhiteKingPos = getKingPosition(board, movingPiece.getTeamColor());
+                whiteKingPos = getKingPosition(board, movingPiece.getTeamColor());
             }
             else if(movingPiece.getTeamColor() == TeamColor.BLACK){
-                BlackKingPos = getKingPosition(board, movingPiece.getTeamColor());
+                blackKingPos = getKingPosition(board, movingPiece.getTeamColor());
             }
         }
 
@@ -218,8 +220,8 @@ public class ChessGame {
                 ChessPiece piece = board.getPiece(scanPos);
                 if(piece != null && piece.getTeamColor() != teamColor){
                     //get all the piecemoves for that enemypiece (not consdering check...) (I wonder why this works)
-                    Collection<ChessMove> poss_moves = piece.pieceMoves(board, scanPos);
-                    for(ChessMove move : poss_moves){
+                    Collection<ChessMove> possMoves = piece.pieceMoves(board, scanPos);
+                    for(ChessMove move : possMoves){
                         //if the destination of the enemy's move coincides with the king's current position
                         //then the move would put us in check and the move wouldn't be valid.
                         if(move.getEndPosition().equals(getKingPosition(board, teamColor))){
@@ -309,10 +311,10 @@ public class ChessGame {
                 if(piece != null){
                     if(piece.getPieceType() == (ChessPiece.PieceType.KING) && piece.getTeamColor() == (teamColor)){
                         if(teamColor == TeamColor.BLACK){
-                            BlackKingPos = searchPos;
+                            blackKingPos = searchPos;
                         }
                         else if(teamColor == TeamColor.WHITE){
-                            WhiteKingPos = searchPos;
+                            whiteKingPos = searchPos;
                         }
                         return searchPos;
                     }

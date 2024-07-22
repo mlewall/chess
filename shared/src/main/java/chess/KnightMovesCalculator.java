@@ -5,28 +5,28 @@ import java.util.Collection;
 import java.util.ArrayList;
 
 public class KnightMovesCalculator implements PieceMovesCalculator {
-    public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition og_position){
+    public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition ogPosition){
         Collection<ChessMove> moves = new ArrayList<>();
 
-        ChessGame.TeamColor teamColor = board.getPiece(og_position).getTeamColor();
+        ChessGame.TeamColor teamColor = board.getPiece(ogPosition).getTeamColor();
 
-        int start_row = og_position.getRow();
-        int start_column = og_position.getColumn();
+        int startRow = ogPosition.getRow();
+        int startColumn = ogPosition.getColumn();
 
-        int[][] poss_moves = {
+        int[][] possMoves = {
                 {2,-1},{2,1},
                 {1,-2},{1, 2},
                 {-1,-2},{-2,-1},
                 {-2,1},{-1,2}
                 /*at any given time there are only 8 moves*/
         };
-        for(int[] move : poss_moves) {
-            int new_row = start_row + move[0];
-            int new_column = start_column + move[1];
-            ChessPosition new_pos = new ChessPosition(new_row, new_column);
-            if(inBounds(new_row, new_column)){
-                if(!blocked(board, new_pos, teamColor)){
-                    ChessMove oneMove = new ChessMove(og_position, new_pos, null);
+        for(int[] move : possMoves) {
+            int newRow = startRow + move[0];
+            int newColumn = startColumn + move[1];
+            ChessPosition newPos = new ChessPosition(newRow, newColumn);
+            if(inBounds(newRow, newColumn)){
+                if(!blocked(board, newPos, teamColor)){
+                    ChessMove oneMove = new ChessMove(ogPosition, newPos, null);
                     moves.add(oneMove);
                 }
             }
@@ -44,10 +44,10 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         return false;
     }
 
-    private boolean blocked(ChessBoard board, ChessPosition poss_position, ChessGame.TeamColor teamcolor){
+    private boolean blocked(ChessBoard board, ChessPosition possPosition, ChessGame.TeamColor teamcolor){
         //if there is a piece of the same color at that possible destination, return false
         //todo: add an inbounds check here!
-        ChessPiece pieceAtDest = board.getPiece(poss_position);
+        ChessPiece pieceAtDest = board.getPiece(possPosition);
         if(pieceAtDest == null){
             return false;
         }

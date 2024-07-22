@@ -2,39 +2,38 @@ package chess;
 
 import java.util.Collection;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
-    public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition og_position){
-        int start_row = og_position.getRow();
-        int start_column = og_position.getColumn();
-        boolean starting_move;
-        ChessGame.TeamColor teamColor = board.getPiece(og_position).getTeamColor(); //we should be good getting here, start is inBounds
+    public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition ogPosition){
+        int startRow = ogPosition.getRow();
+        int startColumn = ogPosition.getColumn();
+        boolean startingMove;
+        ChessGame.TeamColor teamColor = board.getPiece(ogPosition).getTeamColor(); //we should be good getting here, start is inBounds
         Collection<ChessMove> moves = new ArrayList<>();
 
         //todo: must specify what team color (row 2 + white = start, but not 7)(starting conditions)
-        if((og_position.getRow() == 2 && teamColor == ChessGame.TeamColor.WHITE)||
-                (og_position.getRow() == 7 && ChessGame.TeamColor.BLACK == teamColor)){
-            starting_move = true;
+        if((ogPosition.getRow() == 2 && teamColor == ChessGame.TeamColor.WHITE)||
+                (ogPosition.getRow() == 7 && ChessGame.TeamColor.BLACK == teamColor)){
+            startingMove = true;
         }
-        else{starting_move = false;}
+        else{startingMove = false;}
 
         //DOUBLES
         // These are always straight ahead (in bounds), but also need to be checked for enemies.
         // could be blocked since pieces move. and a move could come later in the game
-        if(starting_move && teamColor == ChessGame.TeamColor.WHITE){
-            ChessPosition poss_pos = new ChessPosition(og_position.getRow()+2, og_position.getColumn());
-            if(!blocked(board, poss_pos, teamColor) && !front_blocked(board, og_position, teamColor)){
-                ChessMove new_move = new ChessMove(og_position, poss_pos, null); //won't ever be promoted on first turn
-                moves.add(new_move);
+        if(startingMove && teamColor == ChessGame.TeamColor.WHITE){
+            ChessPosition possPos = new ChessPosition(ogPosition.getRow()+2, ogPosition.getColumn());
+            if(!blocked(board, possPos, teamColor) && !frontBlocked(board, ogPosition, teamColor)){
+                ChessMove newMove = new ChessMove(ogPosition, possPos, null); //won't ever be promoted on first turn
+                moves.add(newMove);
             }
         }
-        else if(starting_move && teamColor == ChessGame.TeamColor.BLACK){
+        else if(startingMove && teamColor == ChessGame.TeamColor.BLACK){
             //black pawn's first move = row - 2 (moving down the board)
-            ChessPosition poss_pos = new ChessPosition(og_position.getRow()-2, og_position.getColumn());
-            if(!blocked(board, poss_pos, teamColor) && !front_blocked(board, og_position, teamColor)){
-                ChessMove new_move = new ChessMove(og_position, poss_pos, null); //won't ever be promoted on first turn
-                moves.add(new_move);
+            ChessPosition possPos = new ChessPosition(ogPosition.getRow()-2, ogPosition.getColumn());
+            if(!blocked(board, possPos, teamColor) && !frontBlocked(board, ogPosition, teamColor)){
+                ChessMove newMove = new ChessMove(ogPosition, possPos, null); //won't ever be promoted on first turn
+                moves.add(newMove);
             }
         }
 
@@ -42,43 +41,43 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         //pawns can only be captured diagonally! So consider
         //1) is forwards move possible (blocked if straight ahead and other team)
         //2) is diagonal capture possible (not possible if no enemy piece is there)
-        int[][] white_possibilities = {{1, -1}, {1, 0}, {1, 1}}; //diagonal up, directup, diagonal right
-        int[][] black_possibilities = {{-1, -1}, {-1, 0}, {-1, 1}};
+        int[][] whitePossibilities = {{1, -1}, {1, 0}, {1, 1}}; //diagonal up, directup, diagonal right
+        int[][] blackPossibilities = {{-1, -1}, {-1, 0}, {-1, 1}};
 
-        int [][] move_set = new int[0][];
+        int [][] moveSet = new int[0][];
         if(teamColor == ChessGame.TeamColor.WHITE){
-            move_set = white_possibilities;
+            moveSet = whitePossibilities;
         }
         else if(teamColor == ChessGame.TeamColor.BLACK){
-            move_set = black_possibilities;
+            moveSet = blackPossibilities;
         }
 
 
-        for (int[] possibility : move_set) {
-            int new_row = start_row + possibility[0];
-            int new_column = start_column + possibility[1];
-            ChessPosition poss_position = new ChessPosition(new_row, new_column);
+        for (int[] possibility : moveSet) {
+            int newRow = startRow + possibility[0];
+            int newColumn = startColumn + possibility[1];
+            ChessPosition possPosition = new ChessPosition(newRow, newColumn);
 
             // move is straight ahead, and it's not blocked (ie no pieces ahead).
-            //front_blocked needs the og_position, not the possible position
-            if(inBounds(new_row, new_column)) {
-                if (((new_column == start_column) && !front_blocked(board, og_position, teamColor)) ||
-                        ((new_column != start_column) && inBounds(new_row, new_column) && enemyEncounter(board, poss_position, teamColor))) {
-                    if (promotion(poss_position, teamColor)) {
+            //front_blocked needs the ogPosition, not the possible position
+            if(inBounds(newRow, newColumn)) {
+                if (((newColumn == startColumn) && !frontBlocked(board, ogPosition, teamColor)) ||
+                        ((newColumn != startColumn) && inBounds(newRow, newColumn) && enemyEncounter(board, possPosition, teamColor))) {
+                    if (promotion(possPosition, teamColor)) {
                         //if it's a promotion, loop through the enum and add those moves.
                         for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
                             //exclude PAWN and KING
                             if ((type.toString() != "PAWN") && (type.toString() != "KING")) {
-                                ChessMove new_move = new ChessMove(og_position, poss_position, type);
-                                moves.add(new_move);
+                                ChessMove newMove = new ChessMove(ogPosition, possPosition, type);
+                                moves.add(newMove);
                                 //this should add all possible promotions to the possible moves
                             }
                         }
                     }
                     //not a promotion but still a one-forward step ahead move. Not blocked still, still in bounds, still straight ahead
                     else {
-                        ChessMove new_move = new ChessMove(og_position, poss_position, null);
-                        moves.add(new_move);
+                        ChessMove newMove = new ChessMove(ogPosition, possPosition, null);
+                        moves.add(newMove);
                     }
                 }
             }
@@ -116,16 +115,16 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return false;
     }
 
-    private boolean front_blocked(ChessBoard board, ChessPosition og_position, ChessGame.TeamColor teamcolor){
+    private boolean frontBlocked(ChessBoard board, ChessPosition ogPosition, ChessGame.TeamColor teamcolor){
         if(teamcolor == ChessGame.TeamColor.WHITE){
-            ChessPosition front = new ChessPosition(og_position.getRow()+1, og_position.getColumn());
+            ChessPosition front = new ChessPosition(ogPosition.getRow()+1, ogPosition.getColumn());
             ChessPiece pieceAtFront = board.getPiece(front);
             if(pieceAtFront != null){
                 return true;
             }
         }
         else if(teamcolor == ChessGame.TeamColor.BLACK){
-            ChessPosition front = new ChessPosition(og_position.getRow()-1, og_position.getColumn());
+            ChessPosition front = new ChessPosition(ogPosition.getRow()-1, ogPosition.getColumn());
             ChessPiece pieceAtFront = board.getPiece(front);
             if(pieceAtFront != null){
                 return true;
@@ -134,11 +133,11 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return false;
         }
 
-    private boolean blocked(ChessBoard board, ChessPosition poss_position, ChessGame.TeamColor teamcolor){
+    private boolean blocked(ChessBoard board, ChessPosition possPosition, ChessGame.TeamColor teamcolor){
         //if there is a piece of the same color at that possible destination, return false
         //todo: add an inbounds check here?
         //this blocked is only used to check for the double front move for the pawn (in its edited form)
-        ChessPiece pieceAtDest = board.getPiece(poss_position);
+        ChessPiece pieceAtDest = board.getPiece(possPosition);
         if(pieceAtDest == null){
             return false;
         }

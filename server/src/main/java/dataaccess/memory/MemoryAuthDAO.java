@@ -2,7 +2,6 @@ package dataaccess.memory;
 
 import dataaccess.AuthDAO;
 import model.AuthData;
-import model.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,34 +10,34 @@ public class MemoryAuthDAO implements AuthDAO {
     /* Key: authToken (what we mostly use to look things up
         AuthData: an authToken and a username
      */
-    public static final Map<String, AuthData> auths = new HashMap<>();
+    public static final Map<String, AuthData> AUTHS = new HashMap<>();
 
     public MemoryAuthDAO(){};
 
     public void addFakeAuth() {
         AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
-        auths.put("fakeAuthToken", fakeAuth);
+        AUTHS.put("fakeAuthToken", fakeAuth);
     }
 
     public boolean isEmpty(){
-        return auths.isEmpty();
+        return AUTHS.isEmpty();
     }
 
     public void clear(){
-        auths.clear();
+        AUTHS.clear();
     }
 
     public AuthData getAuthData(String authToken){
-        return auths.get(authToken);
+        return AUTHS.get(authToken);
         //todo: do these need to be the ones to throw the exceptions?
     }
 
     public void addNewAuth(AuthData authData){
-        auths.put(authData.authToken(), authData);
+        AUTHS.put(authData.authToken(), authData);
     }
 
     public void remove(String authToken){
-        auths.remove(authToken);
+        AUTHS.remove(authToken);
     }
 
 

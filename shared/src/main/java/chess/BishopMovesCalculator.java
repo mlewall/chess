@@ -4,38 +4,35 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BishopMovesCalculator implements PieceMovesCalculator {
-    public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition og_position){
+    public Collection<ChessMove> possPieceMoves(ChessBoard board, ChessPosition ogPosition){
         Collection<ChessMove> moves = new ArrayList<>();
 
-        int start_row = og_position.getRow();
-        int start_col = og_position.getColumn();
-
-        ChessGame.TeamColor teamcolor = board.getPiece(og_position).getTeamColor();
+        ChessGame.TeamColor teamcolor = board.getPiece(ogPosition).getTeamColor();
 
         //go up-right
-        calculateMovesInDirection(moves, board, og_position, 1, 1, teamcolor);
+        calculateMovesInDirection(moves, board, ogPosition, 1, 1, teamcolor);
         //go down-right
-        calculateMovesInDirection(moves, board, og_position, -1, 1, teamcolor);
+        calculateMovesInDirection(moves, board, ogPosition, -1, 1, teamcolor);
         //up-left
-        calculateMovesInDirection(moves, board, og_position, 1, -1, teamcolor);
+        calculateMovesInDirection(moves, board, ogPosition, 1, -1, teamcolor);
         //down-left
-        calculateMovesInDirection(moves, board, og_position, -1, -1, teamcolor);
+        calculateMovesInDirection(moves, board, ogPosition, -1, -1, teamcolor);
 
         return moves;
     }
 
-    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition og_position, int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
-        int row = og_position.getRow();
-        int col = og_position.getColumn();
-        while(inBounds(row+rowIncrement, col+colIncrement)){
+    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition ogPosition, int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
+        int row = ogPosition.getRow();
+        int col = ogPosition.getColumn();
+        while(inBounds(row + rowIncrement, col + colIncrement)){
             row += rowIncrement;
             col += colIncrement;
-            ChessPosition new_pos = new ChessPosition(row, col);
-            if (!blocked(board, new_pos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(og_position, new_pos, null);
+            ChessPosition newPos = new ChessPosition(row, col);
+            if (!blocked(board, newPos, teamcolor)) {
+                ChessMove oneMove = new ChessMove(ogPosition, newPos, null);
                 moves.add(oneMove);
                 //if there's an enemy here, then we break.
-                if(enemyEncounter(board, new_pos, teamcolor)){
+                if(enemyEncounter(board, newPos, teamcolor)){
                     break;
                 }
             } else {
@@ -53,10 +50,10 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         return false;
     }
 
-    private boolean blocked(ChessBoard board, ChessPosition poss_position, ChessGame.TeamColor teamcolor){
+    private boolean blocked(ChessBoard board, ChessPosition possPosition, ChessGame.TeamColor teamcolor){
         //if there is a piece of the same color at that possible destination, return false
         //todo: add an inbounds check here!
-        ChessPiece pieceAtDest = board.getPiece(poss_position);
+        ChessPiece pieceAtDest = board.getPiece(possPosition);
         if(pieceAtDest == null){
             return false;
         }

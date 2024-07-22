@@ -11,18 +11,18 @@ import java.util.Map;
 //extends?
 public class MemoryUserDAO implements UserDAO {
     //the key is the username?
-    private static final Map<String, UserData> users = new HashMap<>();
+    private static final Map<String, UserData> USERS = new HashMap<>();
 
     public MemoryUserDAO() {
         //insertFakeUser();
     }
 
     public boolean isEmpty(){
-        return users.isEmpty();
+        return USERS.isEmpty();
     }
 
     public void clear(){
-        users.clear();
+        USERS.clear();
     }
 
     //1) methods to create users
@@ -30,23 +30,23 @@ public class MemoryUserDAO implements UserDAO {
     //2) retrieve user
     public void insertFakeUser() {
         UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
-        users.put("fakeUsername", fake);
+        USERS.put("fakeUsername", fake);
     }
 
     public UserData getUserData(String username) throws DataAccessException {
         //insertFakeUser(); //for DEBUGGING
-        if(users.get(username) != null){
-            return users.get(username);
+        if(USERS.get(username) != null){
+            return USERS.get(username);
         }
         return null;
     }
 
     public void insertNewUser(UserData user) throws DataAccessException {
         String username = user.username();
-        if(users.get(username) != null){
+        if(USERS.get(username) != null){
             throw new DataAccessException(403, "Error: already taken");
         }
-        users.put(user.username(), user);
+        USERS.put(user.username(), user);
     }
 
 }
