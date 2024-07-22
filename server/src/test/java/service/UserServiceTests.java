@@ -28,11 +28,10 @@ class UserServiceTests {
     public void validLogin() throws DataAccessException{
         setUp();
         LoginRequest loginRequest = new LoginRequest("fakeUsername", "fakePassword");
-        ServiceResult result = userService.login(loginRequest);
+        LoginResult result = (LoginResult) userService.login(loginRequest);
 
-        assert result instanceof LoginResult; //did we actually get a loginResult and not an exception
-        assert ((LoginResult) result).username().equals("fakeUsername"); //found the correct username in the db
-        assert ((LoginResult) result).authToken() != null; //authToken was generated
+        assertEquals(result.username(),"fakeUsername"); //found the correct username in the db
+        assertNotNull(result.authToken()); //authToken was generated
         }
 
     //valid username/password combo
@@ -64,10 +63,9 @@ class UserServiceTests {
     public void registerValidUser() throws DataAccessException{
         setUp();
         RegisterRequest registerRequest = new RegisterRequest("hillbilly", "elegy", "yahoo.com");
-        ServiceResult result = userService.register(registerRequest);
-        assert result instanceof RegisterResult;
-        assert ((RegisterResult) result).username().equals("hillbilly");
-        assert ((RegisterResult) result).authToken() != null;
+        RegisterResult result = (RegisterResult) userService.register(registerRequest);
+        assertEquals(result.username(), "hillbilly");
+        assertNotNull(result.authToken());
         //todo: add another check that ensures the authData is actually in the database?
     }
 
@@ -88,8 +86,7 @@ class UserServiceTests {
         setUp(); // inserts fakeUser fakeUsername, fakePassword, fakeAuthToken
         LogoutRequest logoutRequest = new LogoutRequest("fakeAuthToken");
         ServiceResult result = userService.logout(logoutRequest);
-        assert result instanceof LogoutResult; //make sure we got a LogoutResult and not an error
-        assert !AUTHS.containsKey("fakeAuthToken"); //make sure it's deleted from the db
+        assertFalse(AUTHS.containsKey("fakeAuthToken")); //make sure it's deleted from the db
         //assert something else?
     }
 

@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.ClearService;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class ClearServiceTests {
     UserDAO userDAO;
     AuthDAO authDAO;
@@ -29,18 +31,20 @@ public class ClearServiceTests {
     @Test
     public void clearEmptyDataBase(){
         clearService.resetDatabases();
-        assert userDAO.isEmpty();
-        assert authDAO.isEmpty();
-        assert gameDAO.isEmpty();
+        assertTrue(userDAO.isEmpty()) ;
+        assertTrue(authDAO.isEmpty()) ;
+        assertTrue(gameDAO.isEmpty());
     }
 
     @Test
     public void clearNonEmptyDataBase(){
         userDAO.insertFakeUser();
+        gameDAO.addManyFakeGames();
+        authDAO.addFakeAuth();
         clearService.resetDatabases();
-        assert userDAO.isEmpty();
-        assert authDAO.isEmpty();
-        assert gameDAO.isEmpty();
+        assertTrue(userDAO.isEmpty());
+        assertTrue(authDAO.isEmpty());
+        assertTrue(gameDAO.isEmpty());
 
     }
 

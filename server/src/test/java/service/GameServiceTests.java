@@ -32,7 +32,7 @@ public class GameServiceTests {
     public void listGamesNoGamesOK() throws DataAccessException {
         ListGamesRequest request = new ListGamesRequest("fakeAuthToken");
         ListGamesResult result = (ListGamesResult) gameService.listGames(request);
-        assert result.games() != null;
+        assertNotNull(result.games());
     }
 
     @Test
@@ -40,8 +40,8 @@ public class GameServiceTests {
         gameDAO.addFakeGame();
         ListGamesRequest request = new ListGamesRequest("fakeAuthToken");
         ListGamesResult result = (ListGamesResult) gameService.listGames(request);
-        assert result.games() != null;
-        assert result.games().size() == 1;
+        assertNotNull(result.games());
+        assertEquals(1, result.games().size());
     }
 
 
@@ -51,8 +51,8 @@ public class GameServiceTests {
         gameDAO.addManyFakeGames();
         ListGamesRequest request = new ListGamesRequest("fakeAuthToken");
         ListGamesResult result = (ListGamesResult) gameService.listGames(request);
-        assert result.games() != null;
-        assert result.games().size() == 4;
+        assertNotNull(result.games());
+        assertEquals(result.games().size(), 4);
     }
 
     @Test
@@ -106,10 +106,10 @@ public class GameServiceTests {
         gameDAO.addFakeGame(); //adds: GameData(1234, null, null, "fakeChessGame",fakeChessGame)
         JoinGameRequest request = new JoinGameRequest("fakeAuthToken", "WHITE", 1234);
         JoinGameResult result = (JoinGameResult) gameService.joinGame(request);
-        assert result.getStatusCode() == 200;
+        assertEquals(result.getStatusCode(), 200);
         GameData game = gameDAO.getGame(1234); //current game
         //(the values of the gameName and chessGame shouldn't have changed)
-        assert (game.equals(new GameData(1234, "fakeUsername", null,  game.gameName(), game.game())));
+        assertEquals(game, new GameData(1234, "fakeUsername", null, game.gameName(), game.game()));
     }
 
     @Test
