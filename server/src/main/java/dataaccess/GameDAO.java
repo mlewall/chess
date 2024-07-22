@@ -10,7 +10,9 @@ public interface GameDAO {
     void clear();
     void addFakeGame();
     void addManyFakeGames();
-    ArrayList<GameData> getGames();
+
+    ArrayList<SimplifiedGameData> getGames();
+    //ArrayList<GameData> getGames();
 
     //GameData getGame(String s);
     GameData getGame(int id);

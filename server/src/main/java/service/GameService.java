@@ -31,8 +31,10 @@ public class GameService {
             //invalid authToken
             throw new DataAccessException(401, "Error: unauthorized");
         }
-        ArrayList<GameData> allGames = gameDAO.getGames();
-        ListGamesResult result = new ListGamesResult(allGames);
+        //ArrayList<GameData> games = gameDAO.getGames();
+        ArrayList<SimplifiedGameData> games = gameDAO.getGames();
+
+        ListGamesResult result = new ListGamesResult(games);
         return result;
     }
 

@@ -53,13 +53,18 @@ public class MemoryGameDAO implements GameDAO {
         return games.get(gameID);
     }
 
-    public ArrayList<GameData> getGames() {
-        ArrayList<GameData> allGames = new ArrayList<>();
-        //this exists just to remove the final ChessGame object
+    public ArrayList<SimplifiedGameData> getGames() {
+        //ArrayList<GameData> allGames = new ArrayList<>();
+        ArrayList<SimplifiedGameData> allGames = new ArrayList<>();
 
-        //            SimplifiedGameData curr = new SimplifiedGameData(game.gameID(), game.whiteUsername(), game.blackUsername(),
-        //                    game.gameName());
-        allGames.addAll(games.values());
+        //this exists just to remove the final ChessGame object
+        for(GameData game: games.values()) {
+            SimplifiedGameData curr = new SimplifiedGameData(game.gameID(), game.whiteUsername(), game.blackUsername(),
+                    game.gameName());
+            allGames.add(curr);
+        }
+
+        //allGames.addAll(games.values());
         return allGames;
     }
 
@@ -77,9 +82,6 @@ public class MemoryGameDAO implements GameDAO {
         games.remove(gameID);
     }
 
-    //    public GameData getGame(String gameName){
-//        return games.get(gameNameToID.get(gameName));
-//    }
 }
 
 
