@@ -134,23 +134,9 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         }
 
     private boolean blocked(ChessBoard board, ChessPosition possPosition, ChessGame.TeamColor teamcolor){
-        //if there is a piece of the same color at that possible destination, return false
-        //todo: add an inbounds check here?
         //this blocked is only used to check for the double front move for the pawn (in its edited form)
         ChessPiece pieceAtDest = board.getPiece(possPosition);
-        if(pieceAtDest == null){
-            return false;
-        }
-        //todo: delete the code below here: I think it doesn't matter bc pawn can't move forward at all if blocked
-        else if(pieceAtDest.getTeamColor() == teamcolor){
-            return true;
-            //blocked by our own teammate! NOOOO!
-        }
-        else if(pieceAtDest.getTeamColor() != teamcolor){
-            //TODO: remember to change this for pawns!
-            return true;
-        };
-        return false;
+        return pieceAtDest != null;
     }
 }
 

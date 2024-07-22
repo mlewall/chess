@@ -16,7 +16,8 @@ public class RookMovesCalculator implements PieceMovesCalculator {
         return moves;
     }
 
-    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition ogPosition, int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
+    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition ogPosition,
+                                            int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
         int row = ogPosition.getRow();
         int col = ogPosition.getColumn();
         while(inBounds(row + rowIncrement, col + colIncrement)){
