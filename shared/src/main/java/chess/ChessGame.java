@@ -98,7 +98,7 @@ public class ChessGame {
             futureBoard.addPiece(move.getStartPosition(), null);
 
 
-            //cache the king positions? todo: just make sure to update them!
+            //cache the king positions
             if(teamTurn == TeamColor.BLACK) {
                 blackKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
             else{
@@ -204,26 +204,39 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    //the *actual given method*
+    //the *given method*
     public boolean isInCheck(TeamColor teamColor) {
         //this happens for every possible move the rook can make, for example.
+        ChessPosition kingPosition = getKingPosition(board, teamColor);
+        return isPositionUnderAttack(kingPosition, teamColor);
+    }
+
+    public boolean isPositionUnderAttack(ChessPosition kingPosition, TeamColor teamColor){
         //this is happening AFTER the potential move has been made.
         for(int i = 1; i <= 8; i++){
             for (int j = 1; j <= 8; j++){
                 //at this time, the board should temporarily be a *future copy* of the original board (inside the "for")
                 ChessPosition scanPos = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(scanPos);
+                //if it's an enemy piece
                 if(piece != null && piece.getTeamColor() != teamColor){
-                    //get all the piecemoves for that enemypiece (not consdering check...) (I wonder why this works)
-                    Collection<ChessMove> possMoves = piece.pieceMoves(board, scanPos);
-                    for(ChessMove move : possMoves){
-                        //if the destination of the enemy's move coincides with the king's current position
-                        //then the move would put us in check and the move wouldn't be valid.
-                        if(move.getEndPosition().equals(getKingPosition(board, teamColor))){
-                            return true;
-                        }
+                    //get all the pieceMoves for that enemyPiece (not considering check...) (I wonder why this works)
+                    if(canEnemyPieceAttackKing(kingPosition, piece, scanPos)){
+                        return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+
+    public boolean canEnemyPieceAttackKing(ChessPosition kingPosition, ChessPiece piece, ChessPosition scanPos) {
+        Collection<ChessMove> possMoves = piece.pieceMoves(board, scanPos);
+        for (ChessMove move : possMoves) {
+            //if the destination of the enemy's move coincides with the king's current position
+            //then the move would put us in check and the move wouldn't be valid.
+            if (move.getEndPosition().equals(kingPosition)) {
+                return true;
             }
         }
         return false;
@@ -254,8 +267,6 @@ public class ChessGame {
         }
         //but if every time you call valid moves and check the size of the collection, and the size is 0,
         return true;
-        //then it is checkmate.
-        //you completed the whole loop and never found a possible move.
     }
 
     /**
@@ -296,19 +307,24 @@ public class ChessGame {
                 ChessPosition searchPos = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(searchPos);
                 if(piece != null){
-                    if(piece.getPieceType() == (ChessPiece.PieceType.KING) && piece.getTeamColor() == (teamColor)){
-                        if(teamColor == TeamColor.BLACK){
-                            blackKingPos = searchPos;
-                        }
-                        else if(teamColor == TeamColor.WHITE){
-                            whiteKingPos = searchPos;
-                        }
+                    if((piece.getPieceType() == (ChessPiece.PieceType.KING))
+                            && (piece.getTeamColor() == (teamColor))){
+                        setKingPosition(teamColor, searchPos);
                         return searchPos;
                     }
                 }
             }
         }
         return null;
+    }
+
+    public void setKingPosition(ChessGame.TeamColor teamColor, ChessPosition searchPos) {
+        if(teamColor == TeamColor.BLACK){
+            blackKingPos = searchPos;
+        }
+        else if(teamColor == TeamColor.WHITE){
+            whiteKingPos = searchPos;
+        }
     }
 
 }
