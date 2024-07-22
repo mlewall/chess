@@ -38,7 +38,10 @@ public class GameService {
 
     public ServiceResult createGame(CreateGameRequest r) throws DataAccessException {
         if(r.authToken() == null || r.authToken().isBlank()){
-            throw new DataAccessException(400, "Error: bad request");
+            throw new DataAccessException(400, "Error: blank authToken");
+        }
+        if(r.gameName() == null || r.gameName().isBlank()){
+            throw new DataAccessException(400, "Error: blank gameName");
         }
         AuthData authData = authDAO.getAuthData(r.authToken());
         //todo: do I need to consider validating the authorization every time?

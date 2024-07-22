@@ -44,6 +44,7 @@ public class GameServiceTests {
         assert result.games().size() == 1;
     }
 
+
     @Test
     public void listMultipleGamesOk() throws DataAccessException {
         gameDAO.addFakeGame();
@@ -89,6 +90,18 @@ public class GameServiceTests {
         assertEquals((dbSizeBefore + 1), dbSizeAfter);
     }
 
-    public void createGameBadAuth() throws DataAccessException {}
+    @Test
+    public void createGameNullGameName() throws DataAccessException {
+        CreateGameRequest request = new CreateGameRequest("fakeAuthToken", null);
+
+        DataAccessException ex = assertThrows(DataAccessException.class, () -> gameService.createGame(request));
+
+        assertEquals(400, ex.getStatusCode());
+        assertEquals("Error: blank gameName", ex.getMessage());
+
+    }
+
+    @Test
+    public void join() throws DataAccessException {}
 
 }
