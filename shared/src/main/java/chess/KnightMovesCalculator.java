@@ -10,9 +10,6 @@ public class KnightMovesCalculator extends AbstractPieceMovesCalculator {
 
         ChessGame.TeamColor teamColor = board.getPiece(ogPosition).getTeamColor();
 
-        int startRow = ogPosition.getRow();
-        int startColumn = ogPosition.getColumn();
-
         int[][] possMoves = {
                 {2,-1},{2,1},
                 {1,-2},{1, 2},
@@ -20,17 +17,8 @@ public class KnightMovesCalculator extends AbstractPieceMovesCalculator {
                 {-2,1},{-1,2}
                 /*at any given time there are only 8 moves*/
         };
-        for(int[] move : possMoves) {
-            int newRow = startRow + move[0];
-            int newColumn = startColumn + move[1];
-            ChessPosition newPos = new ChessPosition(newRow, newColumn);
-            if(inBounds(newRow, newColumn)){
-                if(!blocked(board, newPos, teamColor)){
-                    ChessMove oneMove = new ChessMove(ogPosition, newPos, null);
-                    moves.add(oneMove);
-                }
-            }
-        }
+
+        loopOverMoveSet(board, ogPosition, teamColor, possMoves, moves);
         return moves;
     }
 

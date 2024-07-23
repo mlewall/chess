@@ -16,31 +16,6 @@ public class RookMovesCalculator extends AbstractPieceMovesCalculator {
         return moves;
     }
 
-    private void calculateMovesInDirection(Collection<ChessMove> moves, ChessBoard board, ChessPosition ogPosition,
-                                            int rowIncrement, int colIncrement, ChessGame.TeamColor teamcolor){
-        int row = ogPosition.getRow();
-        int col = ogPosition.getColumn();
-        while(inBounds(row + rowIncrement, col + colIncrement)){
-            row += rowIncrement;
-            col += colIncrement;
-            ChessPosition newPos = new ChessPosition(row, col);
-            if (!blocked(board, newPos, teamcolor)) {
-                ChessMove oneMove = new ChessMove(ogPosition, newPos, null);
-                moves.add(oneMove);
-                //if there's an enemy here, then we break.
-                if(enemyEncounter(board, newPos, teamcolor)){
-                    break;
-                }
-            } else {
-                //if it's ever blocked, we should break.
-                break;
-            }
-        }
-
-    }
-
-
-
 
 }
 
