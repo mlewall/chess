@@ -52,7 +52,8 @@ public abstract class AbstractPieceMovesCalculator implements PieceMovesCalculat
         return false;
     }
 
-    protected void loopOverMoveSet(ChessBoard board, ChessPosition ogPosition, ChessGame.TeamColor teamColor, int[][] possMoves, Collection<ChessMove> moves) {
+    protected void loopOverMoveSet(ChessBoard board, ChessPosition ogPosition,
+                                   ChessGame.TeamColor teamColor, int[][] possMoves, Collection<ChessMove> moves) {
         for(int[] move : possMoves) {
             int newRow = ogPosition.getRow() + move[0];
             int newColumn = ogPosition.getColumn() + move[1];
