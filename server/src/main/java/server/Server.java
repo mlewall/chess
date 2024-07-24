@@ -52,9 +52,14 @@ public class Server {
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
 
-        //add another things for exceptions
+        //global exception handler -- if something unanticipated went wrong
+        Spark.exception(Exception.class, (exception, request, response) -> {
+            response.status(500);
+            response.body(new Gson().toJson(Map.of("message", "Error: Internal server error")));
+        });
+
         //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
+        //Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -73,6 +78,8 @@ public class Server {
         them returning an Object but I think that maybe String will be better because the JSON strings are ideally what
         they all return.
     */
+
+
     private void exceptionHandler(DataAccessException ex, Request request, Response response) {
         //throw all the problems and handle them up to this server level
         //catch the exception and then set the status code, set response body
