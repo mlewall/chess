@@ -11,6 +11,14 @@ public class DataAccessException extends Exception{
         this.statusCode = statusCode;
     }
 
+    //todo: determine if this will cause problems with the DatabaseManager.
+    // The error code will always be 500 when confronting problems with the db (which is maybe good
+    // - because they're internal errors
+    public DataAccessException(String message){
+        super(message);
+        statusCode = 500;
+    }
+
     public int getStatusCode() {
         return statusCode;
     }
