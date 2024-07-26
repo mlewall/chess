@@ -1,6 +1,7 @@
 package server;
 import com.google.gson.JsonObject;
 import dataaccess.*;
+import dataaccess.database.*;
 import dataaccess.memory.*;
 import org.eclipse.jetty.server.Authentication;
 import reqres.*;
@@ -17,22 +18,35 @@ public class Server {
     UserService userService;
     GameService gameService;
     ClearService clearService;
+    boolean isInitialized = false;
 
-
-    public Server(){
+    public Server() {
         //instantiate local variable DAOs & pass them to services
-        UserDAO users = new MemoryUserDAO();
-        AuthDAO auths = new MemoryAuthDAO();
-        GameDAO games = new MemoryGameDAO();
+        try {
+            UserDAO users = new SQLuserDAO();
+            AuthDAO auths = new SQLauthDAO();
+            GameDAO games = new SQLgameDAO();
 
-        this.userService = new UserService(users, auths);
-        this.gameService = new GameService(games, auths);
-        this.clearService = new ClearService(users, auths, games);
+            this.userService = new UserService(users, auths);
+            this.gameService = new GameService(games, auths);
+            this.clearService = new ClearService(users, auths, games);
 
-        //OR instantiate services with
+            this.isInitialized = true;
+        }
+        catch(DataAccessException e) {
+            //I did this because the test cases don't want the Server() constructor to throw an error
+            //Also, in general constructors can't throw errors.
+            System.err.println("Failed to initialize Server: " + e.getMessage());
+            this.isInitialized = false;
+        }
     }
 
     public int run(int desiredPort) {
+        if(!isInitialized) {
+            System.err.println("Error in server initialization. Cannot run.");
+            return -1;
+        }
+
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
@@ -75,11 +89,9 @@ public class Server {
         2) call the correct service
         3) serialize the response
         //each one takes in a Spark request and response and returns a JSON string (they used to be initialized with
-        them returning an Object but I think that maybe String will be better because the JSON strings are ideally what
+        them returning an Object, but I think that maybe String will be better because the JSON strings are ideally what
         they all return.
     */
-
-
     private void exceptionHandler(DataAccessException ex, Request request, Response response) {
         //throw all the problems and handle them up to this server level
         //catch the exception and then set the status code, set response body
@@ -91,6 +103,7 @@ public class Server {
     private Object clearHandler(Request request, Response response) throws DataAccessException {
         ServiceResult result = clearService.resetDatabases();
         return new Gson().toJson(result);
+        //todo: maybe add checks to these handler methods that ensure the db was initialized?
     }
     private Object loginHandler(Request request, Response response) throws DataAccessException{
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class); //what class is supposed to go here?

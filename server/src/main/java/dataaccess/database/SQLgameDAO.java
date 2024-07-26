@@ -1,12 +1,45 @@
 package dataaccess.database;
 
+import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
 import model.GameData;
 import model.SimplifiedGameData;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class SQLgameDAO implements GameDAO {
+    public SQLgameDAO() throws DataAccessException {
+        configureDatabase(); //adds the table if it hasn't been created yet
+    }
+
+    private final String[] createUserStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  games (
+              `gameId` INT NOT NULL UNIQUE,
+              `whiteUser` varchar(256),
+              `blackUser` varchar(256),
+              'gameName' varchar(256),
+              'game' CLOB NOT NULL,
+              PRIMARY KEY (`gameId`),
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
+    private void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createUserStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(500, String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+    }
+
     @Override
     public boolean isEmpty() {
         return false;
