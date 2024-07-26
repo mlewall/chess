@@ -16,12 +16,12 @@ public class SQLgameDAO implements GameDAO {
 
     private final String[] createUserStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  games (
+            CREATE TABLE IF NOT EXISTS games (
               `gameId` INT NOT NULL UNIQUE,
               `whiteUser` varchar(256),
               `blackUser` varchar(256),
-              'gameName' varchar(256),
-              'game' CLOB NOT NULL,
+              `gameName` varchar(256),
+              `game` LONGTEXT NOT NULL,
               PRIMARY KEY (`gameId`)
             )
             """

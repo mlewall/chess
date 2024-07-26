@@ -16,7 +16,7 @@ public class SQLuserDAO implements UserDAO {
 
     private final String[] createUserStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  users (
+            CREATE TABLE IF NOT EXISTS users (
               `username` varchar(256) NOT NULL UNIQUE,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
