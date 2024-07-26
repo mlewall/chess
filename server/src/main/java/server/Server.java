@@ -53,7 +53,7 @@ public class Server {
         //or do DAOs get initialized here?
         //dependency injection
 
-        // Register your endpoints and handle exceptions here.
+        //endpoints and exceptions
         Spark.delete("/db", this::clearHandler); //delete database
 
         Spark.post("/user", this::registerHandler); //register user
@@ -145,16 +145,11 @@ public class Server {
         }
         String playerColor = content.get("playerColor").getAsString();
         int gameID = content.get("gameID").getAsInt();
-//
+
         JoinGameRequest joinRequest = new JoinGameRequest(authToken, playerColor, gameID);
         ServiceResult result = gameService.joinGame(joinRequest);
         return new Gson().toJson(result);
     }
-    
-    //500 errors are related to server and client miscommunicating
-    //throw with the message
-    //catch in handlers
-    //depending on type of message included in the error
-    //if not recognized basically
+
 
 }
