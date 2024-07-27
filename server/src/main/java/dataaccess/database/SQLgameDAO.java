@@ -33,8 +33,14 @@ public class SQLgameDAO extends AbstractSqlDAO implements GameDAO {
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException{
+        String statement = "TRUNCATE TABLE games";
+        try {
+            executeUpdate(statement);
+        }
+        catch(Exception e){
+            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
+        }
     }
 
     @Override

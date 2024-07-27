@@ -11,19 +11,19 @@ public abstract class AbstractSqlDAO {
         //var = auto
         try (Connection conn = DatabaseManager.getConnection()) {
             //ps: prepared stmt, protects from injections (??? -> meaning)
-            try (var preparedStatement = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String p) preparedStatement.setString(i + 1, p);
-                    else if (param instanceof Integer p) preparedStatement.setInt(i + 1, p);
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
                         //todo: figure out what this means
-                    else if (param == null) preparedStatement.setNull(i + 1, 0);
+                    else if (param == null) ps.setNull(i + 1, 0);
                 }
 
-                //separate executeUpdate method from another class on preparedStatement object
-                preparedStatement.executeUpdate();
+                //separate executeUpdate method from another class on ps object
+                ps.executeUpdate();
 
-//                var rs = preparedStatement.getGeneratedKeys();
+//                var rs = ps.getGeneratedKeys();
 //                if (rs.next()) {
 //                    return rs.getInt(1);
 //                }

@@ -8,8 +8,7 @@ import dataaccess.*;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
@@ -28,38 +27,63 @@ public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
         configureDatabase(createUserStatements); //adds the table if it hasn't been created yet
     }
 
-    @Override
-    public boolean isEmpty() {
-        return false;
+    public boolean isEmpty() throws DataAccessException {
+        try(Connection conn = DatabaseManager.getConnection()){
+            String query = "SELECT EXISTS (SELECT 1 FROM users LIMIT 1) AS hasRows";
+            try(PreparedStatement stmt = conn.prepareStatement(query)){
+                try(ResultSet resultSet = stmt.executeQuery()){
+                    if(resultSet.next()){
+                        return !resultSet.getBoolean("hasRows");
+                    }
+                }
+            }
+        }
+        catch(SQLException e){
+            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+
+        return true;
     }
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE users";
+        String statement = "TRUNCATE TABLE users";
         executeUpdate(statement);
     };
 
     @Override
     public void insertFakeUser() throws DataAccessException {
         UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
-        var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        var id = executeUpdate(statement, fake.username(), fake.password(), fake.email());
+        String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        int id = executeUpdate(statement, fake.username(), fake.password(), fake.email());
     }
 
     @Override
     public void insertNewUser(UserData userData) throws DataAccessException {
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
-        var id = executeUpdate(statement, userData.username(), hashedPassword, userData.email());
+        //System.out.println(hashedPassword);
+        try {
+            int id = executeUpdate(statement, userData.username(), hashedPassword, userData.email());
+        }
+        catch(DataAccessException e){
+            if(e.getMessage().contains("Duplicate entry")){
+                throw new DataAccessException(403, "Error: username already taken");
+            }
+            else{
+                throw new DataAccessException(500, String.format("Error: Unable to insert new user: %s", e.getMessage()));
+            }
+        }
+
     }
 
     @Override
     public UserData getUserData(String username) throws DataAccessException {
-        try(var conn = DatabaseManager.getConnection()){
-            var statement = "SELECT * FROM users WHERE username = ?";
-            try(var ps = conn.prepareStatement(statement)){
-                ps.setString(1, username);
-                try(var resultSet = ps.executeQuery()){ //table of results ordered in what you query for
+        try(Connection conn = DatabaseManager.getConnection()){
+            String statement = "SELECT * FROM users WHERE username = ?";
+            try(var preparedStatement = conn.prepareStatement(statement)){
+                preparedStatement.setString(1, username);
+                try(ResultSet resultSet = preparedStatement.executeQuery()){ //table of results ordered in what you query for
                     if(resultSet.next()){ //start on 0th row; returns if there is more data to read. If there is data,
                         //go to the next row
                         UserData userData = readUserData(resultSet);

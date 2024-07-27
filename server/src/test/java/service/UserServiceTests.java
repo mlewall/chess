@@ -20,11 +20,11 @@ class UserServiceTests {
         this.userService = new UserService(userDAO, authDAO);
 
         try {
-            userDAO.insertFakeUser(); //
-            authDAO.addFakeAuth();
+            userDAO.insertFakeUser(); //UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
+            authDAO.addFakeAuth(); //AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
         }
         catch (Exception e) {
-            System.out.println("Unable to add fake user and authData to database");
+            System.out.println("Unable to add fake user and authData to database for testing");
         }
     }
 

@@ -3,6 +3,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import org.mindrot.jbcrypt.BCrypt;
 import reqres.*;
 import dataaccess.UserDAO;
 import model.*;
@@ -21,8 +22,12 @@ public class UserService {
     public UserService(UserDAO userDAO, AuthDAO authDAO){
         this.userDAO = userDAO;
         this.authDAO = authDAO;
-        try{userDAO.insertFakeUser();} //username is "fakeUsername", "fakePassword", "cheese.com"
-        catch(DataAccessException e){System.out.println("unable to add fake user on service setup");}
+//        try{
+//            userDAO.insertFakeUser();
+//        } //username is "fakeUsername", "fakePassword", "cheese.com"
+//        catch(DataAccessException e) {
+//            System.out.println("unable to add fake user on service setup");
+//        }
     }
 
     public ServiceResult login(LoginRequest r) throws DataAccessException {
@@ -30,7 +35,7 @@ public class UserService {
             throw new DataAccessException(400, "Error: bad request");
         }
         UserData singleUserData = userDAO.getUserData(r.username());
-        if (singleUserData == null || !singleUserData.password().equals(r.password())) {
+        if (singleUserData == null || !BCrypt.checkpw(r.password(), singleUserData.password())) {
             throw new DataAccessException(401, "Error: unauthorized");
         }
         String authToken = UUID.randomUUID().toString();
