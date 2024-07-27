@@ -26,22 +26,6 @@ public abstract class AbstractPieceMovesCalculator implements PieceMovesCalculat
         };
         return false;
     }
-    private boolean blocked(ChessBoard board, ChessPosition startPos, ChessPosition endPos){
-        ChessPiece pieceAtDest = board.getPiece(endPos);
-        ChessPiece currPiece = board.getPiece(startPos);
-
-        if(pieceAtDest == null){
-            return false;
-        }
-        else if(pieceAtDest.getTeamColor() == currPiece.getTeamColor()){
-            return true;
-        }
-        else if(pieceAtDest.getTeamColor() != currPiece.getTeamColor()){
-            return false;
-        };
-        return false;
-    }
-
 
 
     protected boolean enemyEncounter(ChessBoard board, ChessPosition end, ChessGame.TeamColor teamcolor){

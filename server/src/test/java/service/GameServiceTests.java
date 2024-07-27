@@ -22,10 +22,14 @@ public class GameServiceTests {
         this.gameDAO = new MemoryGameDAO();
         this.gameService = new GameService(gameDAO, authDAO);
 
-        gameDAO.clear();
-        authDAO.clear();
-
-        authDAO.addFakeAuth(); //"fakeAuthToken", "fakeUsername"
+        try {
+            gameDAO.clear();
+            authDAO.clear();
+            authDAO.addFakeAuth(); //"fakeAuthToken", "fakeUsername"
+        }
+        catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     @Test

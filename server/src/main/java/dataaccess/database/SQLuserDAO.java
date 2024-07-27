@@ -9,13 +9,12 @@ import model.*;
 
 import java.sql.SQLException;
 
-public class SQLuserDAO implements UserDAO {
-    public SQLuserDAO() throws DataAccessException {
-        configureDatabase(); //adds the table if it hasn't been created yet
-    }
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
-    private final String[] createUserStatements = {
-            """
+public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
+    public SQLuserDAO() throws DataAccessException {
+        String[] createUserStatements = {
+                """
             CREATE TABLE IF NOT EXISTS users (
               `username` varchar(256) NOT NULL UNIQUE,
               `password` varchar(256) NOT NULL,
@@ -23,19 +22,8 @@ public class SQLuserDAO implements UserDAO {
               PRIMARY KEY (`username`)
             )
             """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createUserStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(500, String.format("Unable to configure database: %s", ex.getMessage()));
-        }
+        };
+        configureDatabase(createUserStatements); //adds the table if it hasn't been created yet
     }
 
     @Override
@@ -44,9 +32,10 @@ public class SQLuserDAO implements UserDAO {
     }
 
     @Override
-    public void clear() {
-
-    }
+    public void clear() throws DataAccessException {
+        var statement = "TRUNCATE TABLE users";
+        executeUpdate(statement);
+    };
 
     @Override
     public void insertNewUser(UserData userData) throws DataAccessException {
@@ -62,7 +51,6 @@ public class SQLuserDAO implements UserDAO {
     public void insertFakeUser() {
 
     }
-
 
 
 

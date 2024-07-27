@@ -6,18 +6,15 @@ import model.SimplifiedGameData;
 import java.util.ArrayList;
 
 public interface GameDAO {
-    boolean isEmpty();
-    void clear();
-    void addFakeGame();
-    void addManyFakeGames();
+    boolean isEmpty() throws DataAccessException;
+    void clear() throws DataAccessException;
 
-    ArrayList<SimplifiedGameData> getGames();
-    //ArrayList<GameData> getGames();
+    /*methods for testing*/
+    void addFakeGame() throws DataAccessException;;
+    void addManyFakeGames() throws DataAccessException;;
 
-    //GameData getGame(String s);
-    GameData getGame(int id);
-
-
-    void addGame(int gameID, GameData game);
-    void updateGame(GameData oldGame, GameData newGame);
+    ArrayList<SimplifiedGameData> getGames() throws DataAccessException;;
+    GameData getGame(int id) throws DataAccessException;;
+    void addGame(int gameID, GameData game) throws DataAccessException;;
+    void updateGame(GameData oldGame, GameData newGame) throws DataAccessException;;
 }

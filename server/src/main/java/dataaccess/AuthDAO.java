@@ -4,12 +4,12 @@ package dataaccess;
 import model.AuthData;
 
 public interface AuthDAO {
-    public boolean isEmpty();
-    public void clear();
+    boolean isEmpty() throws DataAccessException;
+    void clear() throws DataAccessException;
 
-    public void addFakeAuth();
-    public AuthData getAuthData(String username); //UserData contains
+    void addFakeAuth() throws DataAccessException;
 
-    void addNewAuth(AuthData authData);
-    void remove(String authToken);
+    AuthData getAuthData(String username) throws DataAccessException;
+    void addNewAuth(AuthData authData) throws DataAccessException;
+    void remove(String authToken) throws DataAccessException;
 }

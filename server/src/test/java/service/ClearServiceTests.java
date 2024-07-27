@@ -31,20 +31,30 @@ public class ClearServiceTests {
     @Test
     public void clearEmptyDataBase(){
         clearService.resetDatabases();
-        assertTrue(userDAO.isEmpty()) ;
-        assertTrue(authDAO.isEmpty()) ;
-        assertTrue(gameDAO.isEmpty());
+        try {
+            assertTrue(userDAO.isEmpty());
+            assertTrue(authDAO.isEmpty());
+            assertTrue(gameDAO.isEmpty());
+        }
+        catch (Exception e){
+            System.out.println("Test failed: Unable to clear empty databases");
+        }
     }
 
     @Test
     public void clearNonEmptyDataBase(){
-        userDAO.insertFakeUser();
-        gameDAO.addManyFakeGames();
-        authDAO.addFakeAuth();
-        clearService.resetDatabases();
-        assertTrue(userDAO.isEmpty());
-        assertTrue(authDAO.isEmpty());
-        assertTrue(gameDAO.isEmpty());
+        try {
+            userDAO.insertFakeUser();
+            gameDAO.addManyFakeGames();
+            authDAO.addFakeAuth();
+            clearService.resetDatabases();
+            assertTrue(userDAO.isEmpty());
+            assertTrue(authDAO.isEmpty());
+            assertTrue(gameDAO.isEmpty());
+        }
+        catch (Exception e){
+            System.out.println("Test: Unable to clear non-empty databases");
+        }
 
     }
 

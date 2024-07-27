@@ -43,7 +43,7 @@ public class Server {
 
     public int run(int desiredPort) {
         if(!isInitialized) {
-            System.err.println("Error in server initialization. Cannot run.");
+            System.out.println("Error in server initialization. Cannot run.");
             return -1;
         }
 

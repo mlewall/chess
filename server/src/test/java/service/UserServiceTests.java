@@ -19,8 +19,13 @@ class UserServiceTests {
         this.authDAO = new MemoryAuthDAO();
         this.userService = new UserService(userDAO, authDAO);
 
-        userDAO.insertFakeUser();
-        authDAO.addFakeAuth();
+        try {
+            userDAO.insertFakeUser();
+            authDAO.addFakeAuth();
+        }
+        catch (Exception e) {
+            System.out.println("Unable to add fake user and authData to database");
+        }
     }
 
     @Test
