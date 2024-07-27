@@ -30,8 +30,8 @@ public class ClearServiceTests {
 
     @Test
     public void clearEmptyDataBase(){
-        clearService.resetDatabases();
         try {
+            clearService.resetDatabases();
             assertTrue(userDAO.isEmpty());
             assertTrue(authDAO.isEmpty());
             assertTrue(gameDAO.isEmpty());

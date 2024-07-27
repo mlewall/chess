@@ -20,7 +20,7 @@ class UserServiceTests {
         this.userService = new UserService(userDAO, authDAO);
 
         try {
-            userDAO.insertFakeUser();
+            userDAO.insertFakeUser(); //
             authDAO.addFakeAuth();
         }
         catch (Exception e) {

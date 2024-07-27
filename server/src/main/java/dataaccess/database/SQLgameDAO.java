@@ -1,5 +1,6 @@
 package dataaccess.database;
 
+import dataaccess.AbstractSqlDAO;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
@@ -9,13 +10,10 @@ import model.SimplifiedGameData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class SQLgameDAO implements GameDAO {
+public class SQLgameDAO extends AbstractSqlDAO implements GameDAO {
     public SQLgameDAO() throws DataAccessException {
-        configureDatabase(); //adds the table if it hasn't been created yet
-    }
-
-    private final String[] createUserStatements = {
-            """
+        String[] createGameStatements = {
+                """
             CREATE TABLE IF NOT EXISTS games (
               `gameId` INT NOT NULL UNIQUE,
               `whiteUser` varchar(256),
@@ -25,19 +23,8 @@ public class SQLgameDAO implements GameDAO {
               PRIMARY KEY (`gameId`)
             )
             """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createUserStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(500, String.format("Unable to configure database: %s", ex.getMessage()));
-        }
+        };
+        configureDatabase(createGameStatements); //adds the table if it hasn't been created yet
     }
 
     @Override
@@ -52,7 +39,6 @@ public class SQLgameDAO implements GameDAO {
 
     @Override
     public void addFakeGame() {
-
     }
 
     @Override

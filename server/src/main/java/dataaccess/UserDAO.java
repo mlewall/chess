@@ -2,6 +2,8 @@ package dataaccess;
 
 import model.UserData;
 
+import java.sql.SQLException;
+
 public interface UserDAO {
      boolean isEmpty() throws DataAccessException;
      void clear() throws DataAccessException;
