@@ -55,12 +55,6 @@ public class SqlAuthDao extends AbstractSqlDAO implements AuthDAO {
         }
     }
 
-    @Override
-    public void addFakeAuth() throws DataAccessException {
-        AuthData fake = new AuthData("fakeAuthToken", "fakeUsername");
-        String statement = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
-        int id = executeUpdate(statement, fake.authToken(), fake.username());
-    }
 
     @Override
     public AuthData getAuthData(String username) throws DataAccessException {

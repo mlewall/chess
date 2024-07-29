@@ -8,9 +8,6 @@ public interface UserDAO {
      boolean isEmpty() throws DataAccessException;
      void clear() throws DataAccessException;
 
-    /*method for testing*/
-     void insertFakeUser() throws DataAccessException;
-
      void insertNewUser(UserData userData) throws DataAccessException;
      UserData getUserData(String username) throws DataAccessException;     //public UserData getUserData(String username, String password);
 

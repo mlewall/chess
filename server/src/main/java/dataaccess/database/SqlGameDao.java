@@ -63,33 +63,6 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
         return true;
     }
 
-    public void addFakeGame() throws DataAccessException{
-        ChessGame fakeChessGame = new ChessGame();
-        String jsonGame = new Gson().toJson(fakeChessGame);
-        GameData game1 = new GameData(1234, null, null, "fakeChessGame",
-                fakeChessGame);
-        String statement = "INSERT INTO games (gameId, whiteUser, blackUser, gameName, ChessGame) VALUES (?, ?, ?, ?, ?)";
-        executeUpdate(statement, game1.gameID(), game1.whiteUsername(), game1.blackUsername(), game1.gameName(), jsonGame);
-    }
-
-    public void addManyFakeGames() throws DataAccessException{
-        ChessGame fakeChessGame1 = new ChessGame();
-        String jsonGame1 = new Gson().toJson(fakeChessGame1);
-        ChessGame fakeChessGame2 = new ChessGame();
-        String jsonGame2 = new Gson().toJson(fakeChessGame2);
-        ChessGame fakeChessGame3 = new ChessGame();
-        String jsonGame3 = new Gson().toJson(fakeChessGame3);
-        GameData game1 = new GameData(1, "white", "black", "fakeChessGame1",
-                fakeChessGame1);
-        GameData game2 = new GameData(2, "cloud", "ebony", "fakeChessGame2",
-                fakeChessGame2);
-        GameData game3 = new GameData(3, "snow", "yeet", "fakeChessGame3",
-                fakeChessGame3);
-        String statement = "INSERT INTO games (gameId, whiteUser, blackUser, gameName, chessGame) VALUES (?, ?, ?, ?, ?)";
-        executeUpdate(statement, game1.gameID(), game1.whiteUsername(), game1.blackUsername(), game1.gameName(), jsonGame1);
-        executeUpdate(statement, game2.gameID(), game2.whiteUsername(), game2.blackUsername(), game2.gameName(), jsonGame2);
-        executeUpdate(statement, game3.gameID(), game3.whiteUsername(), game3.blackUsername(), game3.gameName(), jsonGame3);
-    }
 
     public ArrayList<SimplifiedGameData> getGames() throws DataAccessException{
         ArrayList<SimplifiedGameData> games = new ArrayList<>();

@@ -7,8 +7,6 @@ public interface AuthDAO {
     boolean isEmpty() throws DataAccessException;
     void clear() throws DataAccessException;
 
-    void addFakeAuth() throws DataAccessException;
-
     AuthData getAuthData(String username) throws DataAccessException;
     void addNewAuth(AuthData authData) throws DataAccessException;
     void remove(String authToken) throws DataAccessException;

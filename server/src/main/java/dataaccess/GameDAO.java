@@ -9,9 +9,6 @@ public interface GameDAO {
     boolean isEmpty() throws DataAccessException;
     void clear() throws DataAccessException;
 
-    /*methods for testing*/
-    void addFakeGame() throws DataAccessException;;
-    void addManyFakeGames() throws DataAccessException;;
 
     /*methods for the functionality of the DAO*/
     ArrayList<SimplifiedGameData> getGames() throws DataAccessException;;

@@ -1,6 +1,8 @@
 package service;
 import dataaccess.*;
 import dataaccess.database.*;
+import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import reqres.*;
@@ -28,8 +30,11 @@ class UserServiceTests {
         RegisterRequest registerRequest = new RegisterRequest("TestUsername", "TestPassword", "TestEmail");
         userService.register(registerRequest);
 
-        userDAO.insertFakeUser(); //UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
-        authDAO.addFakeAuth(); //AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
+        UserData fakeUser = new UserData("fakeUsername", "fakePassword", "cheese.com");
+        AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
+
+        userDAO.insertNewUser(fakeUser); //UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
+        authDAO.addNewAuth(fakeAuth); //AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
         }
         catch (Exception e) {
             System.out.println("Unable to register fake user in database for testing");

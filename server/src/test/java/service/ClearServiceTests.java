@@ -1,9 +1,12 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
 import dataaccess.memory.MemoryUserDAO;
+import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,9 +47,15 @@ public class ClearServiceTests {
     @Test
     public void clearNonEmptyDataBase(){
         try {
-            userDAO.insertFakeUser();
-            gameDAO.addManyFakeGames();
-            authDAO.addFakeAuth();
+            UserData fakeUser = new UserData("fakeUsername", "fakePassword", "cheese.com");
+            AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
+            ChessGame fakeChessGame = new ChessGame();
+            GameData fakeGame = new GameData(1234, null, null, "fakeChessGame",
+                    fakeChessGame);
+
+            userDAO.insertNewUser(fakeUser);
+            gameDAO.addGame(1234, fakeGame);
+            authDAO.addNewAuth(fakeAuth);
             clearService.resetDatabases();
             assertTrue(userDAO.isEmpty());
             assertTrue(authDAO.isEmpty());

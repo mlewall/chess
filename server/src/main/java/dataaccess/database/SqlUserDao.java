@@ -23,7 +23,16 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
         configureDatabase(createUserStatements); //adds the table if it hasn't been created yet
     }
 
-    @Override
+    public void clear() throws DataAccessException {
+        String statement = "TRUNCATE TABLE users";
+        try {
+            executeUpdate(statement);
+        }
+        catch(Exception e){
+            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
+        }
+    }
+
     public boolean isEmpty() throws DataAccessException {
         try(Connection conn = DatabaseManager.getConnection()){
             String query = "SELECT EXISTS (SELECT 1 FROM users LIMIT 1) AS hasRows";
@@ -38,19 +47,9 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
         catch(SQLException e){
             throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
-
         return true;
     }
 
-
-    @Override
-    public void insertFakeUser() throws DataAccessException {
-        UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
-        String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        int id = executeUpdate(statement, fake.username(), fake.password(), fake.email());
-    }
-
-    @Override
     public void insertNewUser(UserData userData) throws DataAccessException {
         //note that the password is hashed within the service method.
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
@@ -69,17 +68,6 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
 
     }
 
-    public void clear() throws DataAccessException {
-        String statement = "TRUNCATE TABLE users";
-        try {
-            executeUpdate(statement);
-        }
-        catch(Exception e){
-            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
-        }
-    }
-
-    @Override
     public UserData getUserData(String username) throws DataAccessException {
         try(Connection conn = DatabaseManager.getConnection()){
             String statement = "SELECT * FROM users WHERE username = ?";
@@ -101,15 +89,20 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
     }
 
     //read one row
-    private UserData readUserData(ResultSet resultSet) throws SQLException {
-        String username = resultSet.getString("username");
-        String password = resultSet.getString("password");
-        String email = resultSet.getString("email");
-        return new UserData(username, password, email);
+    private UserData readUserData(ResultSet resultSet) throws DataAccessException {
+        try {
+            String username = resultSet.getString("username");
+            String password = resultSet.getString("password");
+            String email = resultSet.getString("email");
+            return new UserData(username, password, email);
+        }
+        catch(SQLException e){
+            throw new DataAccessException(500, "Unable to read UserData from the database into a UserData object");
+        }
     }
 
-//    public String getTableName() {
-//        return "users";
-//    }
+    protected String getTableName() {
+        return "users";
+    }
 
 }
