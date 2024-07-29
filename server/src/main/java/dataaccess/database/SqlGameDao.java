@@ -44,25 +44,6 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
         }
     }
 
-    @Override
-    public boolean isEmpty() throws DataAccessException {
-        try(Connection conn = DatabaseManager.getConnection()){
-            String query = "SELECT EXISTS (SELECT 1 FROM games LIMIT 1) AS hasRows";
-            try(PreparedStatement stmt = conn.prepareStatement(query)){
-                try(ResultSet resultSet = stmt.executeQuery()){
-                    if(resultSet.next()){
-                        return !resultSet.getBoolean("hasRows");
-                    }
-                }
-            }
-        }
-        catch(SQLException e){
-            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
-        }
-
-        return true;
-    }
-
 
     public ArrayList<SimplifiedGameData> getGames() throws DataAccessException{
         ArrayList<SimplifiedGameData> games = new ArrayList<>();
@@ -153,7 +134,8 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
         }
     }
 
-    public String getTableName() {
+    @Override
+    protected String getTableName() {
         return "games";
     }
 

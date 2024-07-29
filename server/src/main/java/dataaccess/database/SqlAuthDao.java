@@ -25,26 +25,6 @@ public class SqlAuthDao extends AbstractSqlDAO implements AuthDAO {
         configureDatabase(createUserStatements); //adds the table if it hasn't been created yet
     }
 
-    @Override
-    public boolean isEmpty() throws DataAccessException {
-        try(Connection conn = DatabaseManager.getConnection()){
-            String query = "SELECT EXISTS (SELECT 1 FROM auths LIMIT 1) AS hasRows";
-            try(PreparedStatement stmt = conn.prepareStatement(query)){
-                try(ResultSet resultSet = stmt.executeQuery()){
-                    if(resultSet.next()){
-                        return !resultSet.getBoolean("hasRows");
-                    }
-                }
-            }
-        }
-        catch(SQLException e){
-            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
-        }
-
-        return true;
-    }
-
-    @Override
     public void clear() throws DataAccessException {
         String statement = "TRUNCATE TABLE auths";
         try {
@@ -56,12 +36,11 @@ public class SqlAuthDao extends AbstractSqlDAO implements AuthDAO {
     }
 
 
-    @Override
-    public AuthData getAuthData(String username) throws DataAccessException {
+    public AuthData getAuthData(String authToken) throws DataAccessException {
         try(Connection conn = DatabaseManager.getConnection()){
             String statement = "SELECT * FROM auths WHERE authToken = ?";
             try(var preparedStatement = conn.prepareStatement(statement)){
-                preparedStatement.setString(1, username);
+                preparedStatement.setString(1, authToken);
                 try(ResultSet resultSet = preparedStatement.executeQuery()){ //table of results ordered in what you query for
                     if(resultSet.next()){ //start on 0th row; returns if there is more data to read. If there is data,
                         //go to the next row
@@ -83,7 +62,7 @@ public class SqlAuthDao extends AbstractSqlDAO implements AuthDAO {
         return new AuthData(authToken, username);
     }
 
-    @Override
+
     public void addNewAuth(AuthData authData) throws DataAccessException {
         String statement = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
         //System.out.println(hashedPassword);
@@ -103,17 +82,26 @@ public class SqlAuthDao extends AbstractSqlDAO implements AuthDAO {
     }
 
 
-    @Override
     public void remove(String authToken) throws DataAccessException {
         String statement = "DELETE FROM auths WHERE authToken = ?";
+        //is it in there?
+        AuthData authData = getAuthData(authToken);
+        if(authData == null){
+            throw new DataAccessException(401, "Error: unauthorized");
+        }
         try {
             executeUpdate(statement, authToken);
         }
         catch(DataAccessException e){
-            throw new DataAccessException(500, String.format("Error: Unable to insert new authData: %s", e.getMessage()));
+
+            throw new DataAccessException(500, String.format("Error: Unable to remove authData: %s", e.getMessage()));
             }
         }
 
+    @Override
+    protected String getTableName() {
+        return "auths";
     }
+}
 
 

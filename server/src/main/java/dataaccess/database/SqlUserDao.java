@@ -33,23 +33,6 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
         }
     }
 
-    public boolean isEmpty() throws DataAccessException {
-        try(Connection conn = DatabaseManager.getConnection()){
-            String query = "SELECT EXISTS (SELECT 1 FROM users LIMIT 1) AS hasRows";
-            try(PreparedStatement stmt = conn.prepareStatement(query)){
-                try(ResultSet resultSet = stmt.executeQuery()){
-                    if(resultSet.next()){
-                        return !resultSet.getBoolean("hasRows");
-                    }
-                }
-            }
-        }
-        catch(SQLException e){
-            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
-        }
-        return true;
-    }
-
     public void insertNewUser(UserData userData) throws DataAccessException {
         //note that the password is hashed within the service method.
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
@@ -101,6 +84,7 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
         }
     }
 
+    @Override
     protected String getTableName() {
         return "users";
     }

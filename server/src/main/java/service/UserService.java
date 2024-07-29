@@ -22,12 +22,7 @@ public class UserService {
     public UserService(UserDAO userDAO, AuthDAO authDAO){
         this.userDAO = userDAO;
         this.authDAO = authDAO;
-//        try{
-//            userDAO.insertFakeUser();
-//        } //username is "fakeUsername", "fakePassword", "cheese.com"
-//        catch(DataAccessException e) {
-//            System.out.println("unable to add fake user on service setup");
-//        }
+
     }
 
     public ServiceResult login(LoginRequest r) throws DataAccessException {

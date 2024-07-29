@@ -20,6 +20,7 @@ public class SqlUserDaoTests {
     public static void setUp() {
         try{
             userDAO = new SqlUserDao();
+            userDAO.clear();
         }
         catch (Exception e) {
             System.out.println("Unable to set up Database for testing (check: setUp");
@@ -79,6 +80,38 @@ public class SqlUserDaoTests {
 
     }
 
+    //check if empty (true)
+    @Test
+    public void emptyDatabase() throws DataAccessException {
+        userDAO.clear();
+        assertTrue(userDAO.isEmpty());
+    }
 
+    //check if empty (false)
+    @Test
+    public void nonEmptyDatabase() throws DataAccessException {
+        userDAO.clear();
+        userDAO.insertNewUser(new UserData("fakeUsername", "fakePassword", "fakeEmail@email.com"));
+        assertFalse(userDAO.isEmpty());
+    }
 
+    //get user data (user exists)
+    @Test
+    public void retrieveUserDataSuccessful() throws DataAccessException {
+        UserData fakeUser = new UserData("fakeUsername", "fakePassword", "fakeEmail@email.com");
+        userDAO.insertNewUser(fakeUser);
+        UserData retrievedUser = userDAO.getUserData("fakeUsername");
+        assertEquals(fakeUser.username(), retrievedUser.username());
+        assertEquals(fakeUser.email(), retrievedUser.email());
+    }
+
+    //get user data (user doesn't exist)
+    @Test
+    public void retrieveUserDataUnsuccessful() throws DataAccessException {
+        UserData fakeUser = new UserData("fakeUsername", "fakePassword", "fakeEmail@email.com");
+        userDAO.insertNewUser(fakeUser);
+        assertNull(userDAO.getUserData("incorrectUsername"));
+        //this may be a spot for refactoring; considering where DataAccess errors are generated.
+        // This one is generated at the service level.
+    }
 }
