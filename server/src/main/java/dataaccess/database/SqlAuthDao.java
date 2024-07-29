@@ -5,17 +5,14 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import model.AuthData;
-import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SQLauthDAO extends AbstractSqlDAO implements AuthDAO {
-    public SQLauthDAO() throws DataAccessException {
+public class SqlAuthDao extends AbstractSqlDAO implements AuthDAO {
+    public SqlAuthDao() throws DataAccessException {
         String[] createUserStatements = {
                 """
             CREATE TABLE IF NOT EXISTS auths (

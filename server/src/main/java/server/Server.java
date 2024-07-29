@@ -2,8 +2,6 @@ package server;
 import com.google.gson.JsonObject;
 import dataaccess.*;
 import dataaccess.database.*;
-import dataaccess.memory.*;
-import org.eclipse.jetty.server.Authentication;
 import reqres.*;
 import com.google.gson.Gson;
 
@@ -23,9 +21,9 @@ public class Server {
     public Server() {
         //instantiate local variable DAOs & pass them to services
         try {
-            UserDAO users = new SQLuserDAO();
-            AuthDAO auths = new SQLauthDAO();
-            GameDAO games = new SQLgameDAO();
+            UserDAO users = new SqlUserDao();
+            AuthDAO auths = new SqlAuthDao();
+            GameDAO games = new SqlGameDao();
 
             this.userService = new UserService(users, auths);
             this.gameService = new GameService(games, auths);

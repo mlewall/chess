@@ -6,7 +6,6 @@ import dataaccess.AbstractSqlDAO;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
-import model.AuthData;
 import model.GameData;
 import model.SimplifiedGameData;
 
@@ -16,8 +15,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class SQLgameDAO extends AbstractSqlDAO implements GameDAO {
-    public SQLgameDAO() throws DataAccessException {
+public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
+    public SqlGameDao() throws DataAccessException {
         String[] createGameStatements = {
                 """
             CREATE TABLE IF NOT EXISTS games (
@@ -119,7 +118,7 @@ public class SQLgameDAO extends AbstractSqlDAO implements GameDAO {
     @Override
     public GameData getGame(int gameId) throws DataAccessException{
         try(Connection conn = DatabaseManager.getConnection()){
-            String statement = "SELECT * FROM auths WHERE gameId = ?";
+            String statement = "SELECT * FROM games WHERE gameId = ?";
             try(PreparedStatement stmt = conn.prepareStatement(statement)){
                 stmt.setInt(1, gameId);
                 try(ResultSet resultSet = stmt.executeQuery()){
@@ -130,32 +129,62 @@ public class SQLgameDAO extends AbstractSqlDAO implements GameDAO {
                                 resultSet.getString("blackUser"),
                                 resultSet.getString("gameName"),
                                 readGame(resultSet.getString("chessGame"))
+
                         );
+                        return game;
                     }
+//                    if(resultSet.next()){
+//                        throw new DataAccessException(500, String.format("Unable to read game: %s", resultSet.getString("gameId")));
+//                    }
                     return null; //no games were found by that gameId.
                     }
                 }
             }
         catch(SQLException e){
+            if(e.getMessage().contains("Unknown column")){
+                return null;
+            }
             throw new DataAccessException(500, String.format("Unable to get game: %s", e.getMessage()));
         }
     }
 
     @Override
-    public void addGame(int gameID, GameData game) {
+    public void addGame(int gameId, GameData game) throws DataAccessException{
+        String statement = "INSERT INTO games (gameId, whiteUser, blackUser, gameName, chessGame) VALUES (?, ?, ?, ?, ?)";
+        //System.out.println(hashedPassword);
+        String jsonGame = new Gson().toJson(game.game());
 
+        try {
+            executeUpdate(statement, gameId, game.whiteUsername(), game.blackUsername(), game.gameName(), jsonGame);
+        }
+        catch(DataAccessException e){
+            //I don't think we would ever need this
+            if(e.getMessage().contains("Duplicate entry")){
+                throw new DataAccessException(403, "Error: duplicate gameId (should be impossible)");
+            }
+            else{
+                throw new DataAccessException(500, String.format("Error: Unable to insert new game: %s", e.getMessage()));
+            }
+        }
     }
 
     @Override
-    public void updateGame(GameData oldGame, GameData newGame) {
-
+    //the only things that could be different are the whiteUser and blackUser
+    public void updateGame(GameData oldGame, GameData newGame) throws DataAccessException{
+        String statement = "UPDATE games SET whiteUser = ?, blackUser = ? WHERE gameId = ?";
+        try {
+            executeUpdate(statement, newGame.whiteUsername(), newGame.blackUsername(), oldGame.gameID());
+        }
+        catch(DataAccessException e){
+            throw new DataAccessException(500, String.format("Error: Unable to insert new game: %s", e.getMessage()));
+        }
     }
 
     public String getTableName() {
         return "games";
     }
 
-    private ChessGame readGame(String chessGame) throws DataAccessException{
+    private ChessGame readGame(String chessGame){
         ChessGame game = new Gson().fromJson(chessGame, ChessGame.class);
         return game;
     }

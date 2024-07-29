@@ -23,6 +23,7 @@ public class GameService {
     }
 
     public ServiceResult listGames(ListGamesRequest r) throws DataAccessException {
+        //gameDAO.addManyFakeGames();
         if(r.authToken() == null || r.authToken().isBlank()){
             throw new DataAccessException(400, "Error: bad request");
         }

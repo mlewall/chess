@@ -1,19 +1,15 @@
 package dataaccess.database;
-import com.google.gson.Gson;
 
 
 import dataaccess.DataAccessException;
-import dataaccess.DatabaseException;
 import dataaccess.*;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-
-public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
-    public SQLuserDAO() throws DataAccessException {
+public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
+    public SqlUserDao() throws DataAccessException {
         String[] createUserStatements = {
                 """
             CREATE TABLE IF NOT EXISTS users (

@@ -1,8 +1,6 @@
 package service;
 import dataaccess.*;
 import dataaccess.database.*;
-import dataaccess.memory.MemoryAuthDAO;
-import dataaccess.memory.MemoryUserDAO;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import reqres.*;
@@ -19,8 +17,8 @@ class UserServiceTests {
 
     public void setUp() {
         try{
-        userDAO = new SQLuserDAO();
-        authDAO = new SQLauthDAO();
+        userDAO = new SqlUserDao();
+        authDAO = new SqlAuthDao();
         userService = new UserService(userDAO, authDAO);
 
         userDAO.clear();

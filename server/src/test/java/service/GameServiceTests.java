@@ -1,10 +1,8 @@
 package service;
 
 import dataaccess.*;
-import dataaccess.database.SQLauthDAO;
-import dataaccess.database.SQLgameDAO;
-import dataaccess.memory.MemoryAuthDAO;
-import dataaccess.memory.MemoryGameDAO;
+import dataaccess.database.SqlAuthDao;
+import dataaccess.database.SqlGameDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reqres.*;
@@ -21,8 +19,8 @@ public class GameServiceTests {
     @BeforeEach
     public void setUp() {
         try {
-        this.authDAO = new SQLauthDAO();
-        this.gameDAO = new SQLgameDAO();
+        this.authDAO = new SqlAuthDao();
+        this.gameDAO = new SqlGameDao();
         this.gameService = new GameService(gameDAO, authDAO);
 
         gameDAO.clear();

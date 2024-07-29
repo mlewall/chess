@@ -996,7 +996,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     </collation>
     <schema id="288" parent="1" name="chess">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-07-27.19:37:51</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-07-28.01:05:53</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="289" parent="1" name="information_schema">
@@ -1030,7 +1030,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Host>localhost</Host>
       <Plugin>caching_sha2_password</Plugin>
     </user>
-    <table id="297" parent="288" name="authentication">
+    <table id="297" parent="288" name="auths">
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
