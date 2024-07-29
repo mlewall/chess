@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.*;
+import dataaccess.database.SQLauthDAO;
+import dataaccess.database.SQLgameDAO;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,14 +20,14 @@ public class GameServiceTests {
 
     @BeforeEach
     public void setUp() {
-        this.authDAO = new MemoryAuthDAO();
-        this.gameDAO = new MemoryGameDAO();
+        try {
+        this.authDAO = new SQLauthDAO();
+        this.gameDAO = new SQLgameDAO();
         this.gameService = new GameService(gameDAO, authDAO);
 
-        try {
-            gameDAO.clear();
-            authDAO.clear();
-            authDAO.addFakeAuth(); //"fakeAuthToken", "fakeUsername"
+        gameDAO.clear();
+        authDAO.clear();
+        authDAO.addFakeAuth(); //"fakeAuthToken", "fakeUsername"
         }
         catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -133,7 +135,5 @@ public class GameServiceTests {
         assertEquals(401, ex.getStatusCode());
         assertTrue(ex.getMessage().matches("Error: .*"));
     }
-
-
 
 }

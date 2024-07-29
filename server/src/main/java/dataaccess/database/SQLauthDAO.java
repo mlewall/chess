@@ -31,7 +31,7 @@ public class SQLauthDAO extends AbstractSqlDAO implements AuthDAO {
     @Override
     public boolean isEmpty() throws DataAccessException {
         try(Connection conn = DatabaseManager.getConnection()){
-            String query = "SELECT EXISTS (SELECT 1 FROM users LIMIT 1) AS hasRows";
+            String query = "SELECT EXISTS (SELECT 1 FROM auths LIMIT 1) AS hasRows";
             try(PreparedStatement stmt = conn.prepareStatement(query)){
                 try(ResultSet resultSet = stmt.executeQuery()){
                     if(resultSet.next()){
@@ -61,7 +61,7 @@ public class SQLauthDAO extends AbstractSqlDAO implements AuthDAO {
     @Override
     public void addFakeAuth() throws DataAccessException {
         AuthData fake = new AuthData("fakeAuthToken", "fakeUsername");
-        String statement = "INSERT INTO authentication (username, password, email) VALUES (?, ?, ?)";
+        String statement = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
         int id = executeUpdate(statement, fake.authToken(), fake.username());
     }
 
@@ -110,6 +110,7 @@ public class SQLauthDAO extends AbstractSqlDAO implements AuthDAO {
         }
 
     }
+
 
     @Override
     public void remove(String authToken) throws DataAccessException {

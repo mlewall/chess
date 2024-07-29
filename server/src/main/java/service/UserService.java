@@ -35,7 +35,12 @@ public class UserService {
             throw new DataAccessException(400, "Error: bad request");
         }
         UserData singleUserData = userDAO.getUserData(r.username());
-        if (singleUserData == null || !BCrypt.checkpw(r.password(), singleUserData.password())) {
+        //System.out.println("Password: " + singleUserData.password());
+        if (singleUserData == null)  {
+            throw new DataAccessException(401, "Error: unauthorized");
+        }
+        boolean passwordsMatch = BCrypt.checkpw(r.password(), singleUserData.password());
+        if(!passwordsMatch){
             throw new DataAccessException(401, "Error: unauthorized");
         }
         String authToken = UUID.randomUUID().toString();
@@ -66,6 +71,7 @@ public class UserService {
         || r.email() == null || r.email().isBlank()){
             throw new DataAccessException(400, "Error: bad request");
         }
+
         UserData userData = new UserData(r.username(), r.password(), r.email());
         userDAO.insertNewUser(userData); //this will throw the error from the dataAccess class if there's a duplicate username
 

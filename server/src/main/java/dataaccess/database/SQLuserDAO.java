@@ -27,6 +27,7 @@ public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
         configureDatabase(createUserStatements); //adds the table if it hasn't been created yet
     }
 
+    @Override
     public boolean isEmpty() throws DataAccessException {
         try(Connection conn = DatabaseManager.getConnection()){
             String query = "SELECT EXISTS (SELECT 1 FROM users LIMIT 1) AS hasRows";
@@ -45,11 +46,6 @@ public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
         return true;
     }
 
-    @Override
-    public void clear() throws DataAccessException {
-        String statement = "TRUNCATE TABLE users";
-        executeUpdate(statement);
-    };
 
     @Override
     public void insertFakeUser() throws DataAccessException {
@@ -60,11 +56,11 @@ public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
 
     @Override
     public void insertNewUser(UserData userData) throws DataAccessException {
+        //note that the password is hashed within the service method.
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
-        //System.out.println(hashedPassword);
         try {
-            int id = executeUpdate(statement, userData.username(), hashedPassword, userData.email());
+            executeUpdate(statement, userData.username(), hashedPassword, userData.email());
         }
         catch(DataAccessException e){
             if(e.getMessage().contains("Duplicate entry")){
@@ -75,6 +71,16 @@ public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
             }
         }
 
+    }
+
+    public void clear() throws DataAccessException {
+        String statement = "TRUNCATE TABLE users";
+        try {
+            executeUpdate(statement);
+        }
+        catch(Exception e){
+            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
+        }
     }
 
     @Override
@@ -100,11 +106,14 @@ public class SQLuserDAO extends AbstractSqlDAO implements UserDAO {
 
     //read one row
     private UserData readUserData(ResultSet resultSet) throws SQLException {
-        var username = resultSet.getString("username");
-        var password = resultSet.getString("password");
-        var email = resultSet.getString("email");
+        String username = resultSet.getString("username");
+        String password = resultSet.getString("password");
+        String email = resultSet.getString("email");
         return new UserData(username, password, email);
     }
 
+//    public String getTableName() {
+//        return "users";
+//    }
 
 }

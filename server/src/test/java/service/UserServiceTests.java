@@ -1,7 +1,9 @@
 package service;
 import dataaccess.*;
+import dataaccess.database.*;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryUserDAO;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import reqres.*;
 import reqres.ServiceResult;
@@ -10,32 +12,54 @@ import static dataaccess.memory.MemoryAuthDAO.AUTHS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTests {
-    UserDAO userDAO;
-    AuthDAO authDAO;
-    UserService userService;
+    static UserDAO userDAO;
+    static AuthDAO authDAO;
+    static UserService userService;
+
 
     public void setUp() {
-        this.userDAO = new MemoryUserDAO();
-        this.authDAO = new MemoryAuthDAO();
-        this.userService = new UserService(userDAO, authDAO);
+        try{
+        userDAO = new SQLuserDAO();
+        authDAO = new SQLauthDAO();
+        userService = new UserService(userDAO, authDAO);
 
-        try {
-            userDAO.insertFakeUser(); //UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
-            authDAO.addFakeAuth(); //AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
+        userDAO.clear();
+        authDAO.clear();
+
+        //baseline registration; this is for tests that need a password
+        RegisterRequest registerRequest = new RegisterRequest("TestUsername", "TestPassword", "TestEmail");
+        userService.register(registerRequest);
+
+        userDAO.insertFakeUser(); //UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
+        authDAO.addFakeAuth(); //AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
         }
         catch (Exception e) {
-            System.out.println("Unable to add fake user and authData to database for testing");
+            System.out.println("Unable to register fake user in database for testing");
         }
     }
+
+    @AfterAll
+    public static void tearDown() {
+        try{
+            userDAO.clear();
+            authDAO.clear();
+        }
+        catch (Exception e) {
+            System.out.println("Unable to clear database after all tests");
+        }
+
+    }
+
 
     @Test
     //@DisplayName("Valid Username and Password")
     public void validLogin() throws DataAccessException{
         setUp();
-        LoginRequest loginRequest = new LoginRequest("fakeUsername", "fakePassword");
+
+        LoginRequest loginRequest = new LoginRequest("TestUsername", "TestPassword");
         LoginResult result = (LoginResult) userService.login(loginRequest);
 
-        assertEquals(result.username(),"fakeUsername"); //found the correct username in the db
+        assertEquals(result.username(),"TestUsername"); //found the correct username in the db
         assertNotNull(result.authToken()); //authToken was generated
         }
 
@@ -44,7 +68,7 @@ class UserServiceTests {
     //@DisplayName("correct username, invalid Password")
     public void invalidPassword() throws DataAccessException{
         setUp();
-        LoginRequest loginRequest = new LoginRequest("fakeUsername", "incorrectPassword");
+        LoginRequest loginRequest = new LoginRequest("TestUsername", "incorrectPassword");
 
         DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.login(loginRequest));
 
@@ -78,10 +102,11 @@ class UserServiceTests {
     /*username already taken*/
     public void registerInvalidUser() throws DataAccessException{
         setUp();
-        RegisterRequest registerRequest = new RegisterRequest("fakeUsername", "elegy", "yahoo.com");
+        //duplicate username
+        RegisterRequest registerRequest = new RegisterRequest("TestUsername", "elegy", "yahoo.com");
         DataAccessException ex = assertThrows(DataAccessException.class, () -> userService.register(registerRequest));
         assertEquals(403, ex.getStatusCode());
-        assertEquals("Error: already taken", ex.getMessage());
+        assertEquals("Error: username already taken", ex.getMessage());
     }
 
 

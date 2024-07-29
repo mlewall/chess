@@ -1,11 +1,35 @@
 package dataaccess;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public abstract class AbstractSqlDAO {
+    //public abstract String getTableName();
+
+
+
+//    public boolean isEmpty() throws DataAccessException {
+//        try(Connection conn = DatabaseManager.getConnection()){
+//            String query = "SELECT EXISTS (SELECT 1 FROM" + getTableName() + " users LIMIT 1) AS hasRows";
+//            try(PreparedStatement stmt = conn.prepareStatement(query)){
+//                try(ResultSet resultSet = stmt.executeQuery()){
+//                    if(resultSet.next()){
+//                        return !resultSet.getBoolean("hasRows");
+//                    }
+//                }
+//            }
+//        }
+//        catch(SQLException e){
+//            throw new DataAccessException(500, String.format("Unable to read data: %s", e.getMessage()));
+//        }
+//
+//        return true;
+//    }
+
 
     public int executeUpdate(String statement, Object... params) throws DataAccessException {
         //var = auto

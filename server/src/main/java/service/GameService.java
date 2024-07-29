@@ -61,9 +61,8 @@ public class GameService {
         return result;
     }
 
-    //this may be overkill
+    /*returns a 6-digit ID (maybe overkill)*/
     public int createGameID() {
-        //returns a 6-digit ID
         Random random = new Random();
         long timestamp = System.currentTimeMillis() % 1000000; // gets the last 6 digits of timestamp
         int randomPart = random.nextInt(1000); // gets random 3-digit number

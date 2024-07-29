@@ -13,6 +13,7 @@ public interface GameDAO {
     void addFakeGame() throws DataAccessException;;
     void addManyFakeGames() throws DataAccessException;;
 
+    /*methods for the functionality of the DAO*/
     ArrayList<SimplifiedGameData> getGames() throws DataAccessException;;
     GameData getGame(int id) throws DataAccessException;;
     void addGame(int gameID, GameData game) throws DataAccessException;;
