@@ -32,19 +32,6 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
         configureDatabase(createGameStatements); //adds the table if it hasn't been created yet
     }
 
-
-    @Override
-    public void clear() throws DataAccessException{
-        String statement = "TRUNCATE TABLE games";
-        try {
-            executeUpdate(statement);
-        }
-        catch(Exception e){
-            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
-        }
-    }
-
-
     public ArrayList<SimplifiedGameData> getGames() throws DataAccessException{
         ArrayList<SimplifiedGameData> games = new ArrayList<>();
         try(Connection conn = DatabaseManager.getConnection()){
@@ -125,9 +112,17 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
     @Override
     //the only things that could be different are the whiteUser and blackUser
     public void updateGame(GameData oldGame, GameData newGame) throws DataAccessException{
-        String statement = "UPDATE games SET whiteUser = ?, blackUser = ? WHERE gameId = ?";
+        String statement = "UPDATE games SET whiteUser = ?, blackUser = ?, chessGame = ? WHERE gameId = ?";
+        if(oldGame.gameID() != newGame.gameID()){
+            throw new DataAccessException(400, "Error: gameIds of original and new Games do not match");
+        }
+        String jsonGame = new Gson().toJson(oldGame.game());
+        //only update the game if it's different.
+        if(!oldGame.game().equals(newGame.game())){
+            jsonGame = new Gson().toJson(newGame.game());
+        }
         try {
-            executeUpdate(statement, newGame.whiteUsername(), newGame.blackUsername(), oldGame.gameID());
+            executeUpdate(statement, newGame.whiteUsername(), newGame.blackUsername(), jsonGame, oldGame.gameID());
         }
         catch(DataAccessException e){
             throw new DataAccessException(500, String.format("Error: Unable to insert new game: %s", e.getMessage()));

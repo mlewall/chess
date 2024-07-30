@@ -25,17 +25,6 @@ public class SqlAuthDao extends AbstractSqlDAO implements AuthDAO {
         configureDatabase(createUserStatements); //adds the table if it hasn't been created yet
     }
 
-    public void clear() throws DataAccessException {
-        String statement = "TRUNCATE TABLE auths";
-        try {
-            executeUpdate(statement);
-        }
-        catch(Exception e){
-            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
-        }
-    }
-
-
     public AuthData getAuthData(String authToken) throws DataAccessException {
         try(Connection conn = DatabaseManager.getConnection()){
             String statement = "SELECT * FROM auths WHERE authToken = ?";

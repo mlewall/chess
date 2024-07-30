@@ -23,16 +23,6 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
         configureDatabase(createUserStatements); //adds the table if it hasn't been created yet
     }
 
-    public void clear() throws DataAccessException {
-        String statement = "TRUNCATE TABLE users";
-        try {
-            executeUpdate(statement);
-        }
-        catch(Exception e){
-            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
-        }
-    }
-
     public void insertNewUser(UserData userData) throws DataAccessException {
         //note that the password is hashed within the service method.
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";

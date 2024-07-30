@@ -28,6 +28,15 @@ public abstract class AbstractSqlDAO {
         return true;
     }
 
+    public void clear() throws DataAccessException {
+        String statement = "TRUNCATE TABLE " + getTableName();
+        try {
+            executeUpdate(statement);
+        }
+        catch(Exception e){
+            throw new DataAccessException(500, String.format("Error: Unable to clear data: %s", e.getMessage()));
+        }
+    }
 
     public int executeUpdate(String statement, Object... params) throws DataAccessException {
         //var = auto
