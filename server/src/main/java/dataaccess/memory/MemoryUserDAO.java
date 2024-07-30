@@ -25,15 +25,8 @@ public class MemoryUserDAO implements UserDAO {
         USERS.clear();
     }
 
-    //1) methods to create users
 
-    //2) retrieve user
-    public void insertFakeUser() {
-        UserData fake = new UserData("fakeUsername", "fakePassword", "cheese.com");
-        USERS.put("fakeUsername", fake);
-    }
-
-    public UserData getUserData(String username) throws DataAccessException {
+    public UserData getUserData(String username){
         //insertFakeUser(); //for DEBUGGING
         if(USERS.get(username) != null){
             return USERS.get(username);

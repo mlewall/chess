@@ -74,9 +74,6 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
                         );
                         return game;
                     }
-//                    if(resultSet.next()){
-//                        throw new DataAccessException(500, String.format("Unable to read game: %s", resultSet.getString("gameId")));
-//                    }
                     return null; //no games were found by that gameId.
                     }
                 }

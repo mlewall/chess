@@ -4,7 +4,6 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import model.AuthData;
 
-import javax.xml.crypto.Data;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,12 +13,8 @@ public class MemoryAuthDAO implements AuthDAO {
      */
     public static final Map<String, AuthData> AUTHS = new HashMap<>();
 
-    public MemoryAuthDAO(){};
+    public MemoryAuthDAO(){}
 
-    public void addFakeAuth() {
-        AuthData fakeAuth = new AuthData("fakeAuthToken", "fakeUsername");
-        AUTHS.put("fakeAuthToken", fakeAuth);
-    }
 
     public boolean isEmpty() throws DataAccessException {
         return AUTHS.isEmpty();
@@ -36,11 +31,11 @@ public class MemoryAuthDAO implements AuthDAO {
         throw new DataAccessException(401, "Error: unauthorized");
     }
 
-    public void addNewAuth(AuthData authData) throws DataAccessException {
+    public void addNewAuth(AuthData authData) {
         AUTHS.put(authData.authToken(), authData);
     }
 
-    public void remove(String authToken) throws DataAccessException{
+    public void remove(String authToken){
         AUTHS.remove(authToken);
     }
 

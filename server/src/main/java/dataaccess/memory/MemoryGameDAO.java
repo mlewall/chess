@@ -15,30 +15,7 @@ public class MemoryGameDAO implements GameDAO {
 
     public MemoryGameDAO() {}
 
-    /* these are test methods*/
-    public void addFakeGame() {
-        ChessGame fakeChessGame = new ChessGame();
-        GameData game1 = new GameData(1234, null, null, "fakeChessGame",
-                fakeChessGame);
-        GAMES.put(1234, game1);
-        //gameNameToID.put("fakeChessGame", 1234);
-    }
-    public void addManyFakeGames() {
-        //only called in the tests
-        ChessGame fakeChessGame1 = new ChessGame();
-        ChessGame fakeChessGame2 = new ChessGame();
-        ChessGame fakeChessGame3 = new ChessGame();
-        GameData game1 = new GameData(1, "white", "black", "fakeChessGame1",
-                fakeChessGame1);
-        GameData game2 = new GameData(2, "cloud", "ebony", "fakeChessGame2",
-                fakeChessGame2);
-        GameData game3 = new GameData(3, "snow", "yeet", "fakeChessGame3",
-                fakeChessGame3);
-        GAMES.put(1, game1);
-        GAMES.put(2, game2);
-        GAMES.put(3, game3);
 
-    }
     public boolean isEmpty() {
         return GAMES.isEmpty();
     }
