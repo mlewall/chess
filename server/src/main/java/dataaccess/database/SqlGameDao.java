@@ -69,7 +69,7 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
                                 resultSet.getString("whiteUser"),
                                 resultSet.getString("blackUser"),
                                 resultSet.getString("gameName"),
-                                readGame(resultSet.getString("chessGame"))
+                                readGame(resultSet.getString("game"))
 
                         );
                         return game;
@@ -91,7 +91,7 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
 
     @Override
     public void addGame(int gameId, GameData game) throws DataAccessException{
-        String statement = "INSERT INTO games (gameId, whiteUser, blackUser, gameName, chessGame) VALUES (?, ?, ?, ?, ?)";
+        String statement = "INSERT INTO games (gameId, whiteUser, blackUser, gameName, game) VALUES (?, ?, ?, ?, ?)";
         //System.out.println(hashedPassword);
         String jsonGame = new Gson().toJson(game.game());
 
@@ -112,7 +112,7 @@ public class SqlGameDao extends AbstractSqlDAO implements GameDAO {
     @Override
     //the only things that could be different are the whiteUser and blackUser
     public void updateGame(GameData oldGame, GameData newGame) throws DataAccessException{
-        String statement = "UPDATE games SET whiteUser = ?, blackUser = ?, chessGame = ? WHERE gameId = ?";
+        String statement = "UPDATE games SET whiteUser = ?, blackUser = ?, game = ? WHERE gameId = ?";
         if(oldGame.gameID() != newGame.gameID()){
             throw new DataAccessException(400, "Error: gameIds of original and new Games do not match");
         }
