@@ -67,7 +67,7 @@ public class Server {
         //global exception handler -- if something unanticipated went wrong
         Spark.exception(Exception.class, (exception, request, response) -> {
             response.status(500);
-            response.body(new Gson().toJson(Map.of("message", "Error: Internal server error")));
+            response.body(new Gson().toJson(Map.of("message: ", exception.getMessage())));
         });
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
