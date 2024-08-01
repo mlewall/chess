@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import model.SimplifiedGameData;
+import reqres.*;
 
 import java.io.*;
 import java.net.*;
@@ -24,21 +25,24 @@ public class ServerFacade {
     /*User methods*/
     public void register(String username, String password, String email) throws ResponseException{
         String urlPath = "/user";
-        this.makeRequest("POST", urlPath, null, null);
+        RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+        this.makeRequest("POST", urlPath, registerRequest, RegisterResult.class);
     }
 
     public void login(String username, String password) throws ResponseException{
         String urlPath = "/session";
-        this.makeRequest("POST", urlPath, null, null);
+        LoginRequest loginRequest = new LoginRequest(username, password);
+        this.makeRequest("POST", urlPath, loginRequest, LoginResult.class);
     }
 
-    public void logout() throws ResponseException{
+    public void logout(String authToken) throws ResponseException{
         String urlPath = "/session";
-        this.makeRequest("DELETE", urlPath, null, null);
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        this.makeRequest("DELETE", urlPath, logoutRequest, null);
     }
 
     /*game methods*/
-    public void listGames() throws ResponseException{
+    public void listGames(String authToken) throws ResponseException{
         String urlPath = "/game";
         record listGamesResult(SimplifiedGameData[] games){};
         this.makeRequest("GET", urlPath, null, null);
