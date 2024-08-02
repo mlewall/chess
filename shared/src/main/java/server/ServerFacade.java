@@ -18,33 +18,44 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
+    public ServerFacade(int port){
+        this.serverUrl = "http://localhost:" + port;
+    }
+
+
     //todo: make the response classes not null
     // String method, String path, Object request, Class<T> response)
     public void clear() throws ResponseException{
         String urlPath = "/db";
-        this.makeRequest("DELETE", urlPath, null, null, ClearResult.class);
+        this.makeRequest("DELETE", urlPath, null,
+                null, ClearResult.class);
     }
 
     /*User methods*/
-    public void register(String username, String password, String email) throws ResponseException{
+    public RegisterResult register(String username, String password, String email) throws ResponseException{
         String urlPath = "/user";
         RegisterRequest registerRequest = new RegisterRequest(username, password, email);
-        this.makeRequest("POST", urlPath, registerRequest, null, RegisterResult.class);
+        RegisterResult result = this.makeRequest("POST", urlPath, registerRequest,
+                null, RegisterResult.class);
+        return result;
     }
 
     //todo: figure out if this needs to be changed to VOID
     public LoginResult login(String username, String password) throws ResponseException{
         String urlPath = "/session";
         LoginRequest loginRequest = new LoginRequest(username, password);
-        LoginResult result = this.makeRequest("POST", urlPath, loginRequest, null, LoginResult.class);
+        LoginResult result = this.makeRequest("POST", urlPath, loginRequest,
+                null, LoginResult.class);
         return result;
     }
 
-    public void logout(String authToken) throws ResponseException{
+    public LogoutResult logout(String authToken) throws ResponseException{
         //todo: account for authToken in the header (only input)
         String urlPath = "/session";
         Authorization auth = new Authorization(authToken);
-        this.makeRequest("DELETE", urlPath, null, auth, LogoutResult.class);
+        LogoutResult result = this.makeRequest("DELETE", urlPath, null,
+                auth, LogoutResult.class);
+        return result;
     }
 
     /*game methods*/
@@ -57,21 +68,23 @@ public class ServerFacade {
         //that list is contained within the listGames result
         return result;
     }
-    public void createGame(String authToken, String gameName) throws ResponseException{
+    public CreateGameResult createGame(String authToken, String gameName) throws ResponseException{
         String urlPath = "/game";
         Authorization auth = new Authorization(authToken); //todo: account fr authToken being in the header of the request
         CreateGameReqBody name = new CreateGameReqBody(gameName);
-        this.makeRequest("POST", urlPath, name, auth, CreateGameResult.class);
+        CreateGameResult result = this.makeRequest("POST", urlPath, name, auth, CreateGameResult.class);
+        return result;
     }
 
 
-    public void joinGame(String authToken, int gameID) throws ResponseException{
+    public JoinGameResult joinGame(String authToken, int gameID) throws ResponseException{
         String urlPath = "/game";
         //todo: header = String authToken
         Authorization auth = new Authorization(authToken);
         //todo: body = playercolor, gameID
         JoinGameReqBody joinGameReqBody = new JoinGameReqBody(gameID);
-        this.makeRequest("PUT", urlPath, joinGameReqBody, auth, JoinGameResult.class);
+        JoinGameResult result = this.makeRequest("PUT", urlPath, joinGameReqBody, auth, JoinGameResult.class);
+        return result;
     }
 
 
