@@ -9,10 +9,12 @@ import reqres.facade.JoinGameReqBody;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 
 public class ServerFacade {
     private final String serverUrl;
+    private String authToken;
 
     public ServerFacade(String serverUrl) {
         this.serverUrl = serverUrl;
@@ -37,6 +39,7 @@ public class ServerFacade {
         RegisterRequest registerRequest = new RegisterRequest(username, password, email);
         RegisterResult result = this.makeRequest("POST", urlPath, registerRequest,
                 null, RegisterResult.class);
+        this.authToken = result.authToken();
         return result;
     }
 
@@ -46,29 +49,31 @@ public class ServerFacade {
         LoginRequest loginRequest = new LoginRequest(username, password);
         LoginResult result = this.makeRequest("POST", urlPath, loginRequest,
                 null, LoginResult.class);
+        this.authToken = result.authToken();
         return result;
     }
 
-    public LogoutResult logout(String authToken) throws ResponseException{
+    public LogoutResult logout() throws ResponseException{
         //todo: account for authToken in the header (only input)
         String urlPath = "/session";
-        Authorization auth = new Authorization(authToken);
+        Authorization auth = new Authorization(this.authToken);
         LogoutResult result = this.makeRequest("DELETE", urlPath, null,
                 auth, LogoutResult.class);
+        this.authToken = null;
         return result;
     }
 
     /*game methods*/
-    public ListGamesResult listGames(String authToken) throws ResponseException{
+    public ArrayList<SimplifiedGameData> listGames() throws ResponseException{
         String urlPath = "/game";
         //todo: account for authToken being in the header of the request
         Authorization auth = new Authorization(authToken);
-        ListGamesResult result = this.makeRequest("GET", urlPath, null,
+        ListGamesResult gameList = this.makeRequest("GET", urlPath, null,
                 auth, ListGamesResult.class);
         //that list is contained within the listGames result
-        return result;
+        return gameList.games();
     }
-    public CreateGameResult createGame(String authToken, String gameName) throws ResponseException{
+    public CreateGameResult createGame(String gameName) throws ResponseException{
         String urlPath = "/game";
         Authorization auth = new Authorization(authToken); //todo: account fr authToken being in the header of the request
         CreateGameReqBody name = new CreateGameReqBody(gameName);
@@ -77,7 +82,7 @@ public class ServerFacade {
     }
 
 
-    public JoinGameResult joinGame(String authToken, int gameID) throws ResponseException{
+    public JoinGameResult joinGame(int gameID) throws ResponseException{
         String urlPath = "/game";
         //todo: header = String authToken
         Authorization auth = new Authorization(authToken);

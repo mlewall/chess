@@ -1,11 +1,15 @@
 package client;
 
+import dataaccess.DataAccessException;
 import model.AuthData;
+import model.SimplifiedGameData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
 import server.Server;
 import server.ServerFacade;
 import reqres.*;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,15 +59,16 @@ public class ServerFacadeTests {
     @Test
     void logoutSuccess() throws ResponseException {
         RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
-        LogoutResult result = facade.logout(authData.authToken());
-        //todo: figure out how to test that the logout was successful?
-        assertThrows(ResponseException.class, () -> facade.createGame(authData.authToken(), "Test Game"));
+        LogoutResult result = facade.logout();
+        assertThrows(ResponseException.class, () -> facade.createGame( "Test Game"));
     }
 
     @Test
+    @DisplayName("Multiple logouts")
     void logoutFailure() throws ResponseException {
         RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
-        assertThrows(ResponseException.class, () -> facade.logout("badAuthtoken"));
+        facade.logout();
+        assertThrows(ResponseException.class, () -> facade.logout());
     }
 
     @Test
@@ -75,12 +80,80 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void loginFailure() throws ResponseException {
-        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
-        facade.logout(authData.authToken());
-        assertThrows(ResponseException.class, () -> facade.login("player1", "incorrectPW"));
+    void multipleLogins() throws ResponseException {
 
     }
+
+    @Test
+    void loginFailure() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        facade.logout();
+        assertThrows(ResponseException.class, () -> facade.login("player1", "incorrectPW"));
+    }
+
+    @Test
+    void listGamesSuccess() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        String authToken = authData.authToken();
+        facade.createGame("Test Game1");
+        facade.createGame("Test Game2");
+        facade.createGame("Test Game3");
+        ArrayList<SimplifiedGameData> gameList = facade.listGames();
+        assertInstanceOf(ArrayList.class, gameList);
+        assertEquals(3, gameList.size());
+    }
+
+    @Test
+    void listGamesNoGames() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        String authToken = authData.authToken();
+        assertEquals(0, facade.listGames().size());
+    }
+
+    @Test
+    @DisplayName("logged out list games")
+    void listGamesFailure() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        facade.createGame( "Test Game1");
+        facade.createGame("Test Game2");
+        facade.logout();
+        assertThrows(ResponseException.class, () -> facade.listGames());
+
+    }
+
+    @Test
+    void createGameSuccess() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        String authToken = authData.authToken();
+        facade.createGame("Test Game1");
+        assertEquals(1, facade.listGames().size());
+        //if the game was successfully created, then it should show up in the list
+    }
+
+    @Test
+    @DisplayName("create game when logged out")
+    void createGameFailure() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        facade.createGame("Test Game1");
+        facade.logout();
+        assertThrows(ResponseException.class, () -> facade.createGame("Test Game2"));
+    }
+
+    @Test
+    void joinSuccess() throws ResponseException {
+        RegisterResult res = facade.register("firstUser", "pw", "myEmail.com");
+
+
+    }
+
+
+    @Test
+    void joinFailure(){
+
+    }
+
+
+
 
 
 
