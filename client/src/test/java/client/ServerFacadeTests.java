@@ -40,24 +40,46 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void register() throws ResponseException {
-        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+    void registerSuccess() throws ResponseException {
+        RegisterResult authData = facade.register("player1",
+                "password", "myFirstEmail.com");
         assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
-    void logout() throws ResponseException {
-        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
-        LogoutResult result = facade.logout(authData.authToken());
-        //todo: figure out how to test that the logout was successful?
+    void registerFailure() throws ResponseException {
+        assertThrows(ResponseException.class, () -> facade.register("player2",
+                null, "myFirstEmail.com"));
     }
 
     @Test
-    void login() throws ResponseException {
+    void logoutSuccess() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        LogoutResult result = facade.logout(authData.authToken());
+        //todo: figure out how to test that the logout was successful?
+        assertThrows(ResponseException.class, () -> facade.createGame(authData.authToken(), "Test Game"));
+    }
+
+    @Test
+    void logoutFailure() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        assertThrows(ResponseException.class, () -> facade.logout("badAuthtoken"));
+    }
+
+    @Test
+    void loginSuccess() throws ResponseException {
         //not sure about this because the database would have been cleared so you'd have to register again
         facade.register("player1", "password", "myFirstEmail.com");
         LoginResult authData = facade.login("player1", "password");
         assertTrue(authData.authToken().length() > 10);
+    }
+
+    @Test
+    void loginFailure() throws ResponseException {
+        RegisterResult authData = facade.register("player1", "password", "myFirstEmail.com");
+        facade.logout(authData.authToken());
+        assertThrows(ResponseException.class, () -> facade.login("player1", "incorrectPW"));
+
     }
 
 
