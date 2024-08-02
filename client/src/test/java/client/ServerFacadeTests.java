@@ -80,8 +80,18 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void multipleLogins() throws ResponseException {
-
+    void multipleLoginsOK() throws ResponseException {
+        /*there is just one facade instance in use at a time so how does this work? */
+        //I feel like there are implications here so I should take another look at this
+        facade.register("player1", "password", "myFirstEmail.com");
+        //facade.logout();
+        facade.register("player2", "password", "mySecondEmail.com");
+        //facade.logout();
+        LoginResult auth1 = facade.login("player1", "password");
+        LoginResult auth2 = facade.login("player2", "password");
+        assert(auth1.authToken().length() > 10);
+        assert(auth2.authToken().length() > 10);
+        assertNotEquals(auth1.authToken(), auth2.authToken());
     }
 
     @Test
@@ -142,14 +152,34 @@ public class ServerFacadeTests {
     @Test
     void joinSuccess() throws ResponseException {
         RegisterResult res = facade.register("firstUser", "pw", "myEmail.com");
-
-
+        facade.createGame("Test Game1");
+        facade.logout();
+        facade.login("firstUser", "pw");
+        int gameID = facade.listGames().getFirst().gameID();
+        //TODO: ensure input is uppercase BEFORE it gets here!
+        facade.joinGame("WHITE", gameID);
+        assertTrue((facade.listGames().getFirst().whiteUsername()).equals("firstUser"));
     }
 
 
     @Test
-    void joinFailure(){
+    void joinFailure() throws ResponseException {
+        facade.register("firstUser", "pw", "myEmail.com");
+        facade.createGame("Test Game1");
+        facade.logout();
+        facade.login("firstUser", "pw");
+        int gameID = facade.listGames().getFirst().gameID();
+        //todo: should also fail with "white" and "black"
+        assertThrows(ResponseException.class, () -> facade.joinGame("yellow", gameID));
+    }
 
+    @Test
+    void joinFailureNoExist() throws ResponseException {
+        facade.register("firstUser", "pw", "myEmail.com");
+        facade.logout();
+        facade.login("firstUser", "pw");
+        //todo: should also fail with "white" and "black"
+        assertThrows(ResponseException.class, () -> facade.joinGame("white", 4214));
     }
 
 

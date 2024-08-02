@@ -1,4 +1,4 @@
 package reqres.facade;
 
-public record JoinGameReqBody (int gameID){
+public record JoinGameReqBody (String playerColor, int gameID){
 }

@@ -82,12 +82,12 @@ public class ServerFacade {
     }
 
 
-    public JoinGameResult joinGame(int gameID) throws ResponseException{
+    public JoinGameResult joinGame(String playerColor, int gameID) throws ResponseException{
         String urlPath = "/game";
         //todo: header = String authToken
         Authorization auth = new Authorization(authToken);
         //todo: body = playercolor, gameID
-        JoinGameReqBody joinGameReqBody = new JoinGameReqBody(gameID);
+        JoinGameReqBody joinGameReqBody = new JoinGameReqBody(playerColor, gameID);
         JoinGameResult result = this.makeRequest("PUT", urlPath, joinGameReqBody, auth, JoinGameResult.class);
         return result;
     }
