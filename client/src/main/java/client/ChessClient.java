@@ -20,7 +20,7 @@ public class ChessClient {
     //should be cleared upon logout
 
     //private WebSocketFacade ws;
-    private boolean signedIn = false;
+    public boolean signedIn = false;
     private ChessGame localChessCopy;
     //private HashMap<Integer, SimplifiedGameData> currentGames;
 
@@ -33,7 +33,7 @@ public class ChessClient {
 
     public String eval(String input){
         try{
-            var tokens = input.toLowerCase().split(" ");
+            var tokens = input.split(" ");
             var command = (tokens.length > 0) ? tokens[0] : "help";
 
             //gets rid of the first param (the command)
@@ -47,8 +47,9 @@ public class ChessClient {
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "logout" -> userLogout();
+                case "clear" -> clear();
 
-                case "quit" -> "quit";
+                case "quit" -> "quit"; //you can choose to make them log out or can just quite
                 default -> help();
             };
         }
@@ -56,22 +57,30 @@ public class ChessClient {
             return ex.getMessage();
         }
     }
+    public String clear() throws ResponseException{
+        server.clear();
+        return "Server has been reset";
+    }
 
     public String registerUser(String...params) throws ResponseException {
         String username = null;
-        String password = null;
-        String email = null;
+        String password;
+        String email;
         if(params.length > 2){
             username = params[0];
             password = params[1];
             email = params[2];
+            //try
             server.register(username, password, email);
             //they are automatically logged in when they register (an authToken is generated)?
             //todo: what happens if the credentials are wrong?
             this.visitorName = username;
             signedIn = true;
-            return String.format("Successfully registered %s", username);
+            return String.format("You were successfully registered and logged in as: %s \n", username);
+            //catch
+            //--specify specific errors/input problems
         }
+
         throw new ResponseException(400, "Expected <username> <password> <email>");
     }
 
@@ -92,9 +101,14 @@ public class ChessClient {
     public String createGame(String...params) throws ResponseException {
         assertSignedIn();
         String gameName = null;
+        try{
         if (params.length > 0) {
             gameName = params[0];
             CreateGameResult result = server.createGame(gameName);
+            return String.format("Game created! Game ID: " + result.gameID());
+        }}
+        catch(Exception ex){
+            return ex.getMessage();
         }
         throw new ResponseException(400, "Invalid game name");
     }
@@ -135,6 +149,8 @@ public class ChessClient {
             //todo: figure out how to access game Data for real...
             // key Q: can the HTTP response include the gameData always? Can that be kept in the hashmap?
             //ChessGame reqGame = game.game
+            //newChessGame -> print
+            //print out a placeholder board -- will connect with websockets later
             return String.format("ChessGame Placeholder");
         }
         throw new ResponseException(400, "Invalid game id");

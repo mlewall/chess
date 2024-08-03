@@ -1,7 +1,11 @@
 package client;
 
 import client.websocket.NotificationHandler;
+import reqres.LoginResult;
+import server.ResponseException;
+import server.ServerFacade;
 //import webSocketMessages.Notification;
+import java.util.Arrays;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
@@ -14,9 +18,14 @@ import static ui.EscapeSequences.*;
 
 public class PreLoginRepl implements NotificationHandler {
     private final ChessClient chessClient;
+    private final ServerFacade server;
+    private boolean signedIn = false;
+    private String visitorName;
 
     public PreLoginRepl(String serverUrl) {
         chessClient = new ChessClient(serverUrl, this);
+        server = new ServerFacade(serverUrl);
+        signedIn = false;
     }
 
     public void run(){
@@ -26,25 +35,91 @@ public class PreLoginRepl implements NotificationHandler {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(!result.equals("quit")){
-            printPrompt();
-            String line = scanner.nextLine();
+            System.out.print("\n" + ">>> ");
+            String input = scanner.nextLine();
 
             try{
-                result = chessClient.eval(line);
+                result = eval(input);
+                System.out.println(result);
                 //sometimes will this print out some kind of gameBoard?
+                if(result.equals("quit")){
+                    System.out.println("Goodbye!");
+                    System.exit(0);
+                }
                 System.out.print(result);
+                if(signedIn){
+                    PostLoginRepl postLoginRepl = new PostLoginRepl(chessClient, server, visitorName);
+                    postLoginRepl.run();
+                    System.out.println("You have been logged out. Welcome back to the main menu.\n");
+                    System.out.print(help());
+                }
+
             }
             catch(Exception e){
                 var msg = e.toString();
                 System.out.print(msg);
             }
-
         }
     }
 
-    private void printPrompt() {
-        System.out.print("\n" + ">>> ");
+    public String eval(String input){
+        try{
+            var tokens = input.split(" ");
+            var command = (tokens.length > 0) ? tokens[0] : "help"; //gets rid of the first param (the command)
+            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch(command){
+                case "register" -> registerUser(params);
+                case "login" -> userLogin(params);
+                case "quit" -> "quit"; //you can choose to make them log out or can just quite
+                case "clear" -> clear();
+                default -> help();
+            };
+        }
+        catch(ResponseException ex){
+            return ex.getMessage();
+        }
     }
+    public String clear() throws ResponseException{
+        server.clear();
+        return "Server has been reset";
+    }
+
+    public String registerUser(String...params) throws ResponseException {
+        String username;
+        String password;
+        String email;
+        if(params.length > 2){
+            username = params[0];
+            password = params[1];
+            email = params[2];
+            //try
+            server.register(username, password, email);
+            //they are automatically logged in when they register (an authToken is generated)?
+            //todo: what happens if the credentials are wrong?
+            this.visitorName = username;
+            signedIn = true;
+            return String.format("You were successfully registered and logged in as: %s \n", username);
+            //catch
+            //--specify specific errors/input problems
+        }
+
+        throw new ResponseException(400, "Expected <username> <password> <email>");
+    }
+
+    public String userLogin(String...params) throws ResponseException {
+        String username = null;
+        String password = null;
+        if (params.length > 1) {
+            username = params[0];
+            password = params[1];
+            LoginResult result = server.login(username, password);
+            this.visitorName = username;
+            signedIn = true;
+            return String.format("You are now signed in as %s.", visitorName);
+        }
+        throw new ResponseException(400, "Invalid username or password");
+    }
+
 
     public static String help(){
         return """
@@ -52,6 +127,6 @@ public class PreLoginRepl implements NotificationHandler {
                2) login <USERNAME> <PASSWORD> - to play chess
                3) quit - playing chess
                4) help - with possible commands
-                """;
+               """;
     }
 }

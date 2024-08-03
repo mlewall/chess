@@ -94,7 +94,8 @@ public class ServerFacade {
 
 
     /*These methods were copied from petshop*/
-    private <T> T makeRequest(String method, String path, Object requestBodyData, Authorization headerData, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object requestBodyData,
+                              Authorization headerData, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -142,6 +143,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
+            //http.getErrorStream(); (InputStream respBody = http.getInputStream())
             throw new ResponseException(status, "failure: " + status);
         }
     }
