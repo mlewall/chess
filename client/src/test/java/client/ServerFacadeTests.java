@@ -1,7 +1,5 @@
 package client;
 
-import dataaccess.DataAccessException;
-import model.AuthData;
 import model.SimplifiedGameData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;

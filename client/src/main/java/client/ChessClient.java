@@ -20,15 +20,15 @@ public class ChessClient {
     //should be cleared upon logout
 
     //private WebSocketFacade ws;
-    private State state = State.SIGNEDOUT;
+    private boolean signedIn = false;
     private ChessGame localChessCopy;
-    private HashMap<Integer, SimplifiedGameData> currentGames;
+    //private HashMap<Integer, SimplifiedGameData> currentGames;
 
     public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
         this.notificationHandler = notificationHandler; // this is actually a pointer to the repl
-        this.currentGames = new HashMap<>();
+        //this.currentGames = new HashMap<>();
     }
 
     public String eval(String input){
@@ -38,7 +38,6 @@ public class ChessClient {
 
             //gets rid of the first param (the command)
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return command + " " + Arrays.toString(params);
             return switch(command){
                 case "register" -> registerUser(params);
                 case "login" -> userLogin(params);
@@ -70,6 +69,7 @@ public class ChessClient {
             //they are automatically logged in when they register (an authToken is generated)?
             //todo: what happens if the credentials are wrong?
             this.visitorName = username;
+            signedIn = true;
             return String.format("Successfully registered %s", username);
         }
         throw new ResponseException(400, "Expected <username> <password> <email>");
@@ -83,6 +83,7 @@ public class ChessClient {
             password = params[1];
             LoginResult result = server.login(username, password);
             this.visitorName = username;
+            signedIn = true;
             return String.format("You are now signed in as %s.", visitorName);
         }
         throw new ResponseException(400, "Invalid username or password");
@@ -101,7 +102,7 @@ public class ChessClient {
     public String listGames() throws ResponseException {
         assertSignedIn();
         ArrayList<SimplifiedGameData> games = server.listGames();
-        this.currentGames = games; //update the gameList
+        //this.currentGames = games; //update the gameList
         StringBuilder result = new StringBuilder();
         Gson gson = new Gson();
         for(var game : games){
@@ -129,13 +130,26 @@ public class ChessClient {
         int gameId;
         if (params.length > 0) {
             gameId = Integer.parseInt(params[0]);
-
+            //SimplifiedGameData game = lookupGame(gameId); //the problem is that this doesn't
+            // contain the serialized chessGame
+            //todo: figure out how to access game Data for real...
+            // key Q: can the HTTP response include the gameData always? Can that be kept in the hashmap?
+            //ChessGame reqGame = game.game
+            return String.format("ChessGame Placeholder");
         }
+        throw new ResponseException(400, "Invalid game id");
+    }
+
+    public String userLogout() throws ResponseException {
+        assertSignedIn();
+        server.logout();
+        signedIn = false;
+        return String.format("Successfully logged out %s", visitorName);
     }
 
 
     public String help(){
-        if (state == State.SIGNEDOUT){
+        if (!signedIn){
             return  """
                1) register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                2) login <USERNAME> <PASSWORD> - to play chess
@@ -154,15 +168,22 @@ public class ChessClient {
         }
 
     private void assertSignedIn() throws ResponseException {
-        if (state == State.SIGNEDOUT) {
+        if (!signedIn) {
             throw new ResponseException(400, "You must sign in");
         }
     }
 
-    public void updateGameList(ArrayList<SimplifiedGameData> games){
-        currentGames.clear();
-        for
-    }
+
+//    public void updateGameList(ArrayList<SimplifiedGameData> games){
+//        currentGames.clear();
+//        for(SimplifiedGameData game : games){
+//            currentGames.put(game.gameID(), game);
+//        }
+//    }
+//
+//    public SimplifiedGameData lookupGame(int gameID){
+//        return currentGames.get(gameID);
+//    }
     }
 
 

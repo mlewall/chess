@@ -29,10 +29,15 @@ public class PreLoginRepl implements NotificationHandler {
             printPrompt();
             String line = scanner.nextLine();
 
-            //try{
+            try{
                 result = chessClient.eval(line);
+                //sometimes will this print out some kind of gameBoard?
                 System.out.print(result);
-            //}
+            }
+            catch(Exception e){
+                var msg = e.toString();
+                System.out.print(msg);
+            }
 
         }
     }
