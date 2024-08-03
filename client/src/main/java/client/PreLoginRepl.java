@@ -29,10 +29,11 @@ public class PreLoginRepl implements NotificationHandler {
             printPrompt();
             String line = scanner.nextLine();
 
-            try{
+            //try{
                 result = chessClient.eval(line);
+                System.out.print(result);
+            //}
 
-            }
         }
     }
 
@@ -40,7 +41,7 @@ public class PreLoginRepl implements NotificationHandler {
         System.out.print("\n" + ">>> ");
     }
 
-    public String help(){
+    public static String help(){
         return """
                1) register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                2) login <USERNAME> <PASSWORD> - to play chess
