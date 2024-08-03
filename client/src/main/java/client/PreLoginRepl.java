@@ -8,6 +8,7 @@ import server.ServerFacade;
 import java.util.Arrays;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
+import client.PostLoginRepl;
 
 /* the things contained in here are:
             1) register <USERNAME> <PASSWORD> <EMAIL> - to create an account
@@ -29,7 +30,7 @@ public class PreLoginRepl implements NotificationHandler {
     }
 
     public void run(){
-        System.out.println("Welcome to 240 Chess. Sign in or type \"help\" to get started.");
+        System.out.println("Welcome to 240 Chess. Sign in or type \"help\" to get started.\n");
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
@@ -40,7 +41,6 @@ public class PreLoginRepl implements NotificationHandler {
 
             try{
                 result = eval(input);
-                System.out.println(result);
                 //sometimes will this print out some kind of gameBoard?
                 if(result.equals("quit")){
                     System.out.println("Goodbye!");
@@ -50,7 +50,7 @@ public class PreLoginRepl implements NotificationHandler {
                 if(signedIn){
                     PostLoginRepl postLoginRepl = new PostLoginRepl(chessClient, server, visitorName);
                     postLoginRepl.run();
-                    System.out.println("You have been logged out. Welcome back to the main menu.\n");
+                    System.out.println("Welcome back to the main menu.\n");
                     System.out.print(help());
                 }
 
@@ -125,8 +125,8 @@ public class PreLoginRepl implements NotificationHandler {
         return """
                1) register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                2) login <USERNAME> <PASSWORD> - to play chess
-               3) quit - playing chess
-               4) help - with possible commands
+               3) quit - quit chess portal
+               4) help - list possible commands
                """;
     }
 }

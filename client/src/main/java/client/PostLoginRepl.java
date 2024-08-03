@@ -1,12 +1,8 @@
 package client;
-
 import com.google.gson.Gson;
 import model.SimplifiedGameData;
-import reqres.CreateGameResult;
-import reqres.JoinGameResult;
-import server.ResponseException;
-import server.ServerFacade;
-
+import reqres.*;
+import server.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -56,7 +52,7 @@ public class PostLoginRepl {
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "logout" -> userLogout();
-                case "clear" -> clear();
+                //case "clear" -> clear();
 
                 case "quit" -> "quit"; //you can choose to make them log out or can just quite
                 default -> help();
@@ -67,14 +63,9 @@ public class PostLoginRepl {
         }
     }
 
-    public String clear() throws ResponseException{
-        server.clear();
-        return "Server has been reset";
-    }
-
     public String createGame(String...params) throws ResponseException {
         assertSignedIn();
-        String gameName = null;
+        String gameName;
         try{
             if (params.length > 0) {
                 gameName = params[0];
@@ -100,29 +91,36 @@ public class PostLoginRepl {
     }
 
     public String joinGame(String...params) throws ResponseException {
-        assertSignedIn();
-        String playerColor;
-        int gameId;
-        //todo: figure out what this means:
-        // Your client will need to keep track of which number corresponds to which game from the last time it listed the games.
-        if (params.length > 1) {
-            playerColor = params[0].toUpperCase();
-            gameId = Integer.parseInt(params[1]);
-            JoinGameResult result = server.joinGame(playerColor, gameId);
+//        assertSignedIn();
+        if (params.length < 2) {
+            throw new ResponseException(400, "Expected <COLOR> <GAME_ID>");
+        }
+        String playerColor = params[1].toUpperCase();
+        String gameId = params[0];
+        if(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
+            throw new ResponseException(400, "Invalid color");
+        }
+        if(!isInteger(gameId)){
+            throw new ResponseException(400, "Invalid game ID: please include a number");
+        }
+        int gameID = Integer.parseInt(gameId);
+
+        try {
+            JoinGameResult result = server.joinGame(playerColor, gameID);
             return String.format("You are now joined to game %s as %s.", gameId, playerColor);
         }
-        throw new ResponseException(400, "Invalid game id or invalid player color");
+        catch(Exception e){
+            throw new ResponseException(400, "Invalid game id or invalid player color");
+        }
     }
+        //todo: figure out what this means:
+        // Your client will need to keep track of which number corresponds to which game from the last time it listed the games.
+
 
     public String observeGame(String...params) throws ResponseException {
         int gameId;
         if (params.length > 0) {
             gameId = Integer.parseInt(params[0]);
-            //SimplifiedGameData game = lookupGame(gameId); //the problem is that this doesn't
-            // contain the serialized chessGame
-            //todo: figure out how to access game Data for real...
-            // key Q: can the HTTP response include the gameData always? Can that be kept in the hashmap?
-            //ChessGame reqGame = game.game
             //newChessGame -> print
             //print out a placeholder board -- will connect with websockets later
             return String.format("ChessGame Placeholder");
@@ -134,7 +132,7 @@ public class PostLoginRepl {
         assertSignedIn();
         server.logout();
         signedIn = false;
-        return String.format("Successfully logged out %s", visitorName);
+        return String.format("Successfully logged out @%s \n", visitorName);
     }
 
     private void assertSignedIn() throws ResponseException {
@@ -143,6 +141,17 @@ public class PostLoginRepl {
         }
     }
 
+    private boolean isInteger(String str){
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
     private String help(){
         return """
