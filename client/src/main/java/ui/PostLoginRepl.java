@@ -13,9 +13,6 @@ import java.util.Scanner;
 public class PostLoginRepl {
     private final ChessClient chessClient;
     private HashMap<Integer, SimplifiedGameData> games;
-//    private final ServerFacade server;
-//    private boolean signedIn;
-//    private String visitorName;
 
     public PostLoginRepl(ChessClient chessClient) {
         this.chessClient = chessClient;
@@ -35,7 +32,9 @@ public class PostLoginRepl {
 
             try{
                 result = eval(input); //sometimes will this print out some kind of gameBoard?
-                System.out.print(result);
+                if(!result.equals("quit")){
+                    System.out.print(result);
+                }
             }
             catch(Exception e){
                 var msg = e.toString();
@@ -57,13 +56,21 @@ public class PostLoginRepl {
                 case "logout" -> userLogout();
                 //case "clear" -> clear();
 
-                case "quit" -> "quit"; //you can choose to make them log out or can just quite
+                case "quit" -> "You must log out to quit chess."; //you can choose to make them log out or can just quite
                 default -> help();
             };
         }
         catch(ResponseException ex){
             return ex.getMessage();
         }
+    }
+    public String userLogout() throws ResponseException {
+        assertSignedIn();
+        chessClient.server.logout();
+        chessClient.signedIn = false;
+        String out = String.format("Successfully logged out @%s. \n", chessClient.visitorName);
+        System.out.println(out);
+        return "quit";
     }
 
     public String createGame(String...params) throws ResponseException {
@@ -81,10 +88,6 @@ public class PostLoginRepl {
         throw new ResponseException(400, "Invalid game name");
     }
 
-    /*Lists all the games that currently exist on the server.
-    Calls the server list API to get all the game data, and
-    displays the games in a numbered list, including the game
-    name and players (not observers) in the game. The numbering for the list should be independent of the game IDs and should start at 1.*/
     public String listGames() throws ResponseException {
         assertSignedIn();
         ArrayList<SimplifiedGameData> gamesOnServer = chessClient.server.listGames();
@@ -128,8 +131,11 @@ public class PostLoginRepl {
                 JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
                 return String.format("You are now joined to game %s as %s.", gameNum, playerColor);
             }
-            catch(Exception e){
-                throw new ResponseException(400, "Invalid game id or invalid player color");
+            catch(ResponseException e){
+                if(e.getStatusCode() == 403){
+                    throw new ResponseException(403, "Color already taken. Please choose another game/color to join.");
+                }
+                return "Please specify a different game/color to join";
             }
         }
         else{
@@ -150,12 +156,7 @@ public class PostLoginRepl {
         throw new ResponseException(400, "Invalid game id");
     }
 
-    public String userLogout() throws ResponseException {
-        assertSignedIn();
-        chessClient.server.logout();
-        chessClient.signedIn = false;
-        return String.format("Successfully logged out @%s. \n", chessClient.visitorName);
-    }
+
 
     private void assertSignedIn() throws ResponseException {
         if (!chessClient.signedIn) {
@@ -185,7 +186,5 @@ public class PostLoginRepl {
                 6) help - get possible commands
                 """;
     }
-
-
 
 }

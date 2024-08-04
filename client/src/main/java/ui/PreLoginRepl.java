@@ -10,13 +10,6 @@ import server.ServerFacade;
 import java.util.Arrays;
 import java.util.Scanner;
 
-/* the things contained in here are:
-            1) register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-            2) login <USERNAME> <PASSWORD> - to play chess
-            3) quit - playing chess
-            4) help - with possible commands
-     */
-
 public class PreLoginRepl implements NotificationHandler {
     private final ChessClient chessClient;
     private boolean signedIn = false;
@@ -24,8 +17,6 @@ public class PreLoginRepl implements NotificationHandler {
 
     public PreLoginRepl(String serverUrl) {
         chessClient = new ChessClient(serverUrl, this);
-//        server = new ServerFacade(serverUrl);
-//        signedIn = false;
     }
 
     public void run(){
@@ -39,8 +30,7 @@ public class PreLoginRepl implements NotificationHandler {
             String input = scanner.nextLine();
 
             try{
-                result = eval(input);
-                //sometimes will this print out some kind of gameBoard?
+                result = eval(input); //sometimes will this print out some kind of gameBoard?
                 if(result.equals("quit")){
                     System.out.println("Goodbye!");
                     System.exit(0);
@@ -49,7 +39,7 @@ public class PreLoginRepl implements NotificationHandler {
                 if(signedIn){
                     PostLoginRepl postLoginRepl = new PostLoginRepl(chessClient);
                     postLoginRepl.run();
-                    System.out.println("Welcome back to the main menu.\n");
+                    System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "Welcome back to the main menu." + EscapeSequences.RESET_TEXT_COLOR);
                     System.out.print(help());
                 }
             }

@@ -150,9 +150,7 @@ public class ServerFacade {
     * 2) Then we check if the response has a body. (length < 0???)
     * 3) read the response body. open IO stream and wrap in InStreamReader
     * 4) parse the json; deserializing it into an obj of specified class.
-    *
-
-     * */
+     */
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
         T response = null; //placeholder that will be filled with the actual resp if method
         //successfully parses the response body
@@ -168,7 +166,6 @@ public class ServerFacade {
         //response is an object of type T specified by responseClass
         return response;
     }
-
 
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
