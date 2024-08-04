@@ -18,7 +18,7 @@ public class ChessClient {
     private final String serverUrl;
     public boolean signedIn = false;
     public ChessGame localChessCopy;
-    private HashMap<Integer, SimplifiedGameData> currentGames;
+    //private HashMap<Integer, SimplifiedGameData> currentGames;
 
     //private final NotificationHandler notificationHandler;
     //private WebSocketFacade ws;
@@ -29,6 +29,8 @@ public class ChessClient {
         //this.notificationHandler = notificationHandler; // this is actually a pointer to the repl
         //this.currentGames = new HashMap<>();
     }
+
+
 
 
 //    public String eval(String input){

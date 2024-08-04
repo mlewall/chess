@@ -20,7 +20,7 @@ import java.util.Scanner;
 public class PreLoginRepl implements NotificationHandler {
     private final ChessClient chessClient;
     private boolean signedIn = false;
-    private String visitorName;
+    //private String visitorName;
 
     public PreLoginRepl(String serverUrl) {
         chessClient = new ChessClient(serverUrl, this);
@@ -35,7 +35,7 @@ public class PreLoginRepl implements NotificationHandler {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(!result.equals("quit")){
-            System.out.print("\n" + ">>> ");
+            System.out.print("\n" + EscapeSequences.SET_TEXT_BLINKING + ">>> " + EscapeSequences.RESET_TEXT_BLINKING);
             String input = scanner.nextLine();
 
             try{
@@ -52,7 +52,6 @@ public class PreLoginRepl implements NotificationHandler {
                     System.out.println("Welcome back to the main menu.\n");
                     System.out.print(help());
                 }
-
             }
             catch(Exception e){
                 var msg = e.toString();
@@ -60,7 +59,6 @@ public class PreLoginRepl implements NotificationHandler {
             }
         }
     }
-
     public String eval(String input){
         try{
             var tokens = input.split(" ");
@@ -93,7 +91,7 @@ public class PreLoginRepl implements NotificationHandler {
             email = params[2];
             try {
                 RegisterResult result = chessClient.server.register(username, password, email); //todo: what happens if the credentials are wrong?
-                this.visitorName = username;
+                chessClient.visitorName = username;
                 signedIn = true;
                 return String.format("You were successfully registered and logged in as: %s \n", username);
             }
@@ -115,9 +113,9 @@ public class PreLoginRepl implements NotificationHandler {
             username = params[0];
             password = params[1];
             LoginResult result = chessClient.server.login(username, password);
-            this.visitorName = username;
+            chessClient.visitorName = username;
             signedIn = true;
-            return String.format("You are now signed in as %s.", visitorName);
+            return String.format("You are now signed in as %s.", chessClient.visitorName);
         }
         throw new ResponseException(400, "Invalid username or password");
     }

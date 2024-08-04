@@ -3,14 +3,10 @@ package server;
 import com.google.gson.Gson;
 import model.SimplifiedGameData;
 import reqres.*;
-import reqres.facade.Authorization;
-import reqres.facade.CreateGameReqBody;
-import reqres.facade.JoinGameReqBody;
-
+import reqres.facade.*;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-
 
 public class ServerFacade {
     private final String serverUrl;

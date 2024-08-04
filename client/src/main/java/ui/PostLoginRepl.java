@@ -1,4 +1,5 @@
 package ui;
+import chess.ChessGame;
 import client.ChessClient;
 import com.google.gson.Gson;
 import model.SimplifiedGameData;
@@ -6,10 +7,12 @@ import reqres.*;
 import server.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class PostLoginRepl {
     private final ChessClient chessClient;
+    private HashMap<Integer, SimplifiedGameData> games;
 //    private final ServerFacade server;
 //    private boolean signedIn;
 //    private String visitorName;
@@ -17,6 +20,7 @@ public class PostLoginRepl {
     public PostLoginRepl(ChessClient chessClient) {
         this.chessClient = chessClient;
         chessClient.signedIn = true;
+        games = new HashMap<>();
     }
 
     public void run(){
@@ -26,7 +30,7 @@ public class PostLoginRepl {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(chessClient.signedIn && !result.equals("quit")){
-            System.out.print("\n" + ">>> ");
+            System.out.print("\n" + EscapeSequences.SET_TEXT_BLINKING + ">>> " + EscapeSequences.RESET_TEXT_BLINKING);
             String input = scanner.nextLine();
 
             try{
@@ -69,7 +73,7 @@ public class PostLoginRepl {
             if (params.length > 0) {
                 gameName = params[0];
                 CreateGameResult result = chessClient.server.createGame(gameName);
-                return String.format("Game created! Game ID: " + result.gameID());
+                return String.format("Game created successfully!");
             }}
         catch(Exception ex){
             return ex.getMessage();
@@ -77,14 +81,30 @@ public class PostLoginRepl {
         throw new ResponseException(400, "Invalid game name");
     }
 
+    /*Lists all the games that currently exist on the server.
+    Calls the server list API to get all the game data, and
+    displays the games in a numbered list, including the game
+    name and players (not observers) in the game. The numbering for the list should be independent of the game IDs and should start at 1.*/
     public String listGames() throws ResponseException {
         assertSignedIn();
-        ArrayList<SimplifiedGameData> games = chessClient.server.listGames();
+        ArrayList<SimplifiedGameData> gamesOnServer = chessClient.server.listGames();
         //this.currentGames = games; //update the gameList
         StringBuilder result = new StringBuilder();
-        Gson gson = new Gson();
-        for(var game : games){
-            result.append(gson.toJson(game)).append("\n");
+        int i = 1;
+        for(var game : gamesOnServer){
+            String white = game.whiteUsername();
+            String black = game.blackUsername();
+            if(white == null){
+                white = "None";
+            }
+            if(black == null){
+                black = "None";
+            }
+            result.append(i).append(") ");
+            result.append("Game Name: ").append(game.gameName()).append(" | ");
+            result.append("White Player: ").append(white).append(" | ");
+            result.append("Black Player: ").append(black).append("\n");
+            this.games.put(i, game);
         }
         return result.toString();
     }
@@ -120,7 +140,8 @@ public class PostLoginRepl {
         int gameId;
         if (params.length > 0) {
             gameId = Integer.parseInt(params[0]);
-            //newChessGame -> print
+            ChessGame newGame = new ChessGame();
+            //printGame(newGame);
             //print out a placeholder board -- will connect with websockets later
             return String.format("ChessGame Placeholder");
         }
@@ -131,12 +152,12 @@ public class PostLoginRepl {
         assertSignedIn();
         chessClient.server.logout();
         chessClient.signedIn = false;
-        return String.format("Successfully logged out @%s \n", chessClient.visitorName);
+        return String.format("Successfully logged out @%s. \n", chessClient.visitorName);
     }
 
     private void assertSignedIn() throws ResponseException {
         if (!chessClient.signedIn) {
-            throw new ResponseException(400, "You must sign in");
+            throw new ResponseException(400, "You must sign in.");
         }
     }
 
