@@ -90,9 +90,9 @@ public class GameplayRepl {
 
     }
 
-    private static void drawBoardRow(PrintStream out, int boardRow) {
+    private static void drawBoardRow(PrintStream out, int rowInd) {
         for(int col = 0; col < 8 ; col++) { //goes across
-            if(boardRow % 2 == 0){
+            if((col+rowInd) % 2 == 0){
                 out.print(SET_BG_COLOR_WHITE);
                 out.print(EMPTY);
                 out.print(RESET_BG_COLOR);
