@@ -162,9 +162,7 @@ public class ServerFacade {
                 }
             }
         }
-
-        //response is an object of type T specified by responseClass
-        return response;
+        return response;         //response is an object of type T specified by responseClass
     }
 
     private boolean isSuccessful(int status) {

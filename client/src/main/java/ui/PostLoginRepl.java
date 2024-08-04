@@ -129,7 +129,12 @@ public class PostLoginRepl {
             SimplifiedGameData game = games.get(gameID);
             try {
                 JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
-                return String.format("You are now joined to game %s as %s.", gameNum, playerColor);
+                String confirmation = String.format("You are now joined to game %s as %s.", gameNum, playerColor);
+
+                GameplayRepl newGame = new GameplayRepl(new ChessGame(), playerColor);
+                newGame.run();
+                return confirmation;
+
             }
             catch(ResponseException e){
                 if(e.getStatusCode() == 403){
