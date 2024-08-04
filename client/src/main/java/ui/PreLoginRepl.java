@@ -3,6 +3,7 @@ package ui;
 import client.ChessClient;
 import client.websocket.NotificationHandler;
 import reqres.LoginResult;
+import reqres.RegisterResult;
 import server.ResponseException;
 import server.ServerFacade;
 //import webSocketMessages.Notification;
@@ -18,14 +19,13 @@ import java.util.Scanner;
 
 public class PreLoginRepl implements NotificationHandler {
     private final ChessClient chessClient;
-    private final ServerFacade server;
     private boolean signedIn = false;
     private String visitorName;
 
     public PreLoginRepl(String serverUrl) {
         chessClient = new ChessClient(serverUrl, this);
-        server = new ServerFacade(serverUrl);
-        signedIn = false;
+//        server = new ServerFacade(serverUrl);
+//        signedIn = false;
     }
 
     public void run(){
@@ -47,7 +47,7 @@ public class PreLoginRepl implements NotificationHandler {
                 }
                 System.out.print(result);
                 if(signedIn){
-                    PostLoginRepl postLoginRepl = new PostLoginRepl(chessClient, server, visitorName);
+                    PostLoginRepl postLoginRepl = new PostLoginRepl(chessClient);
                     postLoginRepl.run();
                     System.out.println("Welcome back to the main menu.\n");
                     System.out.print(help());
@@ -79,7 +79,7 @@ public class PreLoginRepl implements NotificationHandler {
         }
     }
     public String clear() throws ResponseException{
-        server.clear();
+        chessClient.server.clear();
         return "Server has been reset";
     }
 
@@ -91,14 +91,17 @@ public class PreLoginRepl implements NotificationHandler {
             username = params[0];
             password = params[1];
             email = params[2];
-            //try
-            server.register(username, password, email);
-            //they are automatically logged in when they register (an authToken is generated)?
-            //todo: what happens if the credentials are wrong?
-            this.visitorName = username;
-            signedIn = true;
-            return String.format("You were successfully registered and logged in as: %s \n", username);
-            //catch
+            try {
+                RegisterResult result = chessClient.server.register(username, password, email); //todo: what happens if the credentials are wrong?
+                this.visitorName = username;
+                signedIn = true;
+                return String.format("You were successfully registered and logged in as: %s \n", username);
+            }
+            catch(ResponseException ex){
+                if(ex.getStatusCode() == 403){
+                    return "Username already taken";
+                }
+            }
             //--specify specific errors/input problems
         }
 
@@ -111,7 +114,7 @@ public class PreLoginRepl implements NotificationHandler {
         if (params.length > 1) {
             username = params[0];
             password = params[1];
-            LoginResult result = server.login(username, password);
+            LoginResult result = chessClient.server.login(username, password);
             this.visitorName = username;
             signedIn = true;
             return String.format("You are now signed in as %s.", visitorName);

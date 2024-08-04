@@ -143,7 +143,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            //http.getErrorStream(); (InputStream respBody = http.getInputStream())
+            InputStream errorBody = http.getErrorStream();
             throw new ResponseException(status, "failure: " + status);
         }
     }

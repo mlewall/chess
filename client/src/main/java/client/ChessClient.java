@@ -13,23 +13,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class ChessClient {
-    private String visitorName;
-    private final ServerFacade server; //note that a new one of these is made for every new Client
+    public String visitorName;
+    public final ServerFacade server; //note that a new one of these is made for every new Client
     private final String serverUrl;
-    private final NotificationHandler notificationHandler;
-    //should be cleared upon logout
-
-    //private WebSocketFacade ws;
     public boolean signedIn = false;
-    private ChessGame localChessCopy;
-    //private HashMap<Integer, SimplifiedGameData> currentGames;
+    public ChessGame localChessCopy;
+    private HashMap<Integer, SimplifiedGameData> currentGames;
+
+    //private final NotificationHandler notificationHandler;
+    //private WebSocketFacade ws;
 
     public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
-        this.notificationHandler = notificationHandler; // this is actually a pointer to the repl
+        //this.notificationHandler = notificationHandler; // this is actually a pointer to the repl
         //this.currentGames = new HashMap<>();
     }
+
 
 //    public String eval(String input){
 //        try{

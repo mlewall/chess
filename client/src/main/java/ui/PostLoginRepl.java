@@ -10,24 +10,22 @@ import java.util.Scanner;
 
 public class PostLoginRepl {
     private final ChessClient chessClient;
-    private final ServerFacade server;
-    private boolean signedIn;
-    private String visitorName;
+//    private final ServerFacade server;
+//    private boolean signedIn;
+//    private String visitorName;
 
-    public PostLoginRepl(ChessClient chessClient, ServerFacade server, String visitorName) {
+    public PostLoginRepl(ChessClient chessClient) {
         this.chessClient = chessClient;
-        this.server = server;
-        this.visitorName = visitorName;
-        signedIn = true;
+        chessClient.signedIn = true;
     }
 
     public void run(){
-        System.out.println("Welcome to chess, @" + visitorName + "!");
+        System.out.println("Welcome to chess, @" + chessClient.visitorName + "!");
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        while(signedIn && !result.equals("quit")){
+        while(chessClient.signedIn && !result.equals("quit")){
             System.out.print("\n" + ">>> ");
             String input = scanner.nextLine();
 
@@ -70,7 +68,7 @@ public class PostLoginRepl {
         try{
             if (params.length > 0) {
                 gameName = params[0];
-                CreateGameResult result = server.createGame(gameName);
+                CreateGameResult result = chessClient.server.createGame(gameName);
                 return String.format("Game created! Game ID: " + result.gameID());
             }}
         catch(Exception ex){
@@ -81,7 +79,7 @@ public class PostLoginRepl {
 
     public String listGames() throws ResponseException {
         assertSignedIn();
-        ArrayList<SimplifiedGameData> games = server.listGames();
+        ArrayList<SimplifiedGameData> games = chessClient.server.listGames();
         //this.currentGames = games; //update the gameList
         StringBuilder result = new StringBuilder();
         Gson gson = new Gson();
@@ -107,7 +105,7 @@ public class PostLoginRepl {
         int gameID = Integer.parseInt(gameId);
 
         try {
-            JoinGameResult result = server.joinGame(playerColor, gameID);
+            JoinGameResult result = chessClient.server.joinGame(playerColor, gameID);
             return String.format("You are now joined to game %s as %s.", gameId, playerColor);
         }
         catch(Exception e){
@@ -131,13 +129,13 @@ public class PostLoginRepl {
 
     public String userLogout() throws ResponseException {
         assertSignedIn();
-        server.logout();
-        signedIn = false;
-        return String.format("Successfully logged out @%s \n", visitorName);
+        chessClient.server.logout();
+        chessClient.signedIn = false;
+        return String.format("Successfully logged out @%s \n", chessClient.visitorName);
     }
 
     private void assertSignedIn() throws ResponseException {
-        if (!signedIn) {
+        if (!chessClient.signedIn) {
             throw new ResponseException(400, "You must sign in");
         }
     }

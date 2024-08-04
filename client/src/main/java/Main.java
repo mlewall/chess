@@ -1,3 +1,4 @@
+import client.ChessClient;
 import ui.PreLoginRepl;
 
 public class Main {
@@ -10,6 +11,7 @@ public class Main {
         }
 
         new PreLoginRepl(serverUrl).run();
+        //new ChessClient(serverUrl);
 
     }
 }
