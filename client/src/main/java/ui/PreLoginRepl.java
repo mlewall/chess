@@ -112,10 +112,17 @@ public class PreLoginRepl implements NotificationHandler {
         if (params.length > 1) {
             username = params[0];
             password = params[1];
-            LoginResult result = chessClient.server.login(username, password);
-            chessClient.visitorName = username;
-            signedIn = true;
-            return String.format("You are now signed in as %s.", chessClient.visitorName);
+            try {
+                LoginResult result = chessClient.server.login(username, password);
+                chessClient.visitorName = username;
+                signedIn = true;
+                return String.format("Login success! \n");
+            }
+            catch(ResponseException ex){
+                if(ex.getStatusCode() == 401){
+                    return "Unauthorized login. Please try again. ";
+                }
+            }
         }
         throw new ResponseException(400, "Invalid username or password");
     }

@@ -89,6 +89,7 @@ public class PostLoginRepl {
         assertSignedIn();
         ArrayList<SimplifiedGameData> gamesOnServer = chessClient.server.listGames();
         //this.currentGames = games; //update the gameList
+        this.games.clear(); //start over with a new, updated list
         StringBuilder result = new StringBuilder();
         int i = 1;
         for(var game : gamesOnServer){
@@ -105,35 +106,36 @@ public class PostLoginRepl {
             result.append("White Player: ").append(white).append(" | ");
             result.append("Black Player: ").append(black).append("\n");
             this.games.put(i, game);
+            i++;
         }
         return result.toString();
     }
 
     public String joinGame(String...params) throws ResponseException {
-//        assertSignedIn();
-        if (params.length < 2) {
-            throw new ResponseException(400, "Expected <COLOR> <GAME_ID>");
+        assertSignedIn();
+        if (params.length < 2) { //not enough args
+            throw new ResponseException(400, "Specify in this format: join <ID> <COLOR>");
         }
+        String gameNum = params[0]; //this should be a number (1-y)
         String playerColor = params[1].toUpperCase();
-        String gameId = params[0];
         if(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
-            throw new ResponseException(400, "Invalid color");
+            throw new ResponseException(400, "Invalid color. Please specify [BLACK] or [WHITE]");
         }
-        if(!isInteger(gameId)){
-            throw new ResponseException(400, "Invalid game ID: please include a number");
+        if(isInteger(gameNum) && games.containsKey(Integer.parseInt(gameNum))){
+            int gameID = Integer.parseInt(gameNum);
+            SimplifiedGameData game = games.get(gameID);
+            try {
+                JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
+                return String.format("You are now joined to game %s as %s.", gameNum, playerColor);
+            }
+            catch(Exception e){
+                throw new ResponseException(400, "Invalid game id or invalid player color");
+            }
         }
-        int gameID = Integer.parseInt(gameId);
-
-        try {
-            JoinGameResult result = chessClient.server.joinGame(playerColor, gameID);
-            return String.format("You are now joined to game %s as %s.", gameId, playerColor);
-        }
-        catch(Exception e){
-            throw new ResponseException(400, "Invalid game id or invalid player color");
+        else{
+            throw new ResponseException(400, "Invalid game number");
         }
     }
-        //todo: figure out what this means:
-        // Your client will need to keep track of which number corresponds to which game from the last time it listed the games.
 
 
     public String observeGame(String...params) throws ResponseException {
