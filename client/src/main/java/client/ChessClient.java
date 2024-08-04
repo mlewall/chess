@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class ChessClient {
-    private String visitorName = null;
+    private String visitorName;
     private final ServerFacade server; //note that a new one of these is made for every new Client
     private final String serverUrl;
     private final NotificationHandler notificationHandler;

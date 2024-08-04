@@ -1,4 +1,5 @@
-package client;
+package ui;
+import client.ChessClient;
 import com.google.gson.Gson;
 import model.SimplifiedGameData;
 import reqres.*;

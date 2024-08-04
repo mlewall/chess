@@ -1,5 +1,6 @@
-package client;
+package ui;
 
+import client.ChessClient;
 import client.websocket.NotificationHandler;
 import reqres.LoginResult;
 import server.ResponseException;
@@ -7,8 +8,6 @@ import server.ServerFacade;
 //import webSocketMessages.Notification;
 import java.util.Arrays;
 import java.util.Scanner;
-import static ui.EscapeSequences.*;
-import client.PostLoginRepl;
 
 /* the things contained in here are:
             1) register <USERNAME> <PASSWORD> <EMAIL> - to create an account

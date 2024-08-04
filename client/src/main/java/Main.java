@@ -1,5 +1,4 @@
-import chess.*;
-import client.PreLoginRepl;
+import ui.PreLoginRepl;
 
 public class Main {
     public static void main(String[] args) {
