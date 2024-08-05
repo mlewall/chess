@@ -77,7 +77,7 @@ public class GameplayRepl {
         //this draws all the individual horizontal rows
         ChessPiece[][] currBoard = board.getBoard();
         for(int boardRow = 0; boardRow < 8; boardRow++) {
-            ChessPiece[] rowWithPieces = currBoard[boardRow];
+            ChessPiece[] rowWithPieces = currBoard[7-boardRow]; //for white
 
             out.print(SET_TEXT_COLOR_BLACK);
             out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -97,6 +97,7 @@ public class GameplayRepl {
 
     private static void drawBoardRow(PrintStream out, int rowInd, ChessPiece[] rowWithPieces) {
         for(int col = 0; col < 8 ; col++) { //goes across
+            //make checkers
             if((col+rowInd) % 2 == 0){
                 out.print(SET_BG_COLOR_WHITE);
                 if(rowWithPieces[col] != null){
@@ -145,29 +146,6 @@ public class GameplayRepl {
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_LIGHT_GREY);
     }
-
-    private String getPieceString(ChessPiece piece) {
-        if(piece == null) {
-            return EMPTY;
-        }
-        String pieceChar = piece.toString();
-        return " " + pieceChar + " ";
-    }
-
-
-//public void printBoard(ChessGame currentGame, String playerColor) {
-//        String board = null;
-//        if(playerColor.equalsIgnoreCase("BLACK")){
-//            constructBoard(currentGame, playerColor);
-//        }
-//        else if(playerColor.equalsIgnoreCase("WHITE")){
-//            constructBoard(currentGame, playerColor);
-//        }
-//        else{
-//            System.out.println("Error printing board");
-//        }
-//        //System.out.print(board);
-//    }
 
     }
 
