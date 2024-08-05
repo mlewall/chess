@@ -154,7 +154,6 @@ public class ServerFacadeTests {
         facade.logout();
         facade.login("firstUser", "pw");
         int gameID = facade.listGames().getFirst().gameID();
-        //TODO: ensure input is uppercase BEFORE it gets here!
         facade.joinGame("WHITE", gameID);
         assertTrue((facade.listGames().getFirst().whiteUsername()).equals("firstUser"));
     }
@@ -176,7 +175,6 @@ public class ServerFacadeTests {
         facade.register("firstUser", "pw", "myEmail.com");
         facade.logout();
         facade.login("firstUser", "pw");
-        //todo: should also fail with "white" and "black"
         assertThrows(ResponseException.class, () -> facade.joinGame("white", 4214));
     }
 

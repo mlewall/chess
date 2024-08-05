@@ -132,10 +132,10 @@ public class PostLoginRepl {
                 String confirmation = String.format("You are now joined to game %s as %s.", gameNum, playerColor);
 
 //                GameplayRepl newGame = new GameplayRepl(new ChessGame(), playerColor);
-                GameplayRepl WhiteGame = new GameplayRepl(new ChessGame(), "WHITE");
-                WhiteGame.run();
-                GameplayRepl BlackGame = new GameplayRepl(new ChessGame(), "BLACK");
-                BlackGame.run();
+                GameplayRepl whiteGame = new GameplayRepl(new ChessGame(), "WHITE");
+                whiteGame.run();
+                GameplayRepl blackGame = new GameplayRepl(new ChessGame(), "BLACK");
+                blackGame.run();
                 return confirmation;
             }
             catch(ResponseException e){
@@ -156,12 +156,13 @@ public class PostLoginRepl {
             String gameNum = params[0];
             if(isInteger(gameNum) && games.containsKey(Integer.parseInt(gameNum))){
                 int gameID = Integer.parseInt(gameNum);
-                SimplifiedGameData game = games.get(gameID);
-                GameplayRepl WhiteGame = new GameplayRepl(new ChessGame(), "WHITE");
-                //todo: do they default to watching as white?
-                WhiteGame.run();
-                GameplayRepl BlackGame = new GameplayRepl(new ChessGame(), "BLACK");
-                BlackGame.run();
+                SimplifiedGameData game = games.get(gameID); //this game WILL be used later. Probably w websockets
+
+                //do they default as observing as white?
+                GameplayRepl whiteGame = new GameplayRepl(new ChessGame(), "WHITE");
+                whiteGame.run();
+                GameplayRepl blackGame = new GameplayRepl(new ChessGame(), "BLACK");
+                blackGame.run();
                 return "Observing game #" + gameNum;
             }
         return "Invalid game number, please enter a game number from the gamelist.";
@@ -171,7 +172,8 @@ public class PostLoginRepl {
 
     private void assertSignedIn() throws ResponseException {
         if (!chessClient.signedIn) {
-            throw new ResponseException(400, "You must sign in.");
+            //userLogout();
+            throw new ResponseException(400, "An authorization error occurred. Please sign in again.");
         }
     }
 
