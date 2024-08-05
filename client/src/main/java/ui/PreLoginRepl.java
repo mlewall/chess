@@ -39,7 +39,7 @@ public class PreLoginRepl implements NotificationHandler {
                 if(signedIn){
                     PostLoginRepl postLoginRepl = new PostLoginRepl(chessClient);
                     postLoginRepl.run();
-                    System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "Welcome back to the main menu." + EscapeSequences.RESET_TEXT_COLOR);
+                    System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "Welcome back to the main menu.\n" + EscapeSequences.RESET_TEXT_COLOR);
                     System.out.print(help());
                 }
             }

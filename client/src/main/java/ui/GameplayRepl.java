@@ -6,6 +6,8 @@ import chess.ChessBoard;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+
 import static ui.EscapeSequences.*;
 
 public class GameplayRepl {
@@ -32,7 +34,7 @@ public class GameplayRepl {
 
         //drawGrayBackground(out);
         drawLetterHeader(out);
-        drawChessBoard(out);
+        drawChessBoard(out, board);
 
         drawLetterHeader(out);
 
@@ -66,19 +68,22 @@ public class GameplayRepl {
 
     //blue is black: h-a, 8-1
     //red is white: a-h, 1-8
-    private static void drawChessBoard(PrintStream out) {
+    private static void drawChessBoard(PrintStream out, ChessBoard board) {
         //if white, we begin at
         //draws a row
         String[] rows = new String[]{" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
         String[] revRows = new String[]{" 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 "};
         int row_itr = 0;
         //this draws all the individual horizontal rows
+        ChessPiece[][] currBoard = board.getBoard();
         for(int boardRow = 0; boardRow < 8; boardRow++) {
+            ChessPiece[] rowWithPieces = currBoard[boardRow];
+
             out.print(SET_TEXT_COLOR_BLACK);
             out.print(SET_BG_COLOR_LIGHT_GREY);
             out.print(revRows[boardRow]);
 
-            drawBoardRow(out, boardRow);
+            drawBoardRow(out, boardRow, rowWithPieces);
 
             out.print(SET_BG_COLOR_LIGHT_GREY);
             out.print(SET_TEXT_COLOR_BLACK);
@@ -90,17 +95,43 @@ public class GameplayRepl {
 
     }
 
-    private static void drawBoardRow(PrintStream out, int rowInd) {
+    private static void drawBoardRow(PrintStream out, int rowInd, ChessPiece[] rowWithPieces) {
         for(int col = 0; col < 8 ; col++) { //goes across
             if((col+rowInd) % 2 == 0){
                 out.print(SET_BG_COLOR_WHITE);
-                out.print(EMPTY);
+                if(rowWithPieces[col] != null){
+                    ChessPiece piece = rowWithPieces[col];
+                    if(piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)){
+                        out.print(SET_TEXT_COLOR_RED);
+                    }
+                    else{
+                        out.print(SET_TEXT_COLOR_BLUE);
+                    }
+                    out.print(" " + rowWithPieces[col].toString() + " ");
+                }
+                else {
+                    out.print(EMPTY);
+                }//this is where the pieceSetting happens
+                out.print(RESET_TEXT_COLOR);
                 out.print(RESET_BG_COLOR);
             }
             else{
                 out.print(SET_BG_COLOR_BLACK);
-                out.print(EMPTY);
+                if(rowWithPieces[col] != null){
+                    ChessPiece piece = rowWithPieces[col]; //needs a not null check first
+                    if(piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)){
+                        out.print(SET_TEXT_COLOR_RED);
+                    }
+                    else{
+                        out.print(SET_TEXT_COLOR_BLUE);
+                    }
+                    out.print(" " + rowWithPieces[col].toString() + " ");
+                }
+                else {
+                    out.print(EMPTY);
+                }
                 out.print(RESET_BG_COLOR);
+                out.print(RESET_TEXT_COLOR);
             }
 //            out.print(SET_TEXT_COLOR_BLUE);
 //            out.print(" K ");

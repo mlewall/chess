@@ -94,13 +94,7 @@ public class ChessBoard {
                 squares[i][j] = null;
             }
         }
-        ;
 
-        //boardToString();
-
-        //White pieces(closest to us)
-        //ChessPosition is just a row,col pair
-        //ChessPiece is a piece type, color, and moves (dependent on calculator)
         addPiece(new ChessPosition(1, 1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(1, 2), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(1, 3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
