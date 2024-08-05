@@ -68,18 +68,16 @@ public class GameplayRepl {
         int row_itr = 0;
         //this draws all the individual horizontal rows
         ChessPiece[][] currBoard = board.getBoard(); //same for every
-        for(int boardRow = 0; boardRow < 8; boardRow++) {
-            ChessPiece[] rowWithPieces = null; //todo: make this work better
-            if(playerColor.equals("WHITE")) { //for white
-                //if we're showing the white perspective
-                rowWithPieces = currBoard[7 - boardRow];
+        for(int boardRow = 0; boardRow < 8; boardRow++) { //boardRow counts from top of the VISUAL disp. to bottom
+            ChessPiece[] rowWithPieces = null;
+            if(playerColor.equals("WHITE")) { //if we're showing the white perspective (white at bottom)
+                rowWithPieces = currBoard[7 - boardRow]; //grabs the BLACK pieces FIRST (from bottom of ChessBoard)
             }
-            else if(playerColor.equals("BLACK")) {
-                rowWithPieces = currBoard[boardRow];
-                rowWithPieces = reverseRow(rowWithPieces);
+            else if(playerColor.equals("BLACK")) { //black needs to be at bottom of visual
+                rowWithPieces = currBoard[boardRow]; //get the first row from currBoard (it's white)
+                rowWithPieces = reverseRow(rowWithPieces); //flip it around
 
             }
-
             out.print(SET_TEXT_COLOR_BLACK);
             out.print(SET_BG_COLOR_LIGHT_GREY);
             assert numRowLabels != null;
@@ -93,8 +91,6 @@ public class GameplayRepl {
             row_itr ++;
             out.println(); //newline once the row is done?
         }
-        //out.println();
-
     }
 
     private static String[] getRowLabels(String playerColor) {

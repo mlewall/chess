@@ -80,7 +80,8 @@ public class PreLoginRepl implements NotificationHandler {
             password = params[1];
             email = params[2];
             try {
-                RegisterResult result = chessClient.server.register(username, password, email); //todo: what happens if the credentials are wrong?
+                RegisterResult result = chessClient.server.register(username, password, email);
+                //todo: what happens if the credentials are wrong?
                 chessClient.visitorName = username;
                 signedIn = true;
                 return String.format("You were successfully registered and logged in as: %s \n", username);

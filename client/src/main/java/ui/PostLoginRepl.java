@@ -131,10 +131,12 @@ public class PostLoginRepl {
                 JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
                 String confirmation = String.format("You are now joined to game %s as %s.", gameNum, playerColor);
 
-                GameplayRepl newGame = new GameplayRepl(new ChessGame(), playerColor);
-                newGame.run();
+//                GameplayRepl newGame = new GameplayRepl(new ChessGame(), playerColor);
+                GameplayRepl WhiteGame = new GameplayRepl(new ChessGame(), "WHITE");
+                WhiteGame.run();
+                GameplayRepl BlackGame = new GameplayRepl(new ChessGame(), "BLACK");
+                BlackGame.run();
                 return confirmation;
-
             }
             catch(ResponseException e){
                 if(e.getStatusCode() == 403){
@@ -150,18 +152,22 @@ public class PostLoginRepl {
 
 
     public String observeGame(String...params) throws ResponseException {
-        int gameId;
         if (params.length > 0) {
-            gameId = Integer.parseInt(params[0]);
-            ChessGame newGame = new ChessGame();
-            //printGame(newGame);
-            //print out a placeholder board -- will connect with websockets later
-            return String.format("ChessGame Placeholder");
-        }
-        throw new ResponseException(400, "Invalid game id");
+            String gameNum = params[0];
+            if(isInteger(gameNum) && games.containsKey(Integer.parseInt(gameNum))){
+                int gameID = Integer.parseInt(gameNum);
+                SimplifiedGameData game = games.get(gameID);
+                GameplayRepl WhiteGame = new GameplayRepl(new ChessGame(), "WHITE");
+                //todo: do they default to watching as white?
+                WhiteGame.run();
+                GameplayRepl BlackGame = new GameplayRepl(new ChessGame(), "BLACK");
+                BlackGame.run();
+                return "Observing game #" + gameNum;
+            }
+        return "Invalid game number, please enter a game number from the gamelist.";
     }
-
-
+        return "Missing or invalid game number. ";
+    }
 
     private void assertSignedIn() throws ResponseException {
         if (!chessClient.signedIn) {
