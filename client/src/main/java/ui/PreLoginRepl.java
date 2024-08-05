@@ -9,9 +9,13 @@ import server.ServerFacade;
 //import webSocketMessages.Notification;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PreLoginRepl implements NotificationHandler {
     private final ChessClient chessClient;
+    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     //private boolean signedIn = false;
     //private String visitorName;
 
@@ -26,7 +30,7 @@ public class PreLoginRepl implements NotificationHandler {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(!result.equals("quit")){
-            System.out.print("\n" + ">>> ");
+            System.out.print("\n" + "[LOGGED_OUT] " + ">>> ");
             String input = scanner.nextLine();
 
             try{
@@ -79,6 +83,10 @@ public class PreLoginRepl implements NotificationHandler {
             username = params[0];
             password = params[1];
             email = params[2];
+            if(!validateEmail(email)){
+                return "Please enter a valid email address.";
+            };
+
             try {
                 RegisterResult result = chessClient.server.register(username, password, email);
                 //todo: what happens if the credentials are wrong?
@@ -88,12 +96,14 @@ public class PreLoginRepl implements NotificationHandler {
             }
             catch(ResponseException ex){
                 if(ex.getStatusCode() == 403){
-                    return "Username already taken";
+                    return "Username already taken.";
+                }
+                else if(ex.getStatusCode() == 401){
+                    return "An account already exists with this email address. Try a different one.";
                 }
             }
             //--specify specific errors/input problems
         }
-
         throw new ResponseException(400, "Expected <username> <password> <email>");
     }
 
@@ -111,7 +121,7 @@ public class PreLoginRepl implements NotificationHandler {
             }
             catch(ResponseException ex){
                 if(ex.getStatusCode() == 401){
-                    return "Unauthorized login. Please try again. ";
+                    return "Incorrect login. Please try again. ";
                 }
             }
         }
@@ -120,11 +130,18 @@ public class PreLoginRepl implements NotificationHandler {
 
 
     public static String help(){
-        return """
+        return EscapeSequences.SET_TEXT_COLOR_BLUE + "CHESS LOGIN MENU: \n" + EscapeSequences.RESET_TEXT_COLOR +
+               """ 
                1) register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                2) login <USERNAME> <PASSWORD> - to play chess
                3) quit - quit chess portal
                4) help - list possible commands
                """;
     }
+
+    public static boolean validateEmail(String emailStr) throws ResponseException{
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return matcher.matches();}
+
+
 }

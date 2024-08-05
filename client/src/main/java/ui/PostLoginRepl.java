@@ -21,13 +21,17 @@ public class PostLoginRepl {
     }
 
     public void run(){
-        System.out.println("Welcome to chess, @" + chessClient.visitorName + "!");
+
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                "Welcome to chess, @" + chessClient.visitorName + "!"
+                + EscapeSequences.RESET_TEXT_COLOR)
+        ;
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(chessClient.signedIn && !result.equals("quit")){
-            System.out.print("\n" + ">>> ");
+            System.out.print("\n" + "[LOGGED_IN] " + ">>> ");
             String input = scanner.nextLine();
 
             try{
@@ -95,6 +99,7 @@ public class PostLoginRepl {
         this.games.clear(); //start over with a new, updated list
         StringBuilder result = new StringBuilder();
         int i = 1;
+        result.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "CURRENT GAME LIST:\n" + EscapeSequences.RESET_TEXT_COLOR);
         for(var game : gamesOnServer){
             String white = game.whiteUsername();
             String black = game.blackUsername();
@@ -146,7 +151,7 @@ public class PostLoginRepl {
             }
         }
         else{
-            throw new ResponseException(400, "Invalid game number");
+            throw new ResponseException(400, "Invalid game number.");
         }
     }
 
@@ -190,7 +195,12 @@ public class PostLoginRepl {
     }
 
     private String help(){
-        return """
+        return EscapeSequences.SET_TEXT_COLOR_BLUE +
+                EscapeSequences.SET_TEXT_UNDERLINE +
+                "CHESS MAIN MENU \n" +
+                EscapeSequences.RESET_TEXT_COLOR +
+                EscapeSequences.RESET_TEXT_UNDERLINE +
+                """
                 1) create <NAME> - create a game
                 2) list - games
                 3) join <ID> [WHITE | BLACK] - join game

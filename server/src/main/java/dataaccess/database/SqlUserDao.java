@@ -31,7 +31,10 @@ public class SqlUserDao extends AbstractSqlDAO implements UserDAO {
             executeUpdate(statement, userData.username(), hashedPassword, userData.email());
         }
         catch(DataAccessException e){
-            if(e.getMessage().contains("Duplicate entry")){
+            if(e.getMessage().contains("Duplicate entry") && e.getMessage().contains("users.email")){
+                throw new DataAccessException(401, "Error: email already taken");
+            }
+            if(e.getMessage().contains("Duplicate entry") ){
                 throw new DataAccessException(403, "Error: username already taken");
             }
             else{
