@@ -163,7 +163,8 @@ public class PostLoginRepl {
                 int gameID = Integer.parseInt(gameNum);
                 SimplifiedGameData game = games.get(gameID); //this game WILL be used later. Probably w websockets
 
-                //do they default as observing as white?
+                //do they default as observing as white? yes
+                //remove game from this constructor
                 GameplayRepl whiteGame = new GameplayRepl(new ChessGame(), "WHITE");
                 whiteGame.run();
                 GameplayRepl blackGame = new GameplayRepl(new ChessGame(), "BLACK");
@@ -201,11 +202,11 @@ public class PostLoginRepl {
                 EscapeSequences.RESET_TEXT_COLOR +
                 EscapeSequences.RESET_TEXT_UNDERLINE +
                 """
-                1) create <NAME> - create a game
+                1) create <name> - create a game
                 2) list - games
-                3) join <ID> [WHITE | BLACK] - join game
-                4) observe <ID> - watch a game
-                5) quit - end chess experience
+                3) join <game number> [WHITE | BLACK] - join game
+                4) observe <game number> - watch a game
+                5) logout - log out of current session
                 6) help - get possible commands
                 """;
     }
