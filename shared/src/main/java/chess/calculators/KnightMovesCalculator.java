@@ -1,6 +1,10 @@
-package chess;
+package chess.calculators;
 
-import javax.swing.text.Position;
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+
 import java.util.Collection;
 import java.util.ArrayList;
 

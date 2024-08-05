@@ -1,9 +1,13 @@
-package chess;
+package chess.calculators;
 
 /*interfaces are created just like classes
 They are typically placed in the same package as the classes
 that will implement them.*/
 
+
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPosition;
 
 import java.util.Collection;
 

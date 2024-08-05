@@ -1,6 +1,11 @@
-package chess;
+package chess.calculators;
 
 //import the collection and arraylist
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+
 import java.util.Collection;
 import java.util.ArrayList;
 

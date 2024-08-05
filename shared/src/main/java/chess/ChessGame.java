@@ -86,9 +86,8 @@ public class ChessGame {
 
         teamTurn = startPiece.getTeamColor();
         Collection<ChessMove> unfilteredMoves = startPiece.pieceMoves(board, startPosition);
-//        System.out.printf("Unfiltered moves: \n");
+
         for (ChessMove move : unfilteredMoves) {
-            //System.out.printf(move.toString());
             //update the board on a copy so it looks like we made the move without calling makeMove
             ChessBoard futureBoard = new ChessBoard(board); //make copy of the original board
 
@@ -98,7 +97,7 @@ public class ChessGame {
             futureBoard.addPiece(move.getStartPosition(), null);
 
 
-            //cache the king positions
+            //cache the king positions (as of 8/5 this isn't used really)
             if(teamTurn == TeamColor.BLACK) {
                 blackKingPos = getKingPosition(futureBoard, startPiece.getTeamColor());}
             else{
@@ -204,6 +203,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
+
     //the *given method*
     public boolean isInCheck(TeamColor teamColor) {
         //this happens for every possible move the rook can make, for example.

@@ -1,6 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
+import chess.calculators.*;
+
 import java.util.Collection;
 import java.util.Objects;
 
@@ -12,8 +13,8 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor teamColor;
-    private  ChessPiece.PieceType pieceType;
+    private final ChessGame.TeamColor teamColor;
+    private final ChessPiece.PieceType pieceType;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
@@ -75,7 +76,7 @@ public class ChessPiece {
         //this is only done once per piece. Assigns the correct calculator for given piece
         switch (type) {
             case KING: return new KingMovesCalculator();
-            case QUEEN: return new  QueenMovesCalculator();
+            case QUEEN: return new QueenMovesCalculator();
             case BISHOP: return new BishopMovesCalculator();
             case KNIGHT: return new KnightMovesCalculator();
             case ROOK: return new RookMovesCalculator();
@@ -94,7 +95,7 @@ public class ChessPiece {
      */
 
     public String toString(){
-        //returs the first two letters of the Enum type
+        //return the first two letters of the Enum type
         if(pieceType == ChessPiece.PieceType.KNIGHT){
             if(teamColor == ChessGame.TeamColor.BLACK){
                 return "n";
@@ -119,8 +120,5 @@ public class ChessPiece {
 
         //this returns a Collection of ChessMove objects
         //This represents all valid moves for a piece at a given position on the board
-
-        //return new ArrayList<>();
-        //throw new RuntimeException("Not implemented");
     }
 }

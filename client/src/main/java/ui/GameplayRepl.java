@@ -31,7 +31,6 @@ public class GameplayRepl {
         //drawGrayBackground(out);
         drawLetterHeader(out, playerColor);
         drawChessBoard(out, board, playerColor);
-
         drawLetterHeader(out, playerColor);
 
         out.print(RESET_BG_COLOR);

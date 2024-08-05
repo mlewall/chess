@@ -135,7 +135,7 @@ public class PostLoginRepl {
             try {
                 JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
                 String confirmation = String.format("You are now joined to game %s as %s.", gameNum, playerColor);
-
+                //todo: establish a websocket connection with the server
 //                GameplayRepl newGame = new GameplayRepl(new ChessGame(), playerColor);
                 GameplayRepl whiteGame = new GameplayRepl(new ChessGame(), "WHITE");
                 whiteGame.run();
@@ -162,9 +162,10 @@ public class PostLoginRepl {
             if(isInteger(gameNum) && games.containsKey(Integer.parseInt(gameNum))){
                 int gameID = Integer.parseInt(gameNum);
                 SimplifiedGameData game = games.get(gameID); //this game WILL be used later. Probably w websockets
+                //todo: establish a websocket connection
 
                 //do they default as observing as white? yes
-                //remove game from this constructor
+                //todo: remove game from this constructor. Somehow the websocket is supposed to get it
                 GameplayRepl whiteGame = new GameplayRepl(new ChessGame(), "WHITE");
                 whiteGame.run();
                 GameplayRepl blackGame = new GameplayRepl(new ChessGame(), "BLACK");
