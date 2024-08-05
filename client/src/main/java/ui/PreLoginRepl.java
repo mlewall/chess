@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class PreLoginRepl implements NotificationHandler {
     private final ChessClient chessClient;
-    private boolean signedIn = false;
+    //private boolean signedIn = false;
     //private String visitorName;
 
     public PreLoginRepl(String serverUrl) {
@@ -26,17 +26,17 @@ public class PreLoginRepl implements NotificationHandler {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(!result.equals("quit")){
-            System.out.print("\n" + EscapeSequences.SET_TEXT_BLINKING + ">>> " + EscapeSequences.RESET_TEXT_BLINKING);
+            System.out.print("\n" + ">>> ");
             String input = scanner.nextLine();
 
             try{
-                result = eval(input); //sometimes will this print out some kind of gameBoard?
+                result = eval(input);
                 if(result.equals("quit")){
                     System.out.println("Goodbye!");
                     System.exit(0);
                 }
                 System.out.print(result);
-                if(signedIn){
+                if(chessClient.signedIn){
                     PostLoginRepl postLoginRepl = new PostLoginRepl(chessClient);
                     postLoginRepl.run();
                     System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "Welcome back to the main menu.\n" + EscapeSequences.RESET_TEXT_COLOR);
@@ -83,7 +83,7 @@ public class PreLoginRepl implements NotificationHandler {
                 RegisterResult result = chessClient.server.register(username, password, email);
                 //todo: what happens if the credentials are wrong?
                 chessClient.visitorName = username;
-                signedIn = true;
+                chessClient.signedIn = true;
                 return String.format("You were successfully registered and logged in as: %s \n", username);
             }
             catch(ResponseException ex){
@@ -106,7 +106,7 @@ public class PreLoginRepl implements NotificationHandler {
             try {
                 LoginResult result = chessClient.server.login(username, password);
                 chessClient.visitorName = username;
-                signedIn = true;
+                chessClient.signedIn = true;
                 return String.format("Login success! \n");
             }
             catch(ResponseException ex){

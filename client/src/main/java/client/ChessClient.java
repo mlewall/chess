@@ -16,7 +16,7 @@ public class ChessClient {
     public String visitorName;
     public final ServerFacade server; //note that a new one of these is made for every new Client
     private final String serverUrl;
-    public boolean signedIn = false;
+    public boolean signedIn;
     public ChessGame localChessCopy;
     //private HashMap<Integer, SimplifiedGameData> currentGames;
 
@@ -26,6 +26,7 @@ public class ChessClient {
     public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
+        this.signedIn = false;
         //this.notificationHandler = notificationHandler; // this is actually a pointer to the repl
         //this.currentGames = new HashMap<>();
     }

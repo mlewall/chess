@@ -27,7 +27,7 @@ public class PostLoginRepl {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(chessClient.signedIn && !result.equals("quit")){
-            System.out.print("\n" + EscapeSequences.SET_TEXT_BLINKING + ">>> " + EscapeSequences.RESET_TEXT_BLINKING);
+            System.out.print("\n" + ">>> ");
             String input = scanner.nextLine();
 
             try{

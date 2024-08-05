@@ -1,12 +1,9 @@
 package ui;
-
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessBoard;
-
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-
 import static ui.EscapeSequences.*;
 
 public class GameplayRepl {
@@ -65,7 +62,7 @@ public class GameplayRepl {
     //red is white: a-h, 1-8
     private static void drawChessBoard(PrintStream out, ChessBoard board, String playerColor) {
         String[] numRowLabels = getRowLabels(playerColor);
-        int row_itr = 0;
+        //int row_itr = 0;
         //this draws all the individual horizontal rows
         ChessPiece[][] currBoard = board.getBoard(); //same for every
         for(int boardRow = 0; boardRow < 8; boardRow++) { //boardRow counts from top of the VISUAL disp. to bottom
@@ -88,7 +85,7 @@ public class GameplayRepl {
             out.print(SET_BG_COLOR_LIGHT_GREY);
             out.print(SET_TEXT_COLOR_BLACK);
             out.print(numRowLabels[boardRow]);
-            row_itr ++;
+            //row_itr ++;
             out.println(); //newline once the row is done?
         }
     }
@@ -145,7 +142,6 @@ public class GameplayRepl {
             reversed[i] = row[row.length - 1 - i];
         }
         return reversed;
-    }
-
+        }
     }
 
