@@ -11,11 +11,6 @@ public class GameplayRepl {
     String playerColor;
     ChessBoard board;
 
-    private static final int BOARD_SIZE_IN_SQUARES = 8; //8x8 board
-    private static final int TOTAL_SIZE = BOARD_SIZE_IN_SQUARES + 2; //height and width
-    private static final int SQUARE_WIDTH = 3; //" K "
-    private static final int SQUARE_HEIGHT = 2;
-
     private static final String EMPTY = "   ";
 
     GameplayRepl(ChessGame currentGame, String playerColor) {
@@ -24,12 +19,18 @@ public class GameplayRepl {
         this.board = currentGame.getBoard();
     }
 
-    public void run() {
+    public void run(){
+        //todo: switch commands here probably
+        drawBoard();
+    }
+
+    public void drawBoard() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 
         //drawGrayBackground(out);
         drawLetterHeader(out, playerColor);
+        //todo: determine if a board should really go here
         drawChessBoard(out, board, playerColor);
         drawLetterHeader(out, playerColor);
 
