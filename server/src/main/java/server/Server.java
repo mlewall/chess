@@ -5,6 +5,7 @@ import dataaccess.database.*;
 import reqres.*;
 import com.google.gson.Gson;
 
+import server.websocket.WebSocketHandler;
 import service.*;
 
 import spark.*; //includes spark.Request and spark.Response
@@ -17,6 +18,7 @@ public class Server {
     GameService gameService;
     ClearService clearService;
     boolean isInitialized = false;
+    private final WebSocketHandler webSocketHandler = new WebSocketHandler();
 
     public Server() {
         //instantiate local variable DAOs & pass them to services
@@ -30,6 +32,7 @@ public class Server {
             this.clearService = new ClearService(users, auths, games);
 
             this.isInitialized = true;
+
         }
         catch(DataAccessException e) {
             //I did this because the test cases don't want the Server() constructor to throw an error
@@ -48,8 +51,7 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        //or do DAOs get initialized here?
-        //dependency injection
+        Spark.webSocket("/ws", webSocketHandler);
 
         //endpoints and exceptions
         Spark.delete("/db", this::clearHandler); //delete database

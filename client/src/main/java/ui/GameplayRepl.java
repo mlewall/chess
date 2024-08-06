@@ -10,6 +10,7 @@ public class GameplayRepl {
     ChessGame currentGame;
     String playerColor;
     ChessBoard board;
+    //todo: add something associated with websockets? unless that's made somewhere else and passed in
 
     private static final String EMPTY = "   ";
 

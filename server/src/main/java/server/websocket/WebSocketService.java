@@ -7,22 +7,24 @@ package server.websocket;
     * 3) leaveGame(message)
     * 4) resignGame(message)
     *
+    * These methods are responsible for actually connecting to the DAOs and getting data and stuff.
+    * Similar to the functionality of the services we wrote from phase 3.
     *  */
 
+import websocket.commands.UserGameCommand;
+
 public class WebSocketService {
-    Object message;
+    //todo: determine if this should have any specific fields?
+    //note that a command contains: commandType, authToken, gameID, and maybe a Move (if we're in makeMove)
+    WebSocketService(){}
 
-    WebSocketService(Object message){
-        this.message = message; //it may be variable type?
-    }
+    public void connect(UserGameCommand command){}
 
-    public void connect(){}
+    public void makeMove(UserGameCommand command){}
 
-    public void makeMove(){}
+    public void leaveGame(UserGameCommand command){}
 
-    public void leaveGame(){}
-
-    public void resignGame(){}
+    public void resignGame(UserGameCommand command){}
 
 
 }

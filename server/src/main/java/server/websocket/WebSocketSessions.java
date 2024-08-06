@@ -3,6 +3,7 @@ package server.websocket;
 import org.eclipse.jetty.websocket.api.Session;
 //import webSocketMessages.Notification;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,47 +11,50 @@ import java.util.Map;
 
 public class WebSocketSessions {
     //Todo: should I make a gameID object? Like is it worth it if I need to serialize or deserialize it?
-    ConcurrentHashMap<Integer, HashSet<Session>> sessionMap;
+    ConcurrentHashMap<Integer, HashMap<String, Session>> allGamesAndSessions;
+    //<Integer gameID, Map<String authToken, Session session>>
+
     //keeps track of which sessions are associated with each game ID.
-    // A set is useful because we are avoiding duplicate connections
 
     WebSocketSessions() {
-         sessionMap = new ConcurrentHashMap<>();
+         allGamesAndSessions = new ConcurrentHashMap<>();
     }
 
     //todo: this might need to be a Game ID object. Only if it's going to be JSON at some point.
-    public void addSessionToGame(int gameID, Session session){
+    public void addSessionToGame(int gameID, String authToken, Session session){
         //then the gameID didn't exist in there; this is the first connection to a game
-        if(sessionMap.get(gameID) == null){
-            sessionMap.put(gameID, new HashSet<>());
-            Set<Session> sessions = sessionMap.get(gameID);
-            sessions.add(session);
+        if(allGamesAndSessions.get(gameID) == null){
+            HashMap<String, Session> sessions = new HashMap<>(); //initialize the hashmap before you put the session in it
+            sessions.put(authToken, session);
+            this.allGamesAndSessions.put(gameID, sessions);  //put the game in there with an empty map of sessions
         }
+        //game existed in there already (so someone must be joined to it in a session already)
         else{
-            Set<Session> sessions = sessionMap.get(gameID);
-            sessions.add(session);
+            HashMap<String, Session> sessions = allGamesAndSessions.get(gameID);
+            sessions.put(authToken, session);
         }
     }
 
-    public void removeSessionFromGame(int gameID, Session session){
-        if(sessionMap.get(gameID) == null){
+    public void removeUserSession(int gameID, String authToken, Session session){
+        //remove ONE user from that Map
+        if(allGamesAndSessions.get(gameID) == null){
             //todo: return some kind of error because you're trying to join a game that doesn't exist
-            //this shouldn't be allowed
+            //(this shouldn't be allowed)
         }
         else{
-            Set<Session> sessions = sessionMap.get(gameID);
-            boolean removed = sessions.remove(session);
-            if(!removed){
-                //todo: throw some kind of error because it wasn't removed.
-            }
+            HashMap<String, Session> sessions = allGamesAndSessions.get(gameID);
+            sessions.remove(authToken,session); //this is good because what if you're in multiple games at once?
         }
     }
 
-    public void removeSession(Session session){
-        //todo: implement this
+    public void removeGameSession(int gameID, Session session){
+        //remove whole game/ID / session grouping pair (all of it GONE)
+        if(allGamesAndSessions.get(gameID) != null){
+            allGamesAndSessions.remove(gameID);
+        }
     }
 
-    HashSet<Session> getSessionsForGame(int gameID){
-        return sessionMap.get(gameID);
+    HashMap<String, Session> getSessionsForGame(int gameID){
+        return allGamesAndSessions.get(gameID);
     }
 }
