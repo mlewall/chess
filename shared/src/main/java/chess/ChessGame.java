@@ -11,18 +11,19 @@ import java.util.Collection;
  */
 public class ChessGame {
     private TeamColor teamTurn;
-    private ChessBoard board = new ChessBoard();
+    private ChessBoard board;
 
     //not sure if I want to use cached KingPositions.
     private ChessPosition whiteKingPos;
     private ChessPosition blackKingPos;
 
     public ChessGame() {
-        board.resetBoard(); //all pieces are in their starting locations
+        this.board = new ChessBoard(); //all pieces are in their starting locations
         teamTurn = TeamColor.WHITE; //starting turn
         whiteKingPos = null;
         blackKingPos = null;
     }
+
 
     /**
      * @return Which team's turn it is
