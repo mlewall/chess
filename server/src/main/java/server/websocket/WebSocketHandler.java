@@ -2,10 +2,7 @@ package server.websocket;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -14,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@WebSocket
 public class WebSocketHandler {
     //WebSocketSessions sessions; (this is where I used to keep the retrieval methods)
 
@@ -37,13 +35,22 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) { //SWITCH determine message type
         WebSocketService service = new WebSocketService();
-        //is the String message a json representation of the UserGameCommand?
+        //is the String message a json representation of the UserGameCommand? (yes, probably)
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class); //deserialize the UserGameCommand
-        switch(command.getCommandType()){
-            case CONNECT -> service.connect(command);
-            case MAKE_MOVE -> service.makeMove(command);
-            case LEAVE -> service.leaveGame(command);
-            case RESIGN -> service.resignGame(command);
+        String result;
+
+        try {
+            result = switch (command.getCommandType()) {
+                case CONNECT -> service.connect(command, session, connections);
+                case MAKE_MOVE -> service.makeMove(command, session, connections);
+                case LEAVE -> service.leaveGame(command, session, connections);
+                case RESIGN -> service.resignGame(command, session, connections);
+            };
+
+            //sendMessage();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
