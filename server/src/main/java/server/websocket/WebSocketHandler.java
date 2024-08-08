@@ -51,11 +51,11 @@ public class WebSocketHandler {
 
         try {
             switch (command.getCommandType()) {
-                case CONNECT -> execConnect(service, command, session, connections);
+                case CONNECT -> connectHandler(service, command, session, connections);
                 case MAKE_MOVE -> { MoveCommand moveCmd = new Gson().fromJson(message, MoveCommand.class);
-                        execMakeMove(service, moveCmd, session, connections);}
-                case LEAVE -> execLeaveGame(service, command, session, connections);
-                case RESIGN -> execResign(service, command, session, connections);
+                        makeMoveHandler(service, moveCmd, session, connections);}
+                case LEAVE -> leaveGameHandler(service, command, session, connections);
+                case RESIGN -> resignHandler(service, command, session, connections);
             };
         }
         catch (Exception e) {
@@ -68,7 +68,7 @@ public class WebSocketHandler {
 
     //made these separate functions because they have different message handling requirements.
     //However, I think some of this could be incorporated into the switch statement.
-    void execConnect(WebSocketService service, UserGameCommand command, Session session,
+    void connectHandler(WebSocketService service, UserGameCommand command, Session session,
                      ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException, IOException {
         LoadGameMessage result = (LoadGameMessage) service.connect(command, session, connections);
         String jsonResult = new Gson().toJson(result); //should just contain the chessGame and that it's a loadgame type
@@ -93,7 +93,7 @@ public class WebSocketHandler {
         }
 
 
-    void execMakeMove(WebSocketService service, UserGameCommand command, Session session, ConcurrentHashMap<Integer,
+    void makeMoveHandler(WebSocketService service, UserGameCommand command, Session session, ConcurrentHashMap<Integer,
             HashSet<Session>> connections) throws DataAccessException, InvalidMoveException, IOException {
         LoadGameMessage result = (LoadGameMessage) service.makeMove((MoveCommand) command, session, connections);
         GameEndStatus status = service.determineStaleCheckMate(result.getGame()); //make a class that determines if something is in check/checkmate/stalemate
@@ -105,39 +105,32 @@ public class WebSocketHandler {
                 username + "did move" + ((MoveCommand) command).getChessMove().toString()); //todo: fix this formatting haha
         String jsonDidMoveNotification = new Gson().toJson(notificationMessage);
 
-        try {
-            //1) LOAD_GAME message to all clients in the game (INCLUDING the root client) with an updated game.
-            broadcastMessage(command.getGameID(), jsonLoadGame, null);
+        //1) LOAD_GAME message to all clients in the game (INCLUDING the root client) with an updated game.
+        broadcastMessage(command.getGameID(), jsonLoadGame, null);
 
-            //2) Server sends a Notification message to all OTHER clients in that game informing them what move was made.
-            broadcastMessage(command.getGameID(), jsonDidMoveNotification, session); //broadcast that message to everyone BUT this session
+        //2) Server sends a Notification message to all OTHER clients in that game informing them what move was made.
+        broadcastMessage(command.getGameID(), jsonDidMoveNotification, session); //broadcast that message to everyone BUT this session
 
-            //todo: determine order (I think CheckMate is a subset of Check so it goes first)
-            if(status.inCheckMate){
-                NotificationMessage gameStatus = new NotificationMessage(NOTIFICATION, "Game is in CheckMate!");
-                String jsonGameStatus = new Gson().toJson(gameStatus);
-                broadcastMessage(command.getGameID(), jsonGameStatus, null);
-            }
-            else if(status.inCheck){
-                NotificationMessage gameStatus = new NotificationMessage(NOTIFICATION, "Game is in Check!");
-                String jsonGameStatus = new Gson().toJson(gameStatus);
-                broadcastMessage(command.getGameID(), jsonGameStatus, null);
-            }
-            else if(status.inStaleMate){
-                NotificationMessage gameStatus = new NotificationMessage(NOTIFICATION, "Game is in StaleMate!");
-                String jsonGameStatus = new Gson().toJson(gameStatus);
-                broadcastMessage(command.getGameID(), jsonGameStatus, null);
-            }
+        //todo: determine order (I think CheckMate is a subset of Check so it goes first)
+        if(status.inCheckMate){
+            NotificationMessage gameStatus = new NotificationMessage(NOTIFICATION, "Game is in CheckMate!");
+            String jsonGameStatus = new Gson().toJson(gameStatus);
+            broadcastMessage(command.getGameID(), jsonGameStatus, null);
         }
-        catch (IOException e){
-            ServerMessage errorMsg = new ErrorMessage(ERROR, "error:" + e.getMessage());
-            String jsonError = new Gson().toJson(errorMsg);
-            sendMessage(jsonError, session);
-
+        else if(status.inCheck){
+            NotificationMessage gameStatus = new NotificationMessage(NOTIFICATION, "Game is in Check!");
+            String jsonGameStatus = new Gson().toJson(gameStatus);
+            broadcastMessage(command.getGameID(), jsonGameStatus, null);
         }
-    }
+        else if(status.inStaleMate){
+            NotificationMessage gameStatus = new NotificationMessage(NOTIFICATION, "Game is in StaleMate!");
+            String jsonGameStatus = new Gson().toJson(gameStatus);
+            broadcastMessage(command.getGameID(), jsonGameStatus, null);
+        }
+        }
 
-    void execLeaveGame(WebSocketService service, UserGameCommand command, Session session,
+
+    void leaveGameHandler(WebSocketService service, UserGameCommand command, Session session,
                        ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException, IOException {
         String username = service.getUsername(command);
         service.leaveGame(command, session, connections); //game is updated to remove the root client (void)
@@ -151,9 +144,10 @@ public class WebSocketHandler {
         //todo: a new error class for the handlers specifically? Catches stuff from service and packages for websocket?
     }
 
-    void execResign(WebSocketService service, UserGameCommand command, Session session,
+    void resignHandler(WebSocketService service, UserGameCommand command, Session session,
                     ConcurrentHashMap<Integer, HashSet<Session>> connections){
         //server marks the game as over (no more moves can be made)
+
         //updates game in the DB
         //notification message to ALL clients in the game informing them that root client resigned
 

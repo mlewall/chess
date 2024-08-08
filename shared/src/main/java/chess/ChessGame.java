@@ -12,6 +12,7 @@ import java.util.Collection;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board = new ChessBoard();
+    public boolean isOver;
 
     //not sure if I want to use cached KingPositions.
     private ChessPosition whiteKingPos;
@@ -23,6 +24,7 @@ public class ChessGame {
         teamTurn = TeamColor.WHITE; //starting turn
         whiteKingPos = null;
         blackKingPos = null;
+        isOver = false;
     }
 
     public ChessGame(ChessGame other) {
@@ -30,6 +32,7 @@ public class ChessGame {
         this.teamTurn = other.teamTurn;
         this.whiteKingPos = other.whiteKingPos != null ? new ChessPosition(other.whiteKingPos.getRow(), other.whiteKingPos.getColumn()) : null;
         this.blackKingPos = other.blackKingPos != null ? new ChessPosition(other.blackKingPos.getRow(), other.blackKingPos.getColumn()) : null;
+        this.isOver = other.isOver;
     }
 
 
