@@ -166,6 +166,9 @@ public class WebSocketService {
         }
 
         ChessGame game = oldGameData.game();
+        if(game.isOver){
+            throw new DataAccessException("Game is over. Other player already resigned. ");
+        }
         game.isOver = true; //code in makeMoves will prevent this from happening
         GameData completedGame = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), game);
         gameDAO.updateGame(oldGameData, completedGame);
