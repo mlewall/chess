@@ -11,17 +11,25 @@ import java.util.Collection;
  */
 public class ChessGame {
     private TeamColor teamTurn;
-    private ChessBoard board;
+    private ChessBoard board = new ChessBoard();
 
     //not sure if I want to use cached KingPositions.
     private ChessPosition whiteKingPos;
     private ChessPosition blackKingPos;
 
     public ChessGame() {
-        this.board = new ChessBoard(); //all pieces are in their starting locations
+        //DONT CHANGE THIS - required for fullgame and gamestatus to pass
+        board.resetBoard(); //all pieces are in their starting locations
         teamTurn = TeamColor.WHITE; //starting turn
         whiteKingPos = null;
         blackKingPos = null;
+    }
+
+    public ChessGame(ChessGame other) {
+        this.board = new ChessBoard(other.board); // Assuming ChessBoard has a copy constructor
+        this.teamTurn = other.teamTurn;
+        this.whiteKingPos = other.whiteKingPos != null ? new ChessPosition(other.whiteKingPos.getRow(), other.whiteKingPos.getColumn()) : null;
+        this.blackKingPos = other.blackKingPos != null ? new ChessPosition(other.blackKingPos.getRow(), other.blackKingPos.getColumn()) : null;
     }
 
 

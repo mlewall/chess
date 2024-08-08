@@ -1,20 +1,5 @@
 package server.websocket;
-
-    /* This contains the functions that are called from the WebSocket handler.
-    *
-    * 1) connect(message): call service and/or send messages to client
-    * 2) makeMove(message):
-    * 3) leaveGame(message)
-    * 4) resignGame(message)
-    *
-    * These methods are responsible for actually connecting to the DAOs and getting data and stuff.
-    * Similar to the functionality of the services we wrote from phase 3.
-    *  */
-
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.InvalidMoveException;
+import chess.*;
 import dataaccess.database.SqlAuthDao;
 import dataaccess.database.SqlGameDao;
 import dataaccess.database.SqlUserDao;
@@ -25,14 +10,12 @@ import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import dataaccess.*;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
-import javax.xml.crypto.Data;
 
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
@@ -51,9 +34,18 @@ public class WebSocketService {
             throw new DataAccessException(500, "Error instantiating WebSocketService. Error in: " + e.getMessage());
         }
     }
-    //note that a command contains: commandType, authToken, gameID, and maybe a Move (if we're in makeMove)
 
-    //should these all send back some kind of server message?
+    /* This contains the functions that are called from the WebSocket handler.
+     *
+     * 1) connect(message): call service and/or send messages to client
+     * 2) makeMove(message):
+     * 3) leaveGame(message)
+     * 4) resignGame(message)
+     *
+     * These methods are responsible for actually connecting to the DAOs and getting data and stuff.
+     * Similar to the functionality of the services we wrote from phase 3.
+     *  */
+
     //client sends server a connect message (contains commandType, gameID, authToken)
     //we don't need to worry about adding players here because they've already been added via http
     public ServerMessage connect(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException {
@@ -62,7 +54,6 @@ public class WebSocketService {
         if(authData == null){
             throw new DataAccessException(401, "Username not found in database; invalid authToken");
         }
-        String username = authData.username();
 
         //we are assuming the gameID is valid (it should have been validated when they specify the game)
         HashSet<Session> sessions = connections.computeIfAbsent(command.getGameID(), k -> new HashSet<>());
@@ -78,7 +69,7 @@ public class WebSocketService {
 
     }
 
-    public String makeMove(MoveCommand command, Session session,
+    public ServerMessage makeMove(MoveCommand command, Session session,
                            ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException, InvalidMoveException {
         //validate user (this could be factored out)
         String username = authDAO.getAuthData(command.getAuthToken()).username();
@@ -86,28 +77,72 @@ public class WebSocketService {
             throw new DataAccessException(401, "Username not found in database; invalid authToken");
         }
         //get game
-        GameData gameData = gameDAO.getGame(command.getGameID());
-        if(gameData == null){
+        GameData oldGameData = gameDAO.getGame(command.getGameID());
+        if(oldGameData == null){
             throw new DataAccessException(403, "Game not found in database; invalid gameID");
         }
-        ChessGame game = gameData.game();
+
+
+        ChessGame oldGame = oldGameData.game();
+        //validate whether this player can make a move
+        String teamColor = getTeamColor(command);
+        if(teamColor.equals("WHITE") && oldGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK)){
+            throw new DataAccessException("Can't make move for the black team");
+        }
+
+        else if(teamColor.equals("BLACK") && oldGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE)){
+            throw new DataAccessException("Can't make move for the white team");
+        }
+
+
+        ChessGame newGame = new ChessGame(oldGame); //create a copy of the oldGame (for updating purposes)
+
         ChessMove move = command.getChessMove();
-        Collection<ChessMove> possMoves = game.validMoves(move.getStartPosition());
+        Collection<ChessMove> possMoves = newGame.validMoves(move.getStartPosition());
         if(!possMoves.contains(move)){ //user requested an invalid move
             throw new InvalidMoveException("Invalid move!");
         }
-        game.makeMove(move);
 
-
-
-        //verifies validity of the move
-
-        //
-        return null;
+        newGame.makeMove(move); //this InvalidMoveException error should be caught in the catch of onMessage
+        GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(),
+                oldGameData.blackUsername(), oldGameData.gameName(), newGame);
+        gameDAO.updateGame(oldGameData, newGameData);
+        LoadGameMessage gameMessage = new LoadGameMessage(LOAD_GAME, newGame);
+        return gameMessage;
     }
 
-    public String leaveGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections){
-        return null;
+    public void leaveGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException{
+        AuthData authData = authDAO.getAuthData(command.getAuthToken());
+        if(authData == null){
+            throw new DataAccessException(401, "Username not found in database; invalid authToken");
+        }
+
+        //remove user from gameData (make a new gameData and update game)
+        GameData ogGameData = gameDAO.getGame(command.getGameID());
+        if(ogGameData == null){
+            throw new DataAccessException("Game not found in database; invalid gameID");
+        }
+
+        //determine which team color they were
+        String teamColor = getTeamColor(command);
+        String whiteUsername = ogGameData.whiteUsername();
+        String blackUsername = ogGameData.blackUsername();
+        if(teamColor == "WHITE"){
+            whiteUsername = null;
+        }
+        else if(teamColor == "BLACK"){
+            blackUsername = null;
+        }
+        //make the new game data and overwrite
+        GameData newGameData = new GameData(ogGameData.gameID(), whiteUsername, blackUsername, ogGameData.gameName(), ogGameData.game());
+        gameDAO.updateGame(ogGameData, newGameData);
+
+        // Remove their session from the connections hashset?
+        HashSet<Session> sessions = connections.get(command.getGameID());
+        if(sessions != null && !sessions.isEmpty()){
+            sessions.remove(session);
+        }
+
     }
 
     public String resignGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections){
@@ -119,9 +154,41 @@ public class WebSocketService {
             return authDAO.getAuthData(command.getAuthToken()).username();
         }
         catch(DataAccessException e){
-            throw new DataAccessException(401, "Username not found in database, invalid authToken, check @ getUserName in websocket service");
+            throw new DataAccessException("Username not found in database, invalid authToken, check @ getUserName in websocket service");
         }
 
+    }
+
+    public String getTeamColor(UserGameCommand command) throws DataAccessException{
+        int gameID = command.getGameID();
+        String username = getUsername(command);
+        GameData game = gameDAO.getGame(gameID);
+        if(game.whiteUsername() != null && game.whiteUsername().equals(username)){
+            return "WHITE";
+        }
+        else if(game.blackUsername() != null && game.blackUsername().equals(username)){
+            return "BLACK";
+        }
+        else{
+            return null;
+        }
+    }
+
+
+    public GameEndStatus determineStaleCheckMate(ChessGame game){
+        //now the OTHER team's move. Because after the move was made it toggles the turn(?)
+        GameEndStatus status = new GameEndStatus();
+        ChessGame.TeamColor otherTeamColor = game.getTeamTurn(); //it has been toggled
+        if(game.isInCheck(otherTeamColor)){
+            status.setInCheck(true);
+        }
+        if(game.isInCheckmate(otherTeamColor)){
+            status.setInCheckMate(true);
+        }
+        if(game.isInStalemate(otherTeamColor)){
+            status.setInStaleMate(true);
+        }
+        return status;
     }
 
 
