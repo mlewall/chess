@@ -71,22 +71,22 @@ public class WebSocketService {
 
     public ServerMessage makeMove(MoveCommand command, Session session,
                            ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException, InvalidMoveException {
-        //1) validate user (this could be factored out)
+        //validate user (this could be factored out)
         String username = authDAO.getAuthData(command.getAuthToken()).username();
         if(username == null){
             throw new DataAccessException("Username not found in database; invalid authToken. ");
         }
-        //2) get gameData associated with ID
+        //get gameData associated with ID
         GameData oldGameData = gameDAO.getGame(command.getGameID());
         if(oldGameData == null){
             throw new DataAccessException("Game not found in database; invalid gameID. ");
         }
-        //3) get ChessGame itself and check if it's over.
+        //get ChessGame itself and check if it's over.
         ChessGame oldGame = oldGameData.game();
         if(oldGame.isOver){
             throw new DataAccessException("Game is over. No more moves can be made. ");
         }
-        //4) validate whether this player can make a move
+        //validate whether this player can make a move
         String teamColor = getTeamColor(command);
         if(teamColor.equals("WHITE") && oldGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK)){
             throw new DataAccessException("Can't make move for the black team.");
@@ -94,18 +94,15 @@ public class WebSocketService {
         else if(teamColor.equals("BLACK") && oldGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE)){
             throw new DataAccessException("Can't make move for the white team.");
         }
-
-        //5) create a copy of the oldGame (for updating purposes)
+        //create a copy of the oldGame (for updating purposes)
         ChessGame newGame = new ChessGame(oldGame);
-
-        //6) get move and validate it
+        //get move and validate it
         ChessMove move = command.getChessMove();
         Collection<ChessMove> possMoves = newGame.validMoves(move.getStartPosition());
         if(!possMoves.contains(move)){ //user requested an invalid move
             throw new InvalidMoveException("Invalid move!");
         }
-
-        //7) make move, update. Make game message
+        //make move, update. Make game message
         newGame.makeMove(move); //this InvalidMoveException error should be caught in the catch of onMessage
         GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(),
                 oldGameData.blackUsername(), oldGameData.gameName(), newGame);

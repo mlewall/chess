@@ -5,14 +5,13 @@ import client.websocket.NotificationHandler;
 import reqres.LoginResult;
 import reqres.RegisterResult;
 import server.ResponseException;
-import server.ServerFacade;
 //import webSocketMessages.Notification;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PreLoginRepl implements NotificationHandler {
+public class PreLoginRepl {
     private final ChessClient chessClient;
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);

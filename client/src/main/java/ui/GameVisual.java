@@ -1,12 +1,16 @@
 package ui;
+
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
-import chess.ChessBoard;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+
 import static ui.EscapeSequences.*;
 
-public class GameplayRepl {
+public class GameVisual {
+
     ChessGame currentGame;
     String playerColor;
     ChessBoard board;
@@ -14,16 +18,12 @@ public class GameplayRepl {
 
     private static final String EMPTY = "   ";
 
-    GameplayRepl(ChessGame currentGame, String playerColor) {
+    public GameVisual(ChessGame currentGame, String playerColor) {
         this.currentGame = currentGame;
         this.playerColor = playerColor;
         this.board = currentGame.getBoard();
     }
 
-    public void run(){
-        //todo: switch commands here probably to get input from the user.
-        drawBoard();
-    }
 
     public void drawBoard() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -143,6 +143,6 @@ public class GameplayRepl {
             reversed[i] = row[row.length - 1 - i];
         }
         return reversed;
-        }
     }
+}
 
