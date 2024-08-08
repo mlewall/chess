@@ -126,7 +126,7 @@ public class WebSocketHandler {
             NotificationMessage gameStatus = new NotificationMessage(NOTIFICATION, "Game is in StaleMate!");
             String jsonGameStatus = new Gson().toJson(gameStatus);
             broadcastMessage(command.getGameID(), jsonGameStatus, null);
-        }
+            }
         }
 
 
@@ -145,12 +145,14 @@ public class WebSocketHandler {
     }
 
     void resignHandler(WebSocketService service, UserGameCommand command, Session session,
-                    ConcurrentHashMap<Integer, HashSet<Session>> connections){
-        //server marks the game as over (no more moves can be made)
-
-        //updates game in the DB
+                    ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException, IOException {
+        //server marks the game as over (no more moves can be made), //updates game in the DB
+        service.resignGame(command, session, connections);
+        String username = service.getUsername(command);
+        NotificationMessage notification = new NotificationMessage(NOTIFICATION, username + " has resigned.");
+        String jsonNotification = new Gson().toJson(notification);
         //notification message to ALL clients in the game informing them that root client resigned
-
+        broadcastMessage(command.getGameID(), jsonNotification, null);
     }
 
     void sendMessage(String message, Session session) throws IOException {

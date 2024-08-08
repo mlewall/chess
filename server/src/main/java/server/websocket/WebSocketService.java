@@ -71,38 +71,41 @@ public class WebSocketService {
 
     public ServerMessage makeMove(MoveCommand command, Session session,
                            ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException, InvalidMoveException {
-        //validate user (this could be factored out)
+        //1) validate user (this could be factored out)
         String username = authDAO.getAuthData(command.getAuthToken()).username();
         if(username == null){
-            throw new DataAccessException(401, "Username not found in database; invalid authToken");
+            throw new DataAccessException("Username not found in database; invalid authToken. ");
         }
-        //get game
+        //2) get gameData associated with ID
         GameData oldGameData = gameDAO.getGame(command.getGameID());
         if(oldGameData == null){
-            throw new DataAccessException(403, "Game not found in database; invalid gameID");
+            throw new DataAccessException("Game not found in database; invalid gameID. ");
         }
-
-
+        //3) get ChessGame itself and check if it's over.
         ChessGame oldGame = oldGameData.game();
-        //validate whether this player can make a move
+        if(oldGame.isOver){
+            throw new DataAccessException("Game is over. No more moves can be made. ");
+        }
+        //4) validate whether this player can make a move
         String teamColor = getTeamColor(command);
         if(teamColor.equals("WHITE") && oldGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK)){
-            throw new DataAccessException("Can't make move for the black team");
+            throw new DataAccessException("Can't make move for the black team.");
         }
-
         else if(teamColor.equals("BLACK") && oldGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE)){
-            throw new DataAccessException("Can't make move for the white team");
+            throw new DataAccessException("Can't make move for the white team.");
         }
 
+        //5) create a copy of the oldGame (for updating purposes)
+        ChessGame newGame = new ChessGame(oldGame);
 
-        ChessGame newGame = new ChessGame(oldGame); //create a copy of the oldGame (for updating purposes)
-
+        //6) get move and validate it
         ChessMove move = command.getChessMove();
         Collection<ChessMove> possMoves = newGame.validMoves(move.getStartPosition());
         if(!possMoves.contains(move)){ //user requested an invalid move
             throw new InvalidMoveException("Invalid move!");
         }
 
+        //7) make move, update. Make game message
         newGame.makeMove(move); //this InvalidMoveException error should be caught in the catch of onMessage
         GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(),
                 oldGameData.blackUsername(), oldGameData.gameName(), newGame);
@@ -145,8 +148,23 @@ public class WebSocketService {
 
     }
 
-    public String resignGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections){
-        return null;
+    public void resignGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException{
+        //both players and observers need to be able to resign.
+        AuthData authData = authDAO.getAuthData(command.getAuthToken());
+        if(authData == null){
+            throw new DataAccessException("Username not found in database; invalid authToken");
+        }
+
+        GameData oldGameData = gameDAO.getGame(command.getGameID());
+        if(oldGameData == null){
+            throw new DataAccessException("Game not found in database; invalid gameID");
+        }
+
+        ChessGame game = oldGameData.game();
+        game.isOver = true; //code in makeMoves will prevent this from happening
+        GameData completedGame = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), game);
+        gameDAO.updateGame(oldGameData, completedGame);
+
     }
 
     public String getUsername(UserGameCommand command) throws DataAccessException {
@@ -174,7 +192,6 @@ public class WebSocketService {
         }
     }
 
-
     public GameEndStatus determineStaleCheckMate(ChessGame game){
         //now the OTHER team's move. Because after the move was made it toggles the turn(?)
         GameEndStatus status = new GameEndStatus();
@@ -184,9 +201,11 @@ public class WebSocketService {
         }
         if(game.isInCheckmate(otherTeamColor)){
             status.setInCheckMate(true);
+            game.isOver = true;
         }
         if(game.isInStalemate(otherTeamColor)){
             status.setInStaleMate(true);
+            game.isOver = true;
         }
         return status;
     }
