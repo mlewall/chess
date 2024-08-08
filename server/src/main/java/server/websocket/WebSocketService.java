@@ -150,14 +150,19 @@ public class WebSocketService {
 
     public void resignGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException{
         //both players and observers need to be able to resign.
+        //if they are not white OR black then they are an observer and can't "resign"
+
         AuthData authData = authDAO.getAuthData(command.getAuthToken());
         if(authData == null){
             throw new DataAccessException("Username not found in database; invalid authToken");
         }
-
         GameData oldGameData = gameDAO.getGame(command.getGameID());
         if(oldGameData == null){
             throw new DataAccessException("Game not found in database; invalid gameID");
+        }
+        String teamColor = getTeamColor(command);
+        if(teamColor == null){
+            throw new DataAccessException("Observing players cannot resign");
         }
 
         ChessGame game = oldGameData.game();
