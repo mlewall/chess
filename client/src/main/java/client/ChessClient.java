@@ -3,6 +3,7 @@ package client;
 import chess.ChessGame;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
+import server.ResponseException;
 import server.ServerFacade;
 
 public class ChessClient {
@@ -12,16 +13,25 @@ public class ChessClient {
     public boolean signedIn;
     public ChessGame localChessCopy;
 
-    private final NotificationHandler notificationHandler;
-    private WebSocketFacade ws;
+    public NotificationHandler notificationHandler;
+    public WebSocketFacade ws;
 
-    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
+    public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
         this.server = new ServerFacade(serverUrl);
         this.signedIn = false;
-        this.notificationHandler = notificationHandler; // this is actually a pointer to the repl
+        //this.notificationHandler = new NotificationHandler(); // this is actually a pointer to the repl
         //this.currentGames = new HashMap<>();
     }
+
+    public void setNotificationHandler(NotificationHandler notificationHandler) throws ResponseException {
+        this.notificationHandler = notificationHandler;
+        this.ws = new WebSocketFacade(serverUrl, notificationHandler);
+
+    }
+
+
+
 
 }
 

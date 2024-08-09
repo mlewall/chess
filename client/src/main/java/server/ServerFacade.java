@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class ServerFacade {
     private final String serverUrl;
-    private String authToken;
+    public String authToken;
 
     public ServerFacade(String serverUrl) {
         this.serverUrl = serverUrl;

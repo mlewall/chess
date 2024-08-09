@@ -1,6 +1,7 @@
 package ui;
 import chess.ChessGame;
 import client.ChessClient;
+import client.websocket.WebSocketFacade;
 import com.google.gson.Gson;
 import model.SimplifiedGameData;
 import reqres.*;
@@ -124,23 +125,23 @@ public class PostLoginRepl {
         if (params.length < 2) { //not enough args
             throw new ResponseException(400, "Specify in this format: join <ID> <COLOR>");
         }
-        String gameNum = params[0]; //this should be a number (1-y)
+        String gameNumStr = params[0]; //this should be a number (1-y)
         String playerColor = params[1].toUpperCase();
         if(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
             throw new ResponseException(400, "Invalid color. Please specify [BLACK] or [WHITE]");
         }
-        if(isInteger(gameNum) && games.containsKey(Integer.parseInt(gameNum))){
-            int gameID = Integer.parseInt(gameNum);
-            SimplifiedGameData game = games.get(gameID);
+        if(isInteger(gameNumStr) && games.containsKey(Integer.parseInt(gameNumStr))){
+            int gameNum = Integer.parseInt(gameNumStr);
+            SimplifiedGameData game = games.get(gameNum);
             try {
                 JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
-                String confirmation = String.format("You are now joined to game %s as %s.", gameNum, playerColor);
+                String confirmation = String.format("You are now joined to game %s as %s.", gameNumStr, playerColor);
                 //todo: establish a websocket connection with the server
-//                GameplayRepl newGame = new GameplayRepl(new ChessGame(), playerColor);
-                GameplayRepl whiteGame = new GameplayRepl(new ChessGame(), "WHITE");
-                whiteGame.run();
-                GameplayRepl blackGame = new GameplayRepl(new ChessGame(), "BLACK");
-                blackGame.run();
+                GameplayRepl gamePlay = new GameplayRepl(playerColor, chessClient);
+                chessClient.setNotificationHandler(gamePlay);
+                chessClient.ws.connect(chessClient.server.authToken, game.gameID());
+                gamePlay.run();
+
                 return confirmation;
             }
             catch(ResponseException e){
@@ -163,13 +164,12 @@ public class PostLoginRepl {
                 int gameID = Integer.parseInt(gameNum);
                 SimplifiedGameData game = games.get(gameID); //this game WILL be used later. Probably w websockets
                 //todo: establish a websocket connection
-
-                //do they default as observing as white? yes
+                GameplayRepl gamePlay = new GameplayRepl("WHITE", chessClient); //do they default as observing as white? yes
+                chessClient.setNotificationHandler(gamePlay);
+                chessClient.ws.connect(chessClient.server.authToken, gameID);
+                gamePlay.run();
                 //todo: remove game from this constructor. Somehow the websocket is supposed to get it
-                GameplayRepl whiteGame = new GameplayRepl(new ChessGame(), "WHITE");
-                whiteGame.run();
-                GameplayRepl blackGame = new GameplayRepl(new ChessGame(), "BLACK");
-                blackGame.run();
+
                 return "Observing game #" + gameNum;
             }
         return "Invalid game number, please enter a game number from the gamelist.";

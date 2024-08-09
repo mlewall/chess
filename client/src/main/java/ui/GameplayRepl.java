@@ -2,147 +2,131 @@ package ui;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessBoard;
+import client.ChessClient;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
+import server.ResponseException;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Scanner;
+
 import static ui.EscapeSequences.*;
 
-public class GameplayRepl {
-    ChessGame currentGame;
+public class GameplayRepl implements NotificationHandler {
+    //ChessGame originalGame;
     String playerColor;
     ChessBoard board;
+    GameVisual gameVisual;
+    ChessClient chessClient;
+    //WebSocketFacade wsFacade;
     //todo: add something associated with websockets? unless that's made somewhere else and passed in
 
     private static final String EMPTY = "   ";
 
-    GameplayRepl(ChessGame currentGame, String playerColor) {
-        this.currentGame = currentGame;
+    GameplayRepl(String playerColor, ChessClient chessClient) {
+        //this.originalGame = originalGame;
         this.playerColor = playerColor;
-        this.board = currentGame.getBoard();
+        this.chessClient = chessClient;
+        //this.wsFacade = ws;
+        //this.board = currentGame.getBoard();
+        //this.gameVisual = new GameVisual(currentGame, playerColor);
     }
 
-    public void run(){
+    public void run() {
         //todo: switch commands here probably to get input from the user.
-        drawBoard();
-    }
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE +
+                "Welcome to gameplay, @" + chessClient.visitorName + "!"
+                + EscapeSequences.RESET_TEXT_COLOR)
+        ;
+        //gameVisual.drawBoard();
+        System.out.print(help());
 
-    public void drawBoard() {
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        out.print(ERASE_SCREEN);
+        Scanner scanner = new Scanner(System.in);
+        String result = "";
+        while(chessClient.signedIn && !result.equals("leave")){
+            System.out.print("\n" + "[IN_GAME] " + ">>> ");
+            String input = scanner.nextLine();
 
-        //drawGrayBackground(out);
-        drawLetterHeader(out, playerColor);
-        //todo: determine if a board should really go here
-        drawChessBoard(out, board, playerColor);
-        drawLetterHeader(out, playerColor);
-
-        out.print(RESET_BG_COLOR);
-        out.print(RESET_TEXT_COLOR);
-    }
-
-
-    private static void drawLetterHeader(PrintStream out, String playerColor) {
-        out.print(SET_BG_COLOR_LIGHT_GREY);
-        out.print(SET_TEXT_COLOR_BLACK);
-        //if white: if black, reverse this.
-        String[] cols = new String[]{};
-        if (playerColor.equals("WHITE")) {
-            cols = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}; //white order
-        }
-        else if (playerColor.equals("BLACK")) {
-            cols = new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
-        }
-        out.print(EMPTY);
-        for(String row : cols){
-            out.print(" "+ row + " ");
-        }
-        out.print(EMPTY);
-        out.println();
-    }
-
-    //blue is black: h-a, 8-1
-    //red is white: a-h, 1-8
-    private static void drawChessBoard(PrintStream out, ChessBoard board, String playerColor) {
-        String[] numRowLabels = getRowLabels(playerColor);
-        //int row_itr = 0;
-        //this draws all the individual horizontal rows
-        ChessPiece[][] currBoard = board.getBoard(); //same for every
-        for(int boardRow = 0; boardRow < 8; boardRow++) { //boardRow counts from top of the VISUAL disp. to bottom
-            ChessPiece[] rowWithPieces = null;
-            if(playerColor.equals("WHITE")) { //if we're showing the white perspective (white at bottom)
-                rowWithPieces = currBoard[7 - boardRow]; //grabs the BLACK pieces FIRST (from bottom of ChessBoard)
+            try{
+                result = eval(input); //sometimes will this print out some kind of gameBoard?
+                System.out.println(result);
             }
-            else if(playerColor.equals("BLACK")) { //black needs to be at bottom of visual
-                rowWithPieces = currBoard[boardRow]; //get the first row from currBoard (it's white)
-                rowWithPieces = reverseRow(rowWithPieces); //flip it around
-
-            }
-            out.print(SET_TEXT_COLOR_BLACK);
-            out.print(SET_BG_COLOR_LIGHT_GREY);
-            assert numRowLabels != null;
-            out.print(numRowLabels[boardRow]);
-
-            drawBoardRow(out, boardRow, rowWithPieces, playerColor);
-
-            out.print(SET_BG_COLOR_LIGHT_GREY);
-            out.print(SET_TEXT_COLOR_BLACK);
-            out.print(numRowLabels[boardRow]);
-            //row_itr ++;
-            out.println(); //newline once the row is done?
-        }
-    }
-
-    private static String[] getRowLabels(String playerColor) {
-        if (playerColor.equals("WHITE")) {
-            return new String[]{" 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 "};
-        }
-        else if (playerColor.equals("BLACK")) {
-            return new String[]{" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
-        }
-        return null;
-    }
-
-    private static void drawBoardRow(PrintStream out, int rowInd, ChessPiece[] rowWithPieces, String playerColor) {
-        for(int col = 0; col < 8 ; col++) { //goes across
-            //make checkers
-            if((col+rowInd) % 2 == 0){
-                out.print(SET_BG_COLOR_WHITE);
-                //call placePieces here
-                placePiece(out, rowWithPieces, col, playerColor);
-                out.print(RESET_TEXT_COLOR);
-                out.print(RESET_BG_COLOR);
-            }
-            else{
-                out.print(SET_BG_COLOR_BLACK);
-                placePiece(out, rowWithPieces, col, playerColor);
-                out.print(RESET_BG_COLOR);
-                out.print(RESET_TEXT_COLOR);
+            catch(Exception e){
+                var msg = e.toString();
+                System.out.print(msg);
             }
         }
     }
 
-    private static void placePiece( PrintStream out, ChessPiece[] rowWithPieces, int col, String playerColor) {
-        if(rowWithPieces[col] != null){
-            //if it's black you need to need to iterate BACKWARDS through the row
-            ChessPiece piece = rowWithPieces[col]; //this is where we must specify the correct piece!
-            if(piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)){
-                out.print(SET_TEXT_COLOR_RED);
-            }
-            else{
-                out.print(SET_TEXT_COLOR_BLUE);
-            }
-            out.print(" " + rowWithPieces[col].toString() + " ");
+    public String eval(String input){
+        try{
+            var tokens = input.split(" ");
+            var command = (tokens.length > 0) ? tokens[0] : "help"; //gets rid of the first param (the command)
+            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch(command){
+                case "redraw" -> redrawBoard();
+                case "leave" -> leaveGame();
+                case "move" -> makeMove();
+                case "resign" -> resignGame();
+                case "highlight" -> highlightMoves();
+                //case "clear" -> clear();
+
+                case "quit" -> "To quit, type in \"leave\"."; //you can choose to make them log out or can just quite
+                default -> help();
+            };
         }
-        else {
-            out.print(EMPTY);
+        catch(Exception e){
+            //todo: find a better way to deal with errors.
+            return e.getMessage();
         }
     }
 
-    private static ChessPiece[] reverseRow(ChessPiece[] row){
-        ChessPiece[] reversed = new ChessPiece[row.length];
-        for(int i = 0; i < row.length; i++){
-            reversed[i] = row[row.length - 1 - i];
-        }
-        return reversed;
-        }
+    public String redrawBoard(){
+        //returns a string (board)
+        return "board";
     }
+    public String leaveGame(){
+        //sends a message
+        return "left";
+    }
+    public String makeMove() {
+        return "moved";
+    }
+    public String highlightMoves(){
+        return "highlighted";
+    }
+    public String resignGame(){
+        return "resigned";
+    }
+
+
+    private String help(){
+        String help = """
+                OPTIONS: 
+                redraw - redraw the chess board
+                leave - leave the game (whether playing or observing, you will be removed from the game)
+                move - input a move <in this format>
+                resign - forfeit the game (you will still be in the game)
+                highlight <piece> - will highlight all the moves for that piece
+                """;
+        return help;
+    }
+
+    @Override
+    public void updateGame(ChessGame game) {
+        System.out.println("Received game update: " + game);  //DEBUG
+        GameVisual boardDrawer = new GameVisual(game, this.playerColor);
+        boardDrawer.drawBoard();
+    }
+
+    @Override
+    public void printMessage(String message) {
+
+    }
+}
+
+
+
 

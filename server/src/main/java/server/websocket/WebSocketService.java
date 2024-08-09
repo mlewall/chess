@@ -16,7 +16,6 @@ import dataaccess.*;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
-
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class WebSocketService {

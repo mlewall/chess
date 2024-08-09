@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.ChessClient;
 import client.websocket.NotificationHandler;
 import reqres.LoginResult;
@@ -19,7 +20,7 @@ public class PreLoginRepl {
     //private String visitorName;
 
     public PreLoginRepl(String serverUrl) {
-        chessClient = new ChessClient(serverUrl, this);
+        chessClient = new ChessClient(serverUrl);
     }
 
     public void run(){

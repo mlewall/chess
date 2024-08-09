@@ -54,8 +54,6 @@ public class WebSocketFacade extends Endpoint {
         catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
-        //outgoing messages:
-
     }
 
     /* These methods are for sending stuff to the server*/
