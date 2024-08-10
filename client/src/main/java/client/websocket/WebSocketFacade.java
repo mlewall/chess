@@ -45,9 +45,9 @@ public class WebSocketFacade extends Endpoint {
                                 ErrorMessage.class);
                             notificationHandler.printMessage(error.getMessage());}
                     }
-                    //account for regular notification vs loadGame vs error (Switch)
-                    NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
-                    notificationHandler.printMessage(notification.getMessage());
+//                    //account for regular notification vs loadGame vs error (Switch)
+//                    NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class); //null
+//                    notificationHandler.printMessage(notification.getMessage());
                 }
             });
         }

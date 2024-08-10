@@ -136,9 +136,12 @@ public class PostLoginRepl {
             try {
                 JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
                 String confirmation = String.format("You are now joined to game %s as %s.", gameNumStr, playerColor);
-                //todo: establish a websocket connection with the server
+
+                //make gameplay, establish a websocket connection with the server, send connect msg, run the loop
                 GameplayRepl gamePlay = new GameplayRepl(playerColor, chessClient);
+                //don't step through these 4-ish lines
                 chessClient.setNotificationHandler(gamePlay);
+                chessClient.setWebSocketFacade(new WebSocketFacade(chessClient.serverUrl, gamePlay));
                 chessClient.ws.connect(chessClient.server.authToken, game.gameID());
                 gamePlay.run();
 

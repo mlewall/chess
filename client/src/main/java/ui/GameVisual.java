@@ -24,6 +24,8 @@ public class GameVisual {
         this.board = currentGame.getBoard();
     }
 
+    public GameVisual(){}
+
 
     public void drawBoard() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -107,16 +109,15 @@ public class GameVisual {
             if((col+rowInd) % 2 == 0){
                 out.print(SET_BG_COLOR_WHITE);
                 //call placePieces here
-                placePiece(out, rowWithPieces, col, playerColor);
-                out.print(RESET_TEXT_COLOR);
-                out.print(RESET_BG_COLOR);
+                //condition for if it should be highlighted
             }
             else{
                 out.print(SET_BG_COLOR_BLACK);
-                placePiece(out, rowWithPieces, col, playerColor);
-                out.print(RESET_BG_COLOR);
-                out.print(RESET_TEXT_COLOR);
+                //conditions
             }
+            placePiece(out, rowWithPieces, col, playerColor);
+            out.print(RESET_TEXT_COLOR);
+            out.print(RESET_BG_COLOR);
         }
     }
 

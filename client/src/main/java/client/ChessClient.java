@@ -9,7 +9,7 @@ import server.ServerFacade;
 public class ChessClient {
     public String visitorName;
     public final ServerFacade server; //note that a new one of these is made for every new Client
-    private final String serverUrl;
+    public final String serverUrl;
     public boolean signedIn;
     public ChessGame localChessCopy;
 
@@ -26,8 +26,10 @@ public class ChessClient {
 
     public void setNotificationHandler(NotificationHandler notificationHandler) throws ResponseException {
         this.notificationHandler = notificationHandler;
-        this.ws = new WebSocketFacade(serverUrl, notificationHandler);
+    }
 
+    public void setWebSocketFacade(WebSocketFacade wsFacade) {
+        this.ws = wsFacade;
     }
 
 

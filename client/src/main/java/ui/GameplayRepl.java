@@ -15,23 +15,36 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class GameplayRepl implements NotificationHandler {
-    //ChessGame originalGame;
+    ChessGame currentGame;
     String playerColor;
-    ChessBoard board;
-    GameVisual gameVisual;
     ChessClient chessClient;
-    //WebSocketFacade wsFacade;
+    WebSocketFacade wsFacade;
     //todo: add something associated with websockets? unless that's made somewhere else and passed in
 
     private static final String EMPTY = "   ";
 
     GameplayRepl(String playerColor, ChessClient chessClient) {
-        //this.originalGame = originalGame;
         this.playerColor = playerColor;
         this.chessClient = chessClient;
-        //this.wsFacade = ws;
-        //this.board = currentGame.getBoard();
-        //this.gameVisual = new GameVisual(currentGame, playerColor);
+        this.wsFacade = chessClient.ws;
+
+    }
+
+    //these are not part of the loop, and thus will interrupt things sometimes. What to do about that?
+    @Override
+    public void updateGame(ChessGame game) {
+        /* So this is drawn whenever the update is received */
+        System.out.println("Received game update: " + game);  //DEBUG
+        GameVisual boardDrawer = new GameVisual(game, this.playerColor);
+        this.currentGame = game; //save a copy of game in case we want to draw board
+        boardDrawer.drawBoard();
+        System.out.print("\n" + "[IN_GAME] " + ">>> " );
+    }
+
+    @Override
+    public void printMessage(String message) {
+        System.out.println(message);
+        System.out.print("\n" + "[IN_GAME] " + ">>> " );
     }
 
     public void run() {
@@ -40,18 +53,19 @@ public class GameplayRepl implements NotificationHandler {
                 "Welcome to gameplay, @" + chessClient.visitorName + "!"
                 + EscapeSequences.RESET_TEXT_COLOR)
         ;
-        //gameVisual.drawBoard();
+        //redrawBoard(); //this is null at this point, so does nothing.
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(chessClient.signedIn && !result.equals("leave")){
-            System.out.print("\n" + "[IN_GAME] " + ">>> ");
+            System.out.println("looping");
+            System.out.print("\n" + "[IN_GAME] " + ">>> " );
             String input = scanner.nextLine();
 
             try{
                 result = eval(input); //sometimes will this print out some kind of gameBoard?
-                System.out.println(result);
+                System.out.println(result); //what is getting printed "null"?
             }
             catch(Exception e){
                 var msg = e.toString();
@@ -68,7 +82,7 @@ public class GameplayRepl implements NotificationHandler {
             return switch(command){
                 case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
-                case "move" -> makeMove();
+                case "move" -> makeMove(params);
                 case "resign" -> resignGame();
                 case "highlight" -> highlightMoves();
                 //case "clear" -> clear();
@@ -84,23 +98,25 @@ public class GameplayRepl implements NotificationHandler {
     }
 
     public String redrawBoard(){
-        //returns a string (board)
         return "board";
     }
     public String leaveGame(){
         //sends a message
-        return "left";
+        return "leave";
     }
-    public String makeMove() {
+    public String makeMove(String...params) {
+        //g2 g4 (src col src row, end col end row)
         return "moved";
     }
     public String highlightMoves(){
+        //just one location
+        //find valid moves
+        //print all the squares with all squares with end positions
         return "highlighted";
     }
     public String resignGame(){
         return "resigned";
     }
-
 
     private String help(){
         String help = """
@@ -114,17 +130,7 @@ public class GameplayRepl implements NotificationHandler {
         return help;
     }
 
-    @Override
-    public void updateGame(ChessGame game) {
-        System.out.println("Received game update: " + game);  //DEBUG
-        GameVisual boardDrawer = new GameVisual(game, this.playerColor);
-        boardDrawer.drawBoard();
-    }
 
-    @Override
-    public void printMessage(String message) {
-
-    }
 }
 
 
