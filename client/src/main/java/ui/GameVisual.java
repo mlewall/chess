@@ -1,11 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -14,6 +13,8 @@ public class GameVisual {
     ChessGame currentGame;
     String playerColor;
     ChessBoard board;
+    static Collection<ChessPosition> squaresToHighlight;
+
     //todo: add something associated with websockets? unless that's made somewhere else and passed in
 
     private static final String EMPTY = "   ";
@@ -22,6 +23,13 @@ public class GameVisual {
         this.currentGame = currentGame;
         this.playerColor = playerColor;
         this.board = currentGame.getBoard();
+    }
+
+    public GameVisual(ChessGame currentGame, String playerColor, Collection<ChessPosition> squaresToHighlight) {
+        this.currentGame = currentGame;
+        this.playerColor = playerColor;
+        this.board = currentGame.getBoard();
+        this.squaresToHighlight = squaresToHighlight;
     }
 
     public GameVisual(){}
@@ -45,7 +53,6 @@ public class GameVisual {
     private static void drawLetterHeader(PrintStream out, String playerColor) {
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_BLACK);
-        //if white: if black, reverse this.
         String[] cols = new String[]{};
         if (playerColor.equals("WHITE")) {
             cols = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}; //white order
@@ -68,14 +75,15 @@ public class GameVisual {
         //int row_itr = 0;
         //this draws all the individual horizontal rows
         ChessPiece[][] currBoard = board.getBoard(); //same for every
-        for(int boardRow = 0; boardRow < 8; boardRow++) { //boardRow counts from top of the VISUAL disp. to bottom
+        //this is the ARRAY index (adjust positions)
+        for(int boardRow = 0; boardRow < 8; boardRow++) { //boardRow counts from top of the VISUAL display to bottom
             ChessPiece[] rowWithPieces = null;
             if(playerColor.equals("WHITE")) { //if we're showing the white perspective (white at bottom)
                 rowWithPieces = currBoard[7 - boardRow]; //grabs the BLACK pieces FIRST (from bottom of ChessBoard)
             }
             else if(playerColor.equals("BLACK")) { //black needs to be at bottom of visual
                 rowWithPieces = currBoard[boardRow]; //get the first row from currBoard (it's white)
-                rowWithPieces = reverseRow(rowWithPieces); //flip it around
+                rowWithPieces = reverseRow(rowWithPieces); //flip it around (mirrors it)
 
             }
             out.print(SET_TEXT_COLOR_BLACK);
@@ -105,15 +113,30 @@ public class GameVisual {
 
     private static void drawBoardRow(PrintStream out, int rowInd, ChessPiece[] rowWithPieces, String playerColor) {
         for(int col = 0; col < 8 ; col++) { //goes across
-            //make checkers
-            if((col+rowInd) % 2 == 0){
-                out.print(SET_BG_COLOR_WHITE);
-                //call placePieces here
-                //condition for if it should be highlighted
+            int adjustedRow;
+            if(playerColor.equals("WHITE")){
+                adjustedRow = 8 - rowInd;
             }
             else{
-                out.print(SET_BG_COLOR_BLACK);
-                //conditions
+                adjustedRow =  rowInd + 1;
+                }
+            ChessPosition currPos = new ChessPosition(adjustedRow, col + 1);
+            //make checkers
+            if((col+rowInd) % 2 == 0){
+                //call placePieces here
+                //condition for if it should be highlighted
+                if(squaresToHighlight != null && squaresToHighlight.contains(currPos)){
+                    out.print(SET_BG_COLOR_GREEN);
+                } else{
+                    out.print(SET_BG_COLOR_WHITE);
+                }
+            }
+            else{
+                if(squaresToHighlight != null && squaresToHighlight.contains(currPos)){
+                    out.print(SET_BG_COLOR_DARK_GREEN);
+                } else {
+                    out.print(SET_BG_COLOR_BLACK);
+                }
             }
             placePiece(out, rowWithPieces, col, playerColor);
             out.print(RESET_TEXT_COLOR);
@@ -123,7 +146,7 @@ public class GameVisual {
 
     private static void placePiece( PrintStream out, ChessPiece[] rowWithPieces, int col, String playerColor) {
         if(rowWithPieces[col] != null){
-            //if it's black you need to need to iterate BACKWARDS through the row
+            //if it's black you need to iterate BACKWARDS through the row
             ChessPiece piece = rowWithPieces[col]; //this is where we must specify the correct piece!
             if(piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)){
                 out.print(SET_TEXT_COLOR_RED);

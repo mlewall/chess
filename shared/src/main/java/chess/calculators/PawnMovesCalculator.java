@@ -41,7 +41,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             if(inBounds(newRow, newColumn)) {
                 if (((newColumn == startColumn) && notFrontBlocked(board, ogPosition, teamColor)) ||
                         ((newColumn != startColumn) && inBounds(newRow, newColumn) && enemyEncounter(board, possPosition, teamColor))) {
-                    if (promotion(possPosition)) {
+                    if (isPromotion(possPosition)) {
                         //if it's a promotion, loop through the enum and add those moves.
                         addPromotions(ogPosition, possPosition, moves);
                     }
@@ -89,7 +89,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         note! if you don't put the color as well, it still passes the tests.
         might still be a good idea to be explicit
          */
-    private boolean promotion(ChessPosition endPos){
+    private boolean isPromotion(ChessPosition endPos){
         if((endPos.getRow() == 8)){
             return true;
         }

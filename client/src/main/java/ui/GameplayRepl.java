@@ -5,13 +5,11 @@ import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import org.glassfish.grizzly.http.server.Response;
 import server.ResponseException;
+import chess.calculators.PawnMovesCalculator;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -142,7 +140,16 @@ public class GameplayRepl implements NotificationHandler {
                 ChessPosition origin = new ChessPosition(originRow, originColumn);
                 ChessPosition destination = new ChessPosition(destinationRow, destinationColumn);
                 //todo: determine what to do about promo pieces (get piece at destination? -- is this handled?)
+                //todo: something about how those moves exist in the validMoves list - but with a promo piece in them already
+                //maybe get the piece at destination. if the piece is a pawn maybe getting promoted, include the destination piece.
+                //this logic is included somewhere else though -- in pawnmoves calculator
+                ChessPiece.PieceType pieceType = currentGame.getBoard().getPiece(origin).getPieceType();
                 ChessMove move = new ChessMove(origin, destination, null);
+                if(pieceType == ChessPiece.PieceType.PAWN && isPromotion(destination)){
+                    //todo: get input from user and take in the type of piece they want to be promoted to
+                    //converts that to a ChessPiece.PieceType and puts that in as the promotion piece.
+                    //updates the ChessMove
+                }
                 if(playerColor.equals(currentGame.getTeamTurn().toString())){
                     wsFacade.makeMove(authToken, gameID, move);
                 }
@@ -156,13 +163,39 @@ public class GameplayRepl implements NotificationHandler {
                     "move c1 f4 (move <start> <end>");
         }
 
-
     }
-    public void highlightMoves(String...params){
-        //just one location (g4)
-        //find valid moves
+    public void highlightMoves(String...params) throws ResponseException {
+        //just one location (g4) (col, row)
+        if (params.length < 1) {
+            throw new ResponseException(400, "Too few arguments. Specify highlight in this format: highlight <piece location> (e.g. highlight d2)");
+        }
+        String col = params[0].substring(0,1);
+        String row = params[0].substring(1,2);
+        try{
+            int colNum = this.columnsToNums.get(col);
+            int rowNum = Integer.parseInt(row);
+            ChessPosition highlightPos = new ChessPosition(rowNum, colNum);
+            //check if it's in bounds?
+            if(!inBounds(rowNum, colNum)){
+                throw new ResponseException(400, "Highlight position out of bounds.");
+            }
+            if(currentGame.getBoard().getPiece(highlightPos) == null){
+                throw new ResponseException(400, "Select a square that contains a piece");
+            }
+            Collection<ChessMove> moves = currentGame.validMoves(highlightPos);
+            Collection<ChessPosition> positionsToHighlight = getPositionsToHighlight(moves);
+            GameVisual gameDrawer = new GameVisual(this.currentGame, this.playerColor, positionsToHighlight);
+            gameDrawer.drawBoard();
+            //todo: maybe add another check for what to do if it's the other team/depending on condition
+        }
+        catch(NumberFormatException e){
+            throw new ResponseException(400, "Specify piece you want to see the moves for in this format: highlight <piece location> (e.g. highlight d2)");
+        }
+
+
+        //find valid moves for given position
         //print all the squares with all squares with end positions
-        //return "highlighted";
+        //draw the highlighted board "highlighted";
     }
 
     public void resignGame() throws ResponseException {
@@ -203,6 +236,31 @@ public class GameplayRepl implements NotificationHandler {
         return columnsToNumbers;
     }
 
+    public boolean inBounds(int row, int column){
+        //[1, 8]
+        if (row > 0 && row <= 8 && column > 0 && column <= 8){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isPromotion(ChessPosition endPos){
+        if((endPos.getRow() == 8)){
+            return true;
+        }
+        else if((endPos.getRow() == 1)){
+            return true;
+        }
+        return false;
+    }
+
+    public Collection<ChessPosition> getPositionsToHighlight(Collection<ChessMove> moves){
+        ArrayList<ChessPosition> positionsToHighlight = new ArrayList<>();
+        for(ChessMove move: moves){
+            positionsToHighlight.add(move.getEndPosition());
+        }
+        return positionsToHighlight;
+    }
 
 }
 
