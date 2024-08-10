@@ -5,6 +5,7 @@ import chess.ChessBoard;
 import client.ChessClient;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
+import org.glassfish.grizzly.http.server.Response;
 import server.ResponseException;
 
 import java.io.PrintStream;
@@ -19,15 +20,22 @@ public class GameplayRepl implements NotificationHandler {
     String playerColor;
     ChessClient chessClient;
     WebSocketFacade wsFacade;
+    String authToken;
+    int gameID;
     //todo: add something associated with websockets? unless that's made somewhere else and passed in
 
     private static final String EMPTY = "   ";
 
-    GameplayRepl(String playerColor, ChessClient chessClient) {
+    GameplayRepl(String playerColor, ChessClient chessClient, int gameID) {
         this.playerColor = playerColor;
         this.chessClient = chessClient;
-        this.wsFacade = chessClient.ws;
+        authToken = chessClient.server.authToken; //just for ease of access
+        this.gameID = gameID;
 
+    }
+
+    public void setWebSocketFacade(WebSocketFacade wsFacade) {
+        this.wsFacade = wsFacade;
     }
 
     //these are not part of the loop, and thus will interrupt things sometimes. What to do about that?
@@ -59,7 +67,6 @@ public class GameplayRepl implements NotificationHandler {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while(chessClient.signedIn && !result.equals("leave")){
-            System.out.println("looping");
             System.out.print("\n" + "[IN_GAME] " + ">>> " );
             String input = scanner.nextLine();
 
@@ -87,20 +94,24 @@ public class GameplayRepl implements NotificationHandler {
                 case "highlight" -> highlightMoves();
                 //case "clear" -> clear();
 
-                case "quit" -> "To quit, type in \"leave\"."; //you can choose to make them log out or can just quite
+                case "quit" -> "To abandon game, type in \"leave\". To resign, type \"resign\""; //you can choose to make them log out or can just quite
                 default -> help();
             };
         }
-        catch(Exception e){
+        catch(ResponseException e){
             //todo: find a better way to deal with errors.
             return e.getMessage();
         }
     }
 
     public String redrawBoard(){
-        return "board";
+        GameVisual boardDrawer = new GameVisual(this.currentGame, this.playerColor);
+        boardDrawer.drawBoard();
+        return "Board redrawn.";
     }
-    public String leaveGame(){
+    public String leaveGame() throws ResponseException {
+        //removes the user from the game
+        wsFacade.leaveGame(authToken, gameID);
         //sends a message
         return "leave";
     }

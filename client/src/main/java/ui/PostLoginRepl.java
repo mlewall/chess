@@ -138,11 +138,13 @@ public class PostLoginRepl {
                 String confirmation = String.format("You are now joined to game %s as %s.", gameNumStr, playerColor);
 
                 //make gameplay, establish a websocket connection with the server, send connect msg, run the loop
-                GameplayRepl gamePlay = new GameplayRepl(playerColor, chessClient);
+                GameplayRepl gamePlay = new GameplayRepl(playerColor, chessClient, game.gameID());
                 //don't step through these 4-ish lines
                 chessClient.setNotificationHandler(gamePlay);
-                chessClient.setWebSocketFacade(new WebSocketFacade(chessClient.serverUrl, gamePlay));
-                chessClient.ws.connect(chessClient.server.authToken, game.gameID());
+                WebSocketFacade wsf = new WebSocketFacade(chessClient.serverUrl, gamePlay);
+                chessClient.setWebSocketFacade(wsf);
+                gamePlay.setWebSocketFacade(wsf);
+                wsf.connect(chessClient.server.authToken, game.gameID());
                 gamePlay.run();
 
                 return confirmation;
@@ -167,11 +169,16 @@ public class PostLoginRepl {
                 int gameID = Integer.parseInt(gameNum);
                 SimplifiedGameData game = games.get(gameID); //this game WILL be used later. Probably w websockets
                 //todo: establish a websocket connection
-                GameplayRepl gamePlay = new GameplayRepl("WHITE", chessClient); //do they default as observing as white? yes
+
+                GameplayRepl gamePlay = new GameplayRepl("WHITE", chessClient, game.gameID());
+
+                //don't step through these 4-ish lines
                 chessClient.setNotificationHandler(gamePlay);
-                chessClient.ws.connect(chessClient.server.authToken, gameID);
+                WebSocketFacade wsf = new WebSocketFacade(chessClient.serverUrl, gamePlay);
+                chessClient.setWebSocketFacade(wsf);
+                gamePlay.setWebSocketFacade(wsf);
+                wsf.connect(chessClient.server.authToken, game.gameID());
                 gamePlay.run();
-                //todo: remove game from this constructor. Somehow the websocket is supposed to get it
 
                 return "Observing game #" + gameNum;
             }
