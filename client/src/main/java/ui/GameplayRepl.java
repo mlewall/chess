@@ -127,21 +127,21 @@ public class GameplayRepl implements NotificationHandler {
         }
         String originStr = params[0];
         String destinationStr = params[1];
-        Integer originColumn; //g
-        Integer originRow; //2
-        Integer destinationColumn; //g
-        Integer destinationRow; //4
+//        Integer originColumn; //g
+//        Integer originRow; //2
+//        Integer destinationColumn; //g
+//        Integer destinationRow; //4
 
         try{
             //these columns might be null
-            originColumn = this.columnsToNums.get(originStr.substring(0, 1)); //g
-            originRow = Integer.parseInt(originStr.substring(1, 2)); //2
-            destinationColumn = this.columnsToNums.get(destinationStr.substring(0, 1)); //g
-            destinationRow = Integer.parseInt(destinationStr.substring(1, 2)); //4
+            Integer originColumn = this.columnsToNums.get(originStr.substring(0, 1)); //g
+            Integer originRow = Integer.parseInt(originStr.substring(1, 2)); //2
+            Integer destinationColumn = this.columnsToNums.get(destinationStr.substring(0, 1)); //g
+            Integer destinationRow = Integer.parseInt(destinationStr.substring(1, 2)); //4
             if(originColumn != null && originRow != null && destinationColumn != null && destinationRow != null){
                 ChessPosition origin = new ChessPosition(originRow, originColumn);
                 ChessPosition destination = new ChessPosition(destinationRow, destinationColumn);
-                //todo: determine what to do about promo pieces
+                //todo: determine what to do about promo pieces (get piece at destination? -- is this handled?)
                 ChessMove move = new ChessMove(origin, destination, null);
                 if(playerColor.equals(currentGame.getTeamTurn().toString())){
                     wsFacade.makeMove(authToken, gameID, move);
@@ -164,6 +164,7 @@ public class GameplayRepl implements NotificationHandler {
         //print all the squares with all squares with end positions
         //return "highlighted";
     }
+
     public void resignGame() throws ResponseException {
         //return "resigned";
         System.out.print("\n" + "Are you sure you want to resign? [yes]/[no] \n" );

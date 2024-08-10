@@ -98,7 +98,7 @@ public class WebSocketService {
         //get move and validate it
         ChessMove move = command.getChessMove();
         Collection<ChessMove> possMoves = newGame.validMoves(move.getStartPosition());
-        if(!possMoves.contains(move)){ //user requested an invalid move
+        if(possMoves == null || !possMoves.contains(move)){ //user requested an invalid move
             throw new InvalidMoveException("Invalid move!");
         }
         //make move, update. Make game message

@@ -145,7 +145,7 @@ public class ChessGame {
         ChessPosition startPositionOfMovingPiece = move.getStartPosition();
         ChessPiece movingPiece = board.getPiece(startPositionOfMovingPiece);
 
-        //0) check for if not team turn
+        //0) check for if not null spot and not team turn
         if(movingPiece == null){
             throw new InvalidMoveException("Current piece is null for some reason");
         }
