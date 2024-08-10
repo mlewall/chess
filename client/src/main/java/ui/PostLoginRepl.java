@@ -27,19 +27,16 @@ public class PostLoginRepl {
                 "Welcome to chess, @" + chessClient.visitorName + "!"
                 + EscapeSequences.RESET_TEXT_COLOR)
         ;
-        System.out.print(help());
+        help(); //print help
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        while(chessClient.signedIn && !result.equals("quit")){
+        while(chessClient.signedIn){
             System.out.print("\n" + "[LOGGED_IN] " + ">>> ");
             String input = scanner.nextLine();
 
             try{
-                result = eval(input); //sometimes will this print out some kind of gameBoard?
-                if(!result.equals("quit")){
-                    System.out.print(result);
-                }
+                eval(input); //sometimes will this print out some kind of gameBoard?
             }
             catch(Exception e){
                 var msg = e.toString();
@@ -48,12 +45,12 @@ public class PostLoginRepl {
         }
     }
 
-    public String eval(String input){
+    public void eval(String input){
         try{
             var tokens = input.split(" ");
             var command = (tokens.length > 0) ? tokens[0] : "help"; //gets rid of the first param (the command)
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch(command){
+            switch(command){
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "join" -> joinGame(params);
@@ -61,39 +58,39 @@ public class PostLoginRepl {
                 case "logout" -> userLogout();
                 //case "clear" -> clear();
 
-                case "quit" -> "You must log out to quit chess."; //you can choose to make them log out or can just quite
+                case "quit" -> System.out.println("You must log out to quit chess."); //you can choose to make them log out or can just quite
                 default -> help();
             };
         }
         catch(ResponseException ex){
-            return ex.getMessage();
+            System.out.println(ex.getMessage());
         }
     }
-    public String userLogout() throws ResponseException {
+    public void userLogout() throws ResponseException {
         assertSignedIn();
         chessClient.server.logout();
         chessClient.signedIn = false;
         String out = String.format("Successfully logged out @%s. \n", chessClient.visitorName);
         System.out.println(out);
-        return "quit";
+        //return "quit";
     }
 
-    public String createGame(String...params) throws ResponseException {
+    public void createGame(String...params) throws ResponseException {
         assertSignedIn();
         String gameName;
         try{
             if (params.length > 0) {
                 gameName = params[0];
                 CreateGameResult result = chessClient.server.createGame(gameName);
-                return String.format("Game created successfully!");
+                System.out.print(String.format("Game created successfully!"));
             }}
         catch(Exception ex){
-            return ex.getMessage();
+            System.out.print( ex.getMessage());
         }
-        throw new ResponseException(400, "Invalid game name");
+        //throw new ResponseException(400, "Invalid game name");
     }
 
-    public String listGames() throws ResponseException {
+    public void listGames() throws ResponseException {
         assertSignedIn();
         ArrayList<SimplifiedGameData> gamesOnServer = chessClient.server.listGames();
         //this.currentGames = games; //update the gameList
@@ -117,10 +114,10 @@ public class PostLoginRepl {
             this.games.put(i, game);
             i++;
         }
-        return result.toString();
+        System.out.print(result.toString());
     }
 
-    public String joinGame(String...params) throws ResponseException {
+    public void joinGame(String...params) throws ResponseException {
         assertSignedIn();
         if (params.length < 2) { //not enough args
             throw new ResponseException(400, "Specify in this format: join <ID> <COLOR>");
@@ -135,7 +132,7 @@ public class PostLoginRepl {
             SimplifiedGameData game = games.get(gameNum);
             try {
                 JoinGameResult result = chessClient.server.joinGame(playerColor, game.gameID());
-                String confirmation = String.format("You are now joined to game %s as %s.", gameNumStr, playerColor);
+                System.out.println(String.format("You are now joined to game %s as %s.", gameNumStr, playerColor));
 
                 //make gameplay, establish a websocket connection with the server, send connect msg, run the loop
                 GameplayRepl gamePlay = new GameplayRepl(playerColor, chessClient, game.gameID());
@@ -147,13 +144,13 @@ public class PostLoginRepl {
                 wsf.connect(chessClient.server.authToken, game.gameID());
                 gamePlay.run();
 
-                return confirmation;
+                //return confirmation;
             }
             catch(ResponseException e){
                 if(e.getStatusCode() == 403){
                     throw new ResponseException(403, "Color already taken. Please choose another game/color to join.");
                 }
-                return "Please specify a different game/color to join";
+                System.out.println("Please specify a different game/color to join");
             }
         }
         else{
@@ -162,13 +159,14 @@ public class PostLoginRepl {
     }
 
 
-    public String observeGame(String...params) throws ResponseException {
+    public void observeGame(String...params) throws ResponseException {
         if (params.length > 0) {
             String gameNum = params[0];
             if(isInteger(gameNum) && games.containsKey(Integer.parseInt(gameNum))){
                 int gameID = Integer.parseInt(gameNum);
                 SimplifiedGameData game = games.get(gameID); //this game WILL be used later. Probably w websockets
                 //todo: establish a websocket connection
+                System.out.println( "Observing game #" + gameNum);
 
                 GameplayRepl gamePlay = new GameplayRepl("WHITE", chessClient, game.gameID());
 
@@ -179,12 +177,13 @@ public class PostLoginRepl {
                 gamePlay.setWebSocketFacade(wsf);
                 wsf.connect(chessClient.server.authToken, game.gameID());
                 gamePlay.run();
-
-                return "Observing game #" + gameNum;
             }
-        return "Invalid game number, please enter a game number from the gamelist.";
-    }
-        return "Missing or invalid game number. ";
+        //return "Invalid game number, please enter a game number from the gamelist.";
+            System.out.println( "Invalid game number, please enter a game number from the gamelist.");
+
+        }
+        //return "Missing or invalid game number. ";
+        System.out.println("Missing or invalid game number.");
     }
 
     private void assertSignedIn() throws ResponseException {
@@ -206,8 +205,8 @@ public class PostLoginRepl {
         }
     }
 
-    private String help(){
-        return EscapeSequences.SET_TEXT_COLOR_BLUE +
+    private void help(){
+        System.out.print( EscapeSequences.SET_TEXT_COLOR_BLUE +
                 EscapeSequences.SET_TEXT_UNDERLINE +
                 "CHESS MAIN MENU \n" +
                 EscapeSequences.RESET_TEXT_COLOR +
@@ -219,7 +218,7 @@ public class PostLoginRepl {
                 4) observe <game number> - watch a game
                 5) logout - log out of current session
                 6) help - get possible commands
-                """;
+                """);
     }
 
 }
