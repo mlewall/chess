@@ -102,7 +102,7 @@ public class WebSocketHandler {
         String username = service.getUsername(command);
 
         NotificationMessage notificationMessage = new NotificationMessage(NOTIFICATION,
-                username + "did move" + ((MoveCommand) command).getChessMove().toString()); //todo: fix this formatting haha
+                username + " did move " + ((MoveCommand) command).getChessMove().toString()); //todo: fix this formatting haha
         String jsonDidMoveNotification = new Gson().toJson(notificationMessage);
 
         //1) LOAD_GAME message to all clients in the game (INCLUDING the root client) with an updated game.
@@ -174,6 +174,10 @@ public class WebSocketHandler {
                  sendMessage(message, session);
             }
         }
+
+        //todo: add a method here that converts the move from this format (the toString of ChessMove)
+        //to this format: start: f2, end: f3 or something like that.
+        //todo: need columns to letters!
 
     }
 }

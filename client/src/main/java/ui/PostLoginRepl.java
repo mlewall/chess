@@ -135,7 +135,7 @@ public class PostLoginRepl {
                 System.out.println(String.format("You are now joined to game %s as %s.", gameNumStr, playerColor));
 
                 //make gameplay, establish a websocket connection with the server, send connect msg, run the loop
-                GameplayRepl gamePlay = new GameplayRepl(playerColor, chessClient, game.gameID());
+                GameplayRepl gamePlay = new GameplayRepl(playerColor, chessClient, game.gameID(), true); //
                 //don't step through these 4-ish lines
                 chessClient.setNotificationHandler(gamePlay);
                 WebSocketFacade wsf = new WebSocketFacade(chessClient.serverUrl, gamePlay);
@@ -168,7 +168,7 @@ public class PostLoginRepl {
                 //todo: establish a websocket connection
                 System.out.println( "Observing game #" + gameNum);
 
-                GameplayRepl gamePlay = new GameplayRepl("WHITE", chessClient, game.gameID());
+                GameplayRepl gamePlay = new GameplayRepl("WHITE", chessClient, game.gameID(), false);
 
                 //don't step through these 4-ish lines
                 chessClient.setNotificationHandler(gamePlay);

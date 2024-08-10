@@ -10,7 +10,7 @@ import static ui.EscapeSequences.*;
 
 public class GameVisual {
 
-    ChessGame currentGame;
+    ChessGame chessGame;
     String playerColor;
     ChessBoard board;
     static Collection<ChessPosition> squaresToHighlight;
@@ -20,15 +20,15 @@ public class GameVisual {
     private static final String EMPTY = "   ";
 
     public GameVisual(ChessGame currentGame, String playerColor) {
-        this.currentGame = currentGame;
+        this.chessGame = new ChessGame(currentGame);
         this.playerColor = playerColor;
-        this.board = currentGame.getBoard();
+        this.board = chessGame.getBoard();
     }
 
     public GameVisual(ChessGame currentGame, String playerColor, Collection<ChessPosition> squaresToHighlight) {
-        this.currentGame = currentGame;
+        this.chessGame = new ChessGame(currentGame);
         this.playerColor = playerColor;
-        this.board = currentGame.getBoard();
+        this.board = chessGame.getBoard();
         this.squaresToHighlight = squaresToHighlight;
     }
 
@@ -84,7 +84,6 @@ public class GameVisual {
             else if(playerColor.equals("BLACK")) { //black needs to be at bottom of visual
                 rowWithPieces = currBoard[boardRow]; //get the first row from currBoard (it's white)
                 rowWithPieces = reverseRow(rowWithPieces); //flip it around (mirrors it)
-
             }
             out.print(SET_TEXT_COLOR_BLACK);
             out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -115,7 +114,7 @@ public class GameVisual {
         for(int col = 0; col < 8 ; col++) { //goes across
             int adjustedRow;
             if(playerColor.equals("WHITE")){
-                adjustedRow = 8 - rowInd;
+                adjustedRow = 8 - rowInd;  //8 - (0-7) (because white is at the bottom)
             }
             else{
                 adjustedRow =  rowInd + 1;
@@ -167,6 +166,10 @@ public class GameVisual {
             reversed[i] = row[row.length - 1 - i];
         }
         return reversed;
+    }
+
+    public void clearHighLights(){
+        this.squaresToHighlight = null;
     }
 }
 

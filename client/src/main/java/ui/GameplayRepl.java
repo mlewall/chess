@@ -22,17 +22,20 @@ public class GameplayRepl implements NotificationHandler {
     int gameID;
     boolean playerLeaving;
     HashMap<String, Integer> columnsToNums;
+    boolean playing;
     //todo: add something associated with websockets? unless that's made somewhere else and passed in
 
     private static final String EMPTY = "   ";
 
-    GameplayRepl(String playerColor, ChessClient chessClient, int gameID) {
+    GameplayRepl(String playerColor, ChessClient chessClient, int gameID, boolean playing) {
         this.playerColor = playerColor;
         this.chessClient = chessClient;
         authToken = chessClient.server.authToken; //just for ease of access
         this.gameID = gameID;
         playerLeaving = false;
         columnsToNums = convertColumns();
+        this.playing = playing;
+
 
     }
 
@@ -109,7 +112,6 @@ public class GameplayRepl implements NotificationHandler {
     public void redrawBoard(){
         GameVisual boardDrawer = new GameVisual(this.currentGame, this.playerColor);
         boardDrawer.drawBoard();
-
     }
     public void leaveGame() throws ResponseException {
         //removes the user from the game
@@ -123,13 +125,14 @@ public class GameplayRepl implements NotificationHandler {
         if (params.length < 2) { //not enough args
             throw new ResponseException(400, "Specify in this format: move <start> <end> (e.g. move c4 f7)");
         }
+        if(!playing){
+            throw new ResponseException(400, "Error: observers cannot make moves.");
+        }
+        if(currentGame.isOver){
+            throw new ResponseException(400, "Game is over. No more moves can be made");
+        }
         String originStr = params[0];
         String destinationStr = params[1];
-//        Integer originColumn; //g
-//        Integer originRow; //2
-//        Integer destinationColumn; //g
-//        Integer destinationRow; //4
-
         try{
             //these columns might be null
             Integer originColumn = this.columnsToNums.get(originStr.substring(0, 1)); //g
@@ -139,17 +142,17 @@ public class GameplayRepl implements NotificationHandler {
             if(originColumn != null && originRow != null && destinationColumn != null && destinationRow != null){
                 ChessPosition origin = new ChessPosition(originRow, originColumn);
                 ChessPosition destination = new ChessPosition(destinationRow, destinationColumn);
-                //todo: determine what to do about promo pieces (get piece at destination? -- is this handled?)
-                //todo: something about how those moves exist in the validMoves list - but with a promo piece in them already
-                //maybe get the piece at destination. if the piece is a pawn maybe getting promoted, include the destination piece.
-                //this logic is included somewhere else though -- in pawnmoves calculator
                 ChessPiece.PieceType pieceType = currentGame.getBoard().getPiece(origin).getPieceType();
-                ChessMove move = new ChessMove(origin, destination, null);
+                ChessPiece.PieceType promoPiece = null;
                 if(pieceType == ChessPiece.PieceType.PAWN && isPromotion(destination)){
-                    //todo: get input from user and take in the type of piece they want to be promoted to
-                    //converts that to a ChessPiece.PieceType and puts that in as the promotion piece.
-                    //updates the ChessMove
+                    promoPiece = getPromotionPiece();
+                    if(promoPiece == null){
+                        throw new ResponseException(400, "Error: promotion piece could not be found. " +
+                                "Check spelling and try again, or specify another move.");
+                    }
                 }
+                ChessMove move = new ChessMove(origin, destination, promoPiece);
+
                 if(playerColor.equals(currentGame.getTeamTurn().toString())){
                     wsFacade.makeMove(authToken, gameID, move);
                 }
@@ -162,7 +165,6 @@ public class GameplayRepl implements NotificationHandler {
             System.out.println("Invalid move input. Please specify in format: " +
                     "move c1 f4 (move <start> <end>");
         }
-
     }
     public void highlightMoves(String...params) throws ResponseException {
         //just one location (g4) (col, row)
@@ -186,6 +188,7 @@ public class GameplayRepl implements NotificationHandler {
             Collection<ChessPosition> positionsToHighlight = getPositionsToHighlight(moves);
             GameVisual gameDrawer = new GameVisual(this.currentGame, this.playerColor, positionsToHighlight);
             gameDrawer.drawBoard();
+            gameDrawer.clearHighLights();
             //todo: maybe add another check for what to do if it's the other team/depending on condition
         }
         catch(NumberFormatException e){
@@ -221,8 +224,7 @@ public class GameplayRepl implements NotificationHandler {
                 resign - forfeit the game (you will still be in the game)
                 highlight <piece> - will highlight all the moves for that piece
                 """);
-        //return help;
-    }
+        }
 
     HashMap<String, Integer> convertColumns(){
         HashMap<String, Integer> columnsToNumbers = new HashMap<>();
@@ -247,8 +249,7 @@ public class GameplayRepl implements NotificationHandler {
     private boolean isPromotion(ChessPosition endPos){
         if((endPos.getRow() == 8)){
             return true;
-        }
-        else if((endPos.getRow() == 1)){
+        } else if((endPos.getRow() == 1)){
             return true;
         }
         return false;
@@ -260,6 +261,20 @@ public class GameplayRepl implements NotificationHandler {
             positionsToHighlight.add(move.getEndPosition());
         }
         return positionsToHighlight;
+    }
+
+    public ChessPiece.PieceType getPromotionPiece(){
+        System.out.print("Promotion pieces: KNIGHT, ROOK, BISHOP, QUEEN");
+        System.out.print("\n" + "Enter promotion piece " + ">>> " );
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
+        return switch(input.toUpperCase()){
+            case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+            case "ROOK" -> ChessPiece.PieceType.ROOK;
+            case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+            case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+            default -> null;
+        };
     }
 
 }
