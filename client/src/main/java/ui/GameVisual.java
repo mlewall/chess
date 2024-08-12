@@ -16,8 +16,6 @@ public class GameVisual {
     static Collection<ChessPosition> squaresToHighlight;
     static ChessPosition highlightOrigin;
 
-    //todo: add something associated with websockets? unless that's made somewhere else and passed in
-
     private static final String EMPTY = "   ";
 
     public GameVisual(ChessGame currentGame, String playerColor) {
@@ -34,14 +32,12 @@ public class GameVisual {
         this.highlightOrigin = highlightOrigin;
     }
 
-
     public void drawBoard() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 
-        //drawGrayBackground(out);
         drawLetterHeader(out, playerColor);
-        //todo: determine if a board should really go here
+
         drawChessBoard(out, board, playerColor);
         drawLetterHeader(out, playerColor);
 
@@ -95,7 +91,7 @@ public class GameVisual {
             out.print(SET_BG_COLOR_LIGHT_GREY);
             out.print(SET_TEXT_COLOR_BLACK);
             out.print(numRowLabels[boardRow]);
-            //row_itr ++;
+
             out.println(); //newline once the row is done?
         }
     }

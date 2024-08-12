@@ -178,12 +178,15 @@ public class PostLoginRepl {
                 wsf.connect(chessClient.server.authToken, game.gameID());
                 gamePlay.run();
             }
-        //return "Invalid game number, please enter a game number from the gamelist.";
-            System.out.println( "Invalid game number, please enter a game number from the gamelist.");
+            else {
+                System.out.println("Invalid game number, please enter a game number from the gamelist.");
+            }
 
         }
         //return "Missing or invalid game number. ";
-        System.out.println("Missing or invalid game number.");
+        else {
+            System.out.println("Missing or invalid game number.");
+        }
     }
 
     private void assertSignedIn() throws ResponseException {

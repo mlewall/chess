@@ -85,7 +85,7 @@ public class WebSocketHandler {
                     username + " has connected to the game as " + teamColor);
         } else{
             notificationMessage = new NotificationMessage(NOTIFICATION,
-                    username + "has connected to the game as an observer.");
+                    username + " has connected to the game as an observer.");
         }
         String jsonNotification = new Gson().toJson(notificationMessage);
 

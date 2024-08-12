@@ -196,15 +196,14 @@ public class GameplayRepl implements NotificationHandler {
             throw new ResponseException(400, "Specify piece you want to see the moves for in this format: highlight <piece location> (e.g. highlight d2)");
         }
 
-
-        //find valid moves for given position
-        //print all the squares with all squares with end positions
-        //draw the highlighted board "highlighted";
     }
 
     public void resignGame() throws ResponseException {
-        //return "resigned";
+        if(!playing){
+            throw new ResponseException(400, "To leave the game as an observer, type \"leave\"\n");
+        }
         System.out.print("\n" + "Are you sure you want to resign? [yes]/[no] \n" );
+        System.out.print("[IN_GAME] >>> ");
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         if(input.equalsIgnoreCase("yes")){
@@ -213,7 +212,6 @@ public class GameplayRepl implements NotificationHandler {
             //this does NOT cause the user to leave the game.
             //do they exit the repl?
         }
-        //todo: add something else here?
     }
 
     private void printHelp(){

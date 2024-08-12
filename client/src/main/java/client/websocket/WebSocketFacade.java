@@ -88,7 +88,7 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    //requires this method but it doesn't have to do anything
+    //requires this method, but it doesn't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
