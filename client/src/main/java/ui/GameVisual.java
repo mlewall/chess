@@ -14,6 +14,7 @@ public class GameVisual {
     String playerColor;
     ChessBoard board;
     static Collection<ChessPosition> squaresToHighlight;
+    static ChessPosition highlightOrigin;
 
     //todo: add something associated with websockets? unless that's made somewhere else and passed in
 
@@ -25,14 +26,13 @@ public class GameVisual {
         this.board = chessGame.getBoard();
     }
 
-    public GameVisual(ChessGame currentGame, String playerColor, Collection<ChessPosition> squaresToHighlight) {
+    public GameVisual(ChessGame currentGame, String playerColor, Collection<ChessPosition> squaresToHighlight, ChessPosition highlightOrigin) {
         this.chessGame = new ChessGame(currentGame);
         this.playerColor = playerColor;
         this.board = chessGame.getBoard();
         this.squaresToHighlight = squaresToHighlight;
+        this.highlightOrigin = highlightOrigin;
     }
-
-    public GameVisual(){}
 
 
     public void drawBoard() {
@@ -113,27 +113,38 @@ public class GameVisual {
     private static void drawBoardRow(PrintStream out, int rowInd, ChessPiece[] rowWithPieces, String playerColor) {
         for(int col = 0; col < 8 ; col++) { //goes across
             int adjustedRow;
+            ChessPosition currPos;
             if(playerColor.equals("WHITE")){
                 adjustedRow = 8 - rowInd;  //8 - (0-7) (because white is at the bottom)
+                currPos = new ChessPosition(adjustedRow, col + 1);
             }
             else{
                 adjustedRow =  rowInd + 1;
+                int adjustedColumn = 8 - col;
+                currPos = new ChessPosition(adjustedRow, adjustedColumn);
                 }
-            ChessPosition currPos = new ChessPosition(adjustedRow, col + 1);
             //make checkers
             if((col+rowInd) % 2 == 0){
                 //call placePieces here
                 //condition for if it should be highlighted
                 if(squaresToHighlight != null && squaresToHighlight.contains(currPos)){
                     out.print(SET_BG_COLOR_GREEN);
-                } else{
+                }
+                else if(currPos.equals(highlightOrigin)){
+                    out.print(SET_BG_COLOR_YELLOW);
+                }
+                else{
                     out.print(SET_BG_COLOR_WHITE);
                 }
             }
             else{
                 if(squaresToHighlight != null && squaresToHighlight.contains(currPos)){
                     out.print(SET_BG_COLOR_DARK_GREEN);
-                } else {
+                }
+                else if(currPos.equals(highlightOrigin)){
+                    out.print(SET_BG_COLOR_YELLOW);
+                }
+                else {
                     out.print(SET_BG_COLOR_BLACK);
                 }
             }
@@ -170,6 +181,7 @@ public class GameVisual {
 
     public void clearHighLights(){
         this.squaresToHighlight = null;
+        this.highlightOrigin = null;
     }
 }
 

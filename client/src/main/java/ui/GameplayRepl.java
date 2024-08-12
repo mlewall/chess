@@ -47,7 +47,8 @@ public class GameplayRepl implements NotificationHandler {
     @Override
     public void updateGame(ChessGame game) {
         /* So this is drawn whenever the update is received */
-        System.out.println("Received game update: " + game);  //DEBUG
+        //System.out.println("Received game update: " + game);  //DEBUG
+        System.out.println("\n");
         GameVisual boardDrawer = new GameVisual(game, this.playerColor);
         this.currentGame = game; //save a copy of game in case we want to draw board
         boardDrawer.drawBoard();
@@ -171,9 +172,9 @@ public class GameplayRepl implements NotificationHandler {
         if (params.length < 1) {
             throw new ResponseException(400, "Too few arguments. Specify highlight in this format: highlight <piece location> (e.g. highlight d2)");
         }
-        String col = params[0].substring(0,1);
-        String row = params[0].substring(1,2);
         try{
+            String col = params[0].substring(0, 1);
+            String row = params[0].substring(1, 2);
             int colNum = this.columnsToNums.get(col);
             int rowNum = Integer.parseInt(row);
             ChessPosition highlightPos = new ChessPosition(rowNum, colNum);
@@ -186,12 +187,12 @@ public class GameplayRepl implements NotificationHandler {
             }
             Collection<ChessMove> moves = currentGame.validMoves(highlightPos);
             Collection<ChessPosition> positionsToHighlight = getPositionsToHighlight(moves);
-            GameVisual gameDrawer = new GameVisual(this.currentGame, this.playerColor, positionsToHighlight);
+            GameVisual gameDrawer = new GameVisual(this.currentGame, this.playerColor, positionsToHighlight, highlightPos);
             gameDrawer.drawBoard();
             gameDrawer.clearHighLights();
-            //todo: maybe add another check for what to do if it's the other team/depending on condition
         }
-        catch(NumberFormatException e){
+        catch(NumberFormatException | NullPointerException | StringIndexOutOfBoundsException e){
+            //highlight 67 -> nullPtr, highlight 6 -> StringIndexOutOfBounds, highlight ab -> numberformatex
             throw new ResponseException(400, "Specify piece you want to see the moves for in this format: highlight <piece location> (e.g. highlight d2)");
         }
 

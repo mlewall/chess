@@ -1,5 +1,7 @@
 package server.websocket;
 
+import chess.ChessMove;
+import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -13,6 +15,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,13 +83,11 @@ public class WebSocketHandler {
         if(teamColor != null){
             notificationMessage = new NotificationMessage(NOTIFICATION,
                     username + " has connected to the game as " + teamColor);
-        }
-        else{
+        } else{
             notificationMessage = new NotificationMessage(NOTIFICATION,
                     username + "has connected to the game as an observer.");
         }
         String jsonNotification = new Gson().toJson(notificationMessage);
-
 
         sendMessage(jsonResult, session); //this sends the LOAD_GAME message back to the root client
         broadcastMessage(command.getGameID(), jsonNotification, session);
@@ -101,8 +102,9 @@ public class WebSocketHandler {
         String jsonLoadGame = new Gson().toJson(result);
         String username = service.getUsername(command);
 
+        String formattedMove = formatMove(((MoveCommand) command).getChessMove());
         NotificationMessage notificationMessage = new NotificationMessage(NOTIFICATION,
-                username + " did move " + ((MoveCommand) command).getChessMove().toString()); //todo: fix this formatting haha
+                username + " moved " + formattedMove); //todo: fix this formatting haha
         String jsonDidMoveNotification = new Gson().toJson(notificationMessage);
 
         //1) LOAD_GAME message to all clients in the game (INCLUDING the root client) with an updated game.
@@ -174,10 +176,27 @@ public class WebSocketHandler {
                  sendMessage(message, session);
             }
         }
-
-        //todo: add a method here that converts the move from this format (the toString of ChessMove)
-        //to this format: start: f2, end: f3 or something like that.
-        //todo: need columns to letters!
-
     }
+
+    private String formatMove(ChessMove move){
+        //for the columns: ("a") a2 a4 (col,row)
+        StringBuilder sb = new StringBuilder();
+        HashMap<Integer, String> numToLetter = new HashMap<>();
+        String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
+        int i = 1; //board number //chesspositions are 1-indexed
+        for(String letter: letters){
+            numToLetter.put(i, letter); //a: 1, etc.
+            i++;
+        }
+        ChessPosition origin = move.getStartPosition();
+        ChessPosition destination = move.getEndPosition();
+        sb.append(numToLetter.get(origin.getColumn())).append((origin.getRow())); //
+        sb.append(" ");
+        sb.append(numToLetter.get(destination.getColumn())).append((destination.getRow()));
+        return sb.toString();
+        }
+
+
 }
+
+
