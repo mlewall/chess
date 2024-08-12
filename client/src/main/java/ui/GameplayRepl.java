@@ -100,7 +100,8 @@ public class GameplayRepl implements NotificationHandler {
                 case "highlight" -> highlightMoves(params);
                 //case "clear" -> clear();
 
-                case "quit" -> System.out.println("To abandon game, type in \"leave\". To resign, type \"resign\""); //you can choose to make them log out or can just quite
+                case "quit" -> System.out.println("To abandon game, type in \"leave\". To resign, type \"resign\"");
+                //you can choose to make them log out or can just quite
                 default -> printHelp();
             };
         }
@@ -170,7 +171,8 @@ public class GameplayRepl implements NotificationHandler {
     public void highlightMoves(String...params) throws ResponseException {
         //just one location (g4) (col, row)
         if (params.length < 1) {
-            throw new ResponseException(400, "Too few arguments. Specify highlight in this format: highlight <piece location> (e.g. highlight d2)");
+            throw new ResponseException(400, "Too few arguments. Specify highlight in this format: " +
+                    "highlight <piece location> (e.g. highlight d2)");
         }
         try{
             String col = params[0].substring(0, 1);
@@ -187,13 +189,15 @@ public class GameplayRepl implements NotificationHandler {
             }
             Collection<ChessMove> moves = currentGame.validMoves(highlightPos);
             Collection<ChessPosition> positionsToHighlight = getPositionsToHighlight(moves);
-            GameVisual gameDrawer = new GameVisual(this.currentGame, this.playerColor, positionsToHighlight, highlightPos);
+            GameVisual gameDrawer = new GameVisual(this.currentGame, this.playerColor, positionsToHighlight,
+                    highlightPos);
             gameDrawer.drawBoard();
             gameDrawer.clearHighLights();
         }
         catch(NumberFormatException | NullPointerException | StringIndexOutOfBoundsException e){
             //highlight 67 -> nullPtr, highlight 6 -> StringIndexOutOfBounds, highlight ab -> numberformatex
-            throw new ResponseException(400, "Specify piece you want to see the moves for in this format: highlight <piece location> (e.g. highlight d2)");
+            throw new ResponseException(400, "Specify piece you want to see the moves for in this format: " +
+                    "highlight <piece location> (e.g. highlight d2)");
         }
 
     }

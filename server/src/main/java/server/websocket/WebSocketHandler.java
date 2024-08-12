@@ -97,7 +97,8 @@ public class WebSocketHandler {
     void makeMoveHandler(WebSocketService service, UserGameCommand command, Session session, ConcurrentHashMap<Integer,
             HashSet<Session>> connections) throws DataAccessException, InvalidMoveException, IOException {
         LoadGameMessage result = (LoadGameMessage) service.makeMove((MoveCommand) command, session, connections);
-        GameEndStatus status = service.determineStaleCheckMate(result.getGame()); //make a class that determines if something is in check/checkmate/stalemate
+        GameEndStatus status = service.determineStaleCheckMate(result.getGame()); //make a class that determines if
+        // something is in check/checkmate/stalemate
 
         String jsonLoadGame = new Gson().toJson(result);
         String username = service.getUsername(command);

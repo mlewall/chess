@@ -47,7 +47,8 @@ public class WebSocketService {
 
     //client sends server a connect message (contains commandType, gameID, authToken)
     //we don't need to worry about adding players here because they've already been added via http
-    public ServerMessage connect(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException {
+    public ServerMessage connect(UserGameCommand command, Session session, ConcurrentHashMap<Integer,
+            HashSet<Session>> connections) throws DataAccessException {
         //get Username from dao (based on authToken)
         AuthData authData = authDAO.getAuthData(command.getAuthToken());
         if(authData == null){
@@ -57,7 +58,8 @@ public class WebSocketService {
         //we are assuming the gameID is valid (it should have been validated when they specify the game)
         HashSet<Session> sessions = connections.computeIfAbsent(command.getGameID(), k -> new HashSet<>());
 
-        boolean added = sessions.add(session); //adds this user's session to the collection of sessions associated with the game ID
+        boolean added = sessions.add(session); //adds this user's session to the collection
+        // of sessions associated with the game ID
         if(!added){
             throw new DataAccessException(403, "Session already associated with game");
         }
@@ -68,8 +70,9 @@ public class WebSocketService {
 
     }
 
-    public ServerMessage makeMove(MoveCommand command, Session session,
-                           ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException, InvalidMoveException {
+    public ServerMessage makeMove(MoveCommand command, Session session, ConcurrentHashMap<Integer,
+            HashSet<Session>> connections) throws DataAccessException,
+            InvalidMoveException {
         //validate user (this could be factored out)
         String username = authDAO.getAuthData(command.getAuthToken()).username();
         if(username == null){
@@ -110,7 +113,8 @@ public class WebSocketService {
         return gameMessage;
     }
 
-    public void leaveGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException{
+    public void leaveGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer,
+            HashSet<Session>> connections) throws DataAccessException{
         AuthData authData = authDAO.getAuthData(command.getAuthToken());
         if(authData == null){
             throw new DataAccessException(401, "Username not found in database; invalid authToken");
@@ -133,7 +137,8 @@ public class WebSocketService {
             blackUsername = null;
         }
         //make the new game data and overwrite
-        GameData newGameData = new GameData(ogGameData.gameID(), whiteUsername, blackUsername, ogGameData.gameName(), ogGameData.game());
+        GameData newGameData = new GameData(ogGameData.gameID(), whiteUsername, blackUsername,
+                ogGameData.gameName(), ogGameData.game());
         gameDAO.updateGame(ogGameData, newGameData);
 
         // Remove their session from the connections hashset?
@@ -144,7 +149,8 @@ public class WebSocketService {
 
     }
 
-    public void resignGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer, HashSet<Session>> connections) throws DataAccessException{
+    public void resignGame(UserGameCommand command, Session session, ConcurrentHashMap<Integer,
+            HashSet<Session>> connections) throws DataAccessException{
         //both players and observers need to be able to resign.
         //if they are not white OR black then they are an observer and can't "resign"
 
@@ -166,7 +172,8 @@ public class WebSocketService {
             throw new DataAccessException("Game is over. Other player already resigned. ");
         }
         game.isOver = true; //code in makeMoves will prevent this from happening
-        GameData completedGame = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), game);
+        GameData completedGame = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(),
+                oldGameData.blackUsername(), oldGameData.gameName(), game);
         gameDAO.updateGame(oldGameData, completedGame);
 
     }
@@ -176,7 +183,8 @@ public class WebSocketService {
             return authDAO.getAuthData(command.getAuthToken()).username();
         }
         catch(DataAccessException e){
-            throw new DataAccessException("Username not found in database, invalid authToken, check @ getUserName in websocket service");
+            throw new DataAccessException("Username not found in database, invalid authToken, check @ getUserName " +
+                    "in websocket service");
         }
 
     }
