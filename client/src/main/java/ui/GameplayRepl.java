@@ -162,6 +162,10 @@ public class GameplayRepl implements NotificationHandler {
                     System.out.println("Error: not your turn!\n"); //is it okay to just hardcode this message in here?
                 }
             }
+            else{
+                throw new ResponseException(400, "Invalid move input. Specify in this format: move c1 f4 " +
+                        "(move <start> <end>)");
+            }
         }
         catch(NumberFormatException e){
             System.out.println("Invalid move input. Please specify in format: " +
